@@ -1,4 +1,7 @@
 #include "Window.h"
+#include "Cube.h"
+#include <glm/gtx/string_cast.hpp>
+
 /*
  * File Name: Window.cpp
  *
@@ -17,6 +20,7 @@ const char* Window::windowTitle = "CSE 169 Starter";
 
 // Objects to render
 Cube* Window::cube;
+Cube* ground;
 
 // Camera Properties
 Camera* Cam;
@@ -63,6 +67,12 @@ bool Window::initializeObjects()
 {
 	// Create a cube
 	cube = new Cube();
+	ground = new Cube();
+	ground->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
+	glm::mat4 groundModel = ground->getModel();
+	groundModel = glm::scale(groundModel, glm::vec3(20.0f, 1.0f, 20.0f));
+	groundModel = glm::translate(groundModel, glm::vec3(0.0f, -2.0f, 0.0f));
+	ground->setModel(groundModel);
 	//cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
 
 	return true;
@@ -71,7 +81,6 @@ bool Window::initializeObjects()
 /*
  * Deallocates all objects within the window and deletes shader program.
  *
- * @return true if initialization was successful, false if not
  * @author Part of 169 starter code
  */
 void Window::cleanUp()
@@ -155,6 +164,9 @@ GLFWwindow* Window::createWindow(int width, int height)
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resizeCallback(window, width, height);
 
+	//disable cursor
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
 	return window;
 }
 
@@ -163,7 +175,7 @@ GLFWwindow* Window::createWindow(int width, int height)
  * objects appropriately within the window after it has been resized.
  *
  * @param window Pointer to the window being resized
- * @param width The width fo the window
+ * @param width The width of the window
  * @param height The height of the window
  * @author Part of 169 starter code
  */
@@ -211,6 +223,8 @@ void Window::displayCallback(GLFWwindow* window)
 
 	// Render the object.
 	cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
@@ -241,7 +255,7 @@ void Window::resetCamera()
  * @param key Keycode associated with the key pressed
  * @param scancode Reports which keys have been pressed? (not sure on this one)
  * @param action Action associated with the key event (could be press, hold, release, etc.)
- * @param mods Any modifiers associated with key press? (not sure on this one)
+ * @param mods Any modifiers associated with key press (shift, etc.)
  * @author Part of 169 starter code
  */
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -249,8 +263,16 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	/*
 	 * TODO: Modify below to add your key callbacks.
 	 */
-
-	 // Check for a key press.
+	float speed = 0.25f;
+	glm::mat4 world = Cam->getWorld();
+	glm::vec3 forward = glm::normalize(Cam->getDirection()) * speed;
+	forward.y = 0.0f;
+	glm::vec3 backward = -forward;
+	glm::vec3 right = glm::normalize(glm::cross(Cam->getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
+	right.y = 0.0f;
+	glm::vec3 left = -right;
+	
+	// Check for a key press.
 	if (action == GLFW_PRESS)
 	{
 		switch (key)
@@ -268,6 +290,34 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		}
 	}
+
+	if (action == GLFW_REPEAT) {
+		switch (key)
+		{
+		case GLFW_KEY_W:
+			world = glm::translate(world, forward);
+			Cam->setWorld(world);
+			break;
+
+		case GLFW_KEY_A:
+			world = glm::translate(world, left);
+			Cam->setWorld(world);
+			break;
+
+		case GLFW_KEY_S:
+			world = glm::translate(world, backward);
+			Cam->setWorld(world);
+			break;
+
+		case GLFW_KEY_D:
+			world = glm::translate(world, right);
+			Cam->setWorld(world);
+			break;
+
+		default:
+			break;
+		}
+	}
 }
 
 /*
@@ -276,7 +326,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
  * @param window Pointer to the window object
  * @param button The button that the user pressed on the mouse (left-click, right-click, etc.)
  * @param action Action associated with the key event (could be press, hold, release, etc.)
- * @param mods Any modifiers associated with mouse click? (not sure on this one)
+ * @param mods Any modifiers associated with mouse click (shift, etc.)
  * @author Part of 169 starter code
  */
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods)
@@ -303,21 +353,20 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
 	int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
 
+	int prevMouseX = MouseX;
+	int prevMouseY = MouseY;
 	MouseX = (int)currX;
 	MouseY = (int)currY;
 
-	// Move camera
-	// NOTE: this should really be part of Camera::Update()
-	if (LeftDown) {
-		const float rate = 1.0f;
-		Cam->SetAzimuth(Cam->GetAzimuth() + dx * rate);
-		Cam->SetIncline(glm::clamp(Cam->GetIncline() - dy * rate, -90.0f, 90.0f));
-	}
-	if (RightDown) {
-		const float rate = 0.005f;
-		float dist = glm::clamp(Cam->GetDistance() * (1.0f - dx * rate), 0.01f, 1000.0f);
-		Cam->SetDistance(dist);
-	}
+	const float sensitivity = 0.5f;
+	
+	//updating camera viewing direction
+	float yaw = Cam->getYaw();
+	float pitch = Cam->getPitch();
+	yaw += dx * sensitivity;
+	pitch += dy * sensitivity;
+	Cam->setYaw(yaw);
+	Cam->setPitch(pitch);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

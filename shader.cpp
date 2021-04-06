@@ -82,7 +82,7 @@ GLuint LoadSingleShader(const char * shaderFilePath, ShaderType type)
  *
  * @param vertexFilePath The file path to the vertex shader
  * @param fragmentFilePath The file path to the fragment shader
- * @return Returns the program ID associated with the shaders, will
+ * @return Returns the program ID associated with the shaders, will be
  * used to execute program in Window.cpp
  * @author Part of 169 starter code
  */

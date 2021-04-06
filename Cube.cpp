@@ -203,4 +203,45 @@ void Cube::update()
 
 }
 
+/*
+ * Returns the model matrix of the cube.
+ *
+ * @return model matrix of cube
+ * @author Lucas Hwang
+ */
+glm::mat4 Cube::getModel() {
+	return model;
+}
+
+/*
+ * Updates the model matrix of the cube.
+ *
+ * @param m Updated model matrix
+ * @author Lucas Hwang
+ */
+void Cube::setModel(glm::mat4 m) {
+	model = m;
+}
+
+/*
+ * Updates the color of the cube.
+ *
+ * @param c Updated color matrix
+ * @author Lucas Hwang
+ */
+void Cube::setColor(glm::vec3 c) {
+	color = c;
+}
+
+/*
+ * Returns the color of the cube.
+ *
+ * @return color of cube
+ * @author Lucas Hwang
+ */
+glm::vec3 Cube::getColor() {
+	return color;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////

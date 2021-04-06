@@ -31,14 +31,27 @@ Camera::Camera() {
  * @author Part of 169 starter code
  */
 void Camera::Update() {
-    // Compute camera world matrix, where the camera is in the world
-    glm::mat4 world(1);
-    world[3][2] = Distance;
-    world = glm::eulerAngleY(glm::radians(-Azimuth)) * glm::eulerAngleX(glm::radians(-Incline)) * world;
+  
+    //constraining pitch
+    if (pitch > 89.0f) {
+        pitch = 89.0f;
+    }
+    if (pitch < -89.0f) {
+        pitch = -89.0f;
+    }
+   
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
 
     // Compute view matrix (inverse of world matrix), used to transform model from world space to view space
-    glm::mat4 view = glm::inverse(world);
-
+    glm::vec3 position(world[3][0], world[3][1], world[3][2]);
+    glm::mat4 view = glm::lookAt(
+        position,
+        position + cameraFront,
+        glm::vec3(0.0f, 1.0f, 0.0f)
+        );
     // Compute perspective projection matrix, used to project points in view space onto flat plane
     glm::mat4 project = glm::perspective(glm::radians(FOV), Aspect, NearClip, FarClip);
 
@@ -57,9 +70,11 @@ void Camera::Reset() {
     NearClip = 0.1f;
     FarClip = 100.0f;
 
-    Distance = 10.0f;
-    Azimuth = 0.0f;
-    Incline = 20.0f;
+    yaw = -90.0f;
+    pitch = 0.0f;
+    cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+    world = glm::mat4(1.0f);
+    world[3][2] = -10.0f;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

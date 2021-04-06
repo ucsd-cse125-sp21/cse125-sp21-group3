@@ -20,13 +20,19 @@ public:
 
 	// Access functions
 	void SetAspect(float a) { Aspect = a; }
-	void SetDistance(float d) { Distance = d; }
-	void SetAzimuth(float a) { Azimuth = a; }
-	void SetIncline(float i) { Incline = i; }
 
-	float GetDistance() { return Distance; }
-	float GetAzimuth() { return Azimuth; }
-	float GetIncline() { return Incline; }
+	void setYaw(float y) { yaw = y;  }
+	void setPitch(float p) { pitch = p; }
+	void setCameraFront(glm::vec3 cf) { cameraFront = cf;  }
+	void setWorld(glm::mat4 w) { world = w; }
+	void setDirection(glm::vec3 d) { direction = d; }
+
+
+	float getYaw() { return yaw; }
+	float getPitch() { return pitch; }
+	glm::vec3 getCameraFront() { return cameraFront; }
+	glm::mat4 getWorld() { return world; }
+	glm::vec3 getDirection() { return direction; }
 
 	const glm::mat4& GetViewProjectMtx() { return ViewProjectMtx; }
 
@@ -38,12 +44,16 @@ private:
 	float FarClip;		// Far clipping plane distance
 
 	// Polar controls
-	float Distance;		// Distance of the camera eye position to the origin (meters)
-	float Azimuth;		// Rotation of the camera eye position around the Y axis (degrees)
-	float Incline;		// Angle of the camera eye position over the XZ plane (degrees)
+	
 
 	// Computed data
 	glm::mat4 ViewProjectMtx;
+
+	float yaw; //x rotation of the camera
+	float pitch; //y rotation of the camera
+	glm::vec3 cameraFront; //normalized camera direction
+	glm::mat4 world; //world matrix for the camera
+	glm::vec3 direction; //direction the camera is facing
 };
 
 ////////////////////////////////////////////////////////////////////////////////

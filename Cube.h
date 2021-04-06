@@ -32,8 +32,10 @@ public:
 
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);
 	void update();
-
-	void spin(float deg);
+	glm::mat4 getModel();
+	void setModel(glm::mat4 m);
+	glm::vec3 getColor();
+	void setColor(glm::vec3 c);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
