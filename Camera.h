@@ -26,6 +26,7 @@ public:
 	void setCameraFront(glm::vec3 cf) { cameraFront = cf;  }
 	void setWorld(glm::mat4 w) { world = w; }
 	void setDirection(glm::vec3 d) { direction = d; }
+	void setPosition(glm::vec3 p);
 
 
 	float getYaw() { return yaw; }
@@ -33,6 +34,7 @@ public:
 	glm::vec3 getCameraFront() { return cameraFront; }
 	glm::mat4 getWorld() { return world; }
 	glm::vec3 getDirection() { return direction; }
+	glm::vec3 getPosition();
 
 	const glm::mat4& GetViewProjectMtx() { return ViewProjectMtx; }
 

@@ -1,5 +1,7 @@
 #include "Window.h"
 #include "Cube.h"
+#include "Player.h"
+#include <windows.h>
 #include <glm/gtx/string_cast.hpp>
 
 /*
@@ -21,6 +23,7 @@ const char* Window::windowTitle = "CSE 169 Starter";
 // Objects to render
 Cube* Window::cube;
 Cube* ground;
+Player* player;
 
 // Camera Properties
 Camera* Cam;
@@ -73,6 +76,9 @@ bool Window::initializeObjects()
 	groundModel = glm::scale(groundModel, glm::vec3(20.0f, 1.0f, 20.0f));
 	groundModel = glm::translate(groundModel, glm::vec3(0.0f, -2.0f, 0.0f));
 	ground->setModel(groundModel);
+
+	player = new Player(Cam->getPosition());
+	player->setPlayerCamera(Cam);
 	//cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
 
 	return true;
@@ -204,8 +210,22 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 void Window::idleCallback()
 {
 	// Perform any updates as necessary.
-	Cam->Update();
-
+	//Cam->Update();
+	player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+	if (GetAsyncKeyState(GLFW_KEY_W)) {
+		player->moveDirection(player->forward);
+	}
+	if (GetAsyncKeyState(GLFW_KEY_A)) {
+		player->moveDirection(player->left);
+	}
+	if (GetAsyncKeyState(GLFW_KEY_S)) {
+		player->moveDirection(player->backward);
+	}
+	if (GetAsyncKeyState(GLFW_KEY_D)) {
+		player->moveDirection(player->right);
+	}
+	player->update(0.1f);
+	
 	//cube->update();
 }
 
@@ -286,17 +306,9 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			resetCamera();
 			break;
 
-		default:
-			break;
-		}
-	}
-
-	if (action == GLFW_REPEAT) {
-		switch (key)
-		{
+		/*
 		case GLFW_KEY_W:
-			world = glm::translate(world, forward);
-			Cam->setWorld(world);
+			
 			break;
 
 		case GLFW_KEY_A:
@@ -313,6 +325,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			world = glm::translate(world, right);
 			Cam->setWorld(world);
 			break;
+		*/
 
 		default:
 			break;
@@ -353,8 +366,6 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
 	int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
 
-	int prevMouseX = MouseX;
-	int prevMouseY = MouseY;
 	MouseX = (int)currX;
 	MouseY = (int)currY;
 

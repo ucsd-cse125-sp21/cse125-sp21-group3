@@ -77,4 +77,28 @@ void Camera::Reset() {
     world[3][2] = -10.0f;
 }
 
+/*
+ * Sets the position of the camera to some vector p
+ *
+ * @param p Updated position for camera
+ * @author Lucas Hwang
+ */
+void Camera::setPosition(glm::vec3 p) {
+
+    world[3][0] = p.x;
+    world[3][1] = p.y;
+    world[3][2] = p.z;
+}
+
+/*
+ * Returns the position of the camera
+ *
+ * @return camera position
+ * @author Lucas Hwang
+ */
+glm::vec3 Camera::getPosition() {
+
+    return glm::vec3(world[3][0], world[3][1], world[3][2]);
+}
+
 ////////////////////////////////////////////////////////////////////////////////

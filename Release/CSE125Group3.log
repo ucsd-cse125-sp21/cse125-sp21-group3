@@ -1,3 +1,3 @@
-﻿  Window.cpp
+﻿  Player.cpp
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/OPT:ICF' specification
   CSE125Group3.vcxproj -> C:\Users\Lucas\Desktop\CSE 125\starterCode\Release\CSE125Group3.exe
