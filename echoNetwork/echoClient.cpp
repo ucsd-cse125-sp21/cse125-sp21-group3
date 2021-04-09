@@ -7,6 +7,18 @@ using namespace boost::asio;
 using ip::tcp;
 
 int main(int argc, char* argv[]) {
+
+    string message = "";
+    if (argc > 1) {
+        vector<string> argList(argv + 1, argv + argc);
+        for (string arg : argList) {
+            message = message + arg + " ";
+        }
+    }
+    else {
+        message = "Default message from client.";
+    }
+    message = message + "\n";
     
     boost::asio::io_service io_service;
 
@@ -17,9 +29,8 @@ int main(int argc, char* argv[]) {
     socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234 ));
 
     // request/message from client
-    const string msg = "Hello, this is Client.\n";
     boost::system::error_code error;
-    boost::asio::write( socket, boost::asio::buffer(msg), error );
+    boost::asio::write( socket, boost::asio::buffer(message), error );
     if (!error) {
         cout << "Client sent message." << endl;
     }
@@ -35,7 +46,7 @@ int main(int argc, char* argv[]) {
     }
     else {
         const char* data = boost::asio::buffer_cast<const char*>(receive_buffer.data());
-        cout << "Server Echoed:";
+        cout << "Server Echoed: ";
         cout << data << endl;
     }
 
