@@ -67,7 +67,7 @@ void Camera::Update() {
 void Camera::Reset() {
     FOV = 45.0f;
     Aspect = 1.33f;
-    NearClip = 0.1f;
+    NearClip = 0.01f;
     FarClip = 100.0f;
 
     yaw = -90.0f;
@@ -75,6 +75,7 @@ void Camera::Reset() {
     cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
     world = glm::mat4(1.0f);
     world[3][2] = -10.0f;
+    world[3][1] = 1.5f;
 }
 
 /*

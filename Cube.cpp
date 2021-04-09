@@ -26,6 +26,9 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax)
 	// The color of the cube. Try setting it to something else!
 	color = glm::vec3(1.0f, 0.95f, 0.1f); 
 
+	//bounding box setup
+	boundingBox = new BoundingBox(cubeMin, cubeMax);
+
 	// Specify vertex positions
 	positions = {
 		// Front

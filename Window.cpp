@@ -24,6 +24,7 @@ const char* Window::windowTitle = "CSE 169 Starter";
 Cube* Window::cube;
 Cube* ground;
 Player* player;
+std::vector<BoundingBox*> boundingBoxList;
 
 // Camera Properties
 Camera* Cam;
@@ -69,16 +70,21 @@ bool Window::initializeProgram() {
 bool Window::initializeObjects()
 {
 	// Create a cube
-	cube = new Cube();
+	cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(1,1,1));
+	boundingBoxList.push_back(cube->getBoundingBox());
+	
+	//ground setup
 	ground = new Cube();
 	ground->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
 	glm::mat4 groundModel = ground->getModel();
 	groundModel = glm::scale(groundModel, glm::vec3(20.0f, 1.0f, 20.0f));
-	groundModel = glm::translate(groundModel, glm::vec3(0.0f, -2.0f, 0.0f));
+	groundModel = glm::translate(groundModel, glm::vec3(0.0f, -1.0f, 0.0f));
 	ground->setModel(groundModel);
 
+	//player setup
 	player = new Player(Cam->getPosition());
 	player->setPlayerCamera(Cam);
+	boundingBoxList.push_back(player->getBoundingBox());
 	//cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
 
 	return true;
@@ -224,7 +230,7 @@ void Window::idleCallback()
 	if (GetAsyncKeyState(GLFW_KEY_D)) {
 		player->moveDirection(player->right);
 	}
-	player->update(0.1f);
+	player->update(0.1f, boundingBoxList);
 	
 	//cube->update();
 }
@@ -369,7 +375,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseX = (int)currX;
 	MouseY = (int)currY;
 
-	const float sensitivity = 0.5f;
+	const float sensitivity = 0.25f;
 	
 	//updating camera viewing direction
 	float yaw = Cam->getYaw();
