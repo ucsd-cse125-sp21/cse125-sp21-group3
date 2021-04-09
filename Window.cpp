@@ -312,27 +312,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			resetCamera();
 			break;
 
-		/*
-		case GLFW_KEY_W:
-			
-			break;
-
-		case GLFW_KEY_A:
-			world = glm::translate(world, left);
-			Cam->setWorld(world);
-			break;
-
-		case GLFW_KEY_S:
-			world = glm::translate(world, backward);
-			Cam->setWorld(world);
-			break;
-
-		case GLFW_KEY_D:
-			world = glm::translate(world, right);
-			Cam->setWorld(world);
-			break;
-		*/
-
 		default:
 			break;
 		}
