@@ -1,5 +1,6 @@
 #include "main.h"
-
+#include <iostream>
+using namespace std;
 /*
  * File Name: main.cpp
  *
@@ -107,14 +108,17 @@ int main(void)
 
 	// Initialize the shader program; exit if initialization fails.
 	if (!Window::initializeProgram()) exit(EXIT_FAILURE);
+	
 	// Initialize objects/pointers for rendering; exit if initialization fails.
 	if (!Window::initializeObjects()) exit(EXIT_FAILURE);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	
 	// Loop while GLFW window should stay open.
 	while (!glfwWindowShouldClose(window))
 	{
 		// Main render display callback. Rendering of objects is done here.
 		Window::displayCallback(window);
+
 
 		// Idle callback. Updating objects, etc. can be done here.
 		Window::idleCallback();
