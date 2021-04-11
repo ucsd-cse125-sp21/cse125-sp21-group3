@@ -7,63 +7,6 @@ using namespace boost::asio;
 using ip::tcp;
 using std::cout;
 using std::endl;
-/*
-string read_(tcp::socket& socket) {
-    char message[256];
-    //boost::asio::streambuf buf;
-    //boost::asio::read_until(socket, buf, "\n");
-    socket.read_some(boost::asio::buffer(message, 256));
-    return message;
-    //string data = boost::asio::buffer_cast<const char*>(buf.data());
-    //return data;
-}
-
-void send_(tcp::socket& socket, const string& message) {
-    const string msg = message + "\n";
-    boost::asio::write(socket, boost::asio::buffer(message));
-}
-
-int main(int argc, char* argv[]) {
-
-    boost::asio::io_service io_service;
-    std::cout << "create server " << std::endl;
-    
-    //listen for new connection
-    tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), 1234 ));
-
-    //socket creation 
-    tcp::socket socket_(io_service);
-   
-    cout << "waiting for connection" << endl;
-    //waiting for connection
-    acceptor_.accept(socket_);
-    cout << "accepted connection" << endl;
-   
-    //read operation
-    while (true) {
-        string message = read_(socket_);
-        cout << "Client Sent: ";
-        cout << message << endl;
-
-        //write operation
-        send_(socket_, message);
-        cout << "Server echoed back to client" << endl;
-    }
-
-    
-    //second read operation
-    message = read_(socket_);
-    cout << "Client Sent again: ";
-    cout << message << endl;
-
-    
-    //second write operation
-    send_(socket_, message);
-    cout << "Server echoed back again to client" << endl;
-    
-    return EXIT_SUCCESS;
-}
-*/
 
 class con_handler : public boost::enable_shared_from_this<con_handler>
 {
