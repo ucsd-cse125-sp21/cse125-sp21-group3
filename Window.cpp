@@ -203,6 +203,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 
 	Cam->SetAspect(float(width) / float(height));
+	glfwSetCursorPos(window, width / 2, height / 2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,6 +236,40 @@ void Window::idleCallback()
 	//cube->update();
 }
 
+void Window::drawCrosshair() {
+
+	const int crosshairLength = 31;
+	const int crosshairThickness = 3;
+	glm::vec3 crosshairColor(1.0f, 0.0f, 0.0f);
+	float data[crosshairLength][crosshairThickness][3];
+
+	glWindowPos2i(width / 2, height / 2 - crosshairLength / 2);
+	for (int y = 0; y < crosshairLength; y++)
+	{
+		for (int x = 0; x < crosshairThickness; x++)
+		{
+			data[y][x][0] = crosshairColor.x;
+			data[y][x][1] = crosshairColor.y;
+			data[y][x][2] = crosshairColor.z;
+		}
+	}
+
+	glDrawPixels(crosshairThickness, crosshairLength, GL_RGB, GL_FLOAT, data);
+
+	float data2[crosshairThickness][crosshairLength][3];
+	glWindowPos2i(width / 2 - crosshairLength / 2 + 1, height / 2 - 1);
+	for (int y = 0; y < crosshairThickness; y++)
+	{
+		for (int x = 0; x < crosshairLength; x++)
+		{
+			data2[y][x][0] = crosshairColor.x;
+			data2[y][x][1] = crosshairColor.y;
+			data2[y][x][2] = crosshairColor.z;
+		}
+	}
+
+	glDrawPixels(crosshairLength, crosshairThickness, GL_RGB, GL_FLOAT, data2);
+}
 /*
  * This method is called every frame and renders all objects based on their current
  * game state.
@@ -243,7 +278,7 @@ void Window::idleCallback()
  * @author Part of 169 starter code
  */
 void Window::displayCallback(GLFWwindow* window)
-{
+{	
 	// Clear the color and depth buffers.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -251,11 +286,17 @@ void Window::displayCallback(GLFWwindow* window)
 	cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
-
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
+	
+	drawCrosshair();
+	
 	// Swap buffers.
 	glfwSwapBuffers(window);
+
+
+	
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -355,7 +396,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseY = (int)currY;
 
 	const float sensitivity = 0.25f;
-	
+
 	//updating camera viewing direction
 	float yaw = Cam->getYaw();
 	float pitch = Cam->getPitch();

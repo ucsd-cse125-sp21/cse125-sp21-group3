@@ -86,11 +86,46 @@ void print_versions()
 #endif
 }
 
+void readHandler(
+    const boost::system::error_code& error, // Result of operation.
+
+    std::size_t bytes_transferred           // Number of bytes copied into the
+                                            // buffers. If an error occurred,
+                                            // this will be the  number of
+                                            // bytes successfully transferred
+                                            // prior to the error.
+    ) {
+
+    if (error) {
+        std::cout << "error encountered during async read: " << std::endl;
+    }
+    else {
+        std::cout << "async read successfully completed" << std::endl;
+    }
+}
+
+void writeHandler(
+    const boost::system::error_code& error, // Result of operation.
+
+    std::size_t bytes_transferred           // Number of bytes copied into the
+                                            // buffers. If an error occurred,
+                                            // this will be the  number of
+                                            // bytes successfully transferred
+                                            // prior to the error.
+    ) {
+
+    if (error) {
+        std::cout << "error encountered during async write: " << std::endl;
+    }
+    else {
+        std::cout << "async write successfully completed" << std::endl;
+    }
+}
 
 void clientTest() {
 
-    string message = "Default message from client.";
-    message = message + "\n";
+    
+    string message = "first message\n";
 
     boost::asio::io_service io_service;
 
@@ -103,7 +138,7 @@ void clientTest() {
     // request/message from client
     boost::system::error_code error;
     mutable_buffer testBuffer = boost::asio::buffer(message);
-    boost::asio::write(socket, testBuffer, error);
+    boost::asio::async_write(socket, testBuffer, writeHandler);
     
     if (!error) {
         cout << "Client sent message." << endl;
@@ -114,7 +149,7 @@ void clientTest() {
 
     // getting response from server
     boost::asio::streambuf receive_buffer;
-    boost::asio::read(socket, receive_buffer, boost::asio::transfer_all(), error);
+    boost::asio::async_read(socket, receive_buffer, boost::asio::transfer_all(), readHandler);
     if (error && error != boost::asio::error::eof) {
         cout << "receive failed: " << error.message() << endl;
     }
@@ -123,6 +158,31 @@ void clientTest() {
         cout << "Server Echoed: ";
         cout << data << endl;
     }
+
+    /*
+    message = "second message\n";
+    testBuffer = boost::asio::buffer(message);
+    boost::asio::write(socket, testBuffer, error);
+
+    if (!error) {
+        cout << "Client sent message again." << endl;
+    }
+    else {
+        cout << "send failed: " << error.message() << endl;
+    }
+
+    
+    // getting response from server
+    boost::asio::read(socket, receive_buffer, boost::asio::transfer_all(), error);
+    if (error && error != boost::asio::error::eof) {
+        cout << "receive failed: " << error.message() << endl;
+    }
+    else {
+        const char* data = boost::asio::buffer_cast<const char*>(receive_buffer.data());
+        cout << "Server Echoed again: ";
+        cout << data << endl;
+    }
+    */
 }
 ////////////////////////////////////////////////////////////////////////////////
 /*
@@ -134,10 +194,12 @@ void clientTest() {
  */
 int main(void)
 {
-    clientTest();
+    //clientTest();
 
 	// Create the GLFW window.
-	GLFWwindow* window = Window::createWindow(800, 600);
+    int windowWidth = 800;
+    int windowHeight = 600;
+	GLFWwindow* window = Window::createWindow(windowWidth, windowHeight);
 	if (!window) exit(EXIT_FAILURE);
 
 	// Print OpenGL and GLSL versions.
@@ -152,9 +214,12 @@ int main(void)
 	
 	// Initialize objects/pointers for rendering; exit if initialization fails.
 	if (!Window::initializeObjects()) exit(EXIT_FAILURE);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	
-	// Loop while GLFW window should stay open.
+    //hide cursor and move to middle
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetCursorPos(window, windowWidth / 2, windowHeight / 2);
+	
+    // Loop while GLFW window should stay open.
 	while (!glfwWindowShouldClose(window))
 	{
 		// Main render display callback. Rendering of objects is done here.
