@@ -209,7 +209,7 @@ void Player::handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b) {
 }
 
 void Player::shootWeapon() {
-    playerWeapon->Shoot(playerCamera->getDirection());
+    playerWeapon->Shoot(playerCamera->getPosition(), playerCamera->getDirection());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
