@@ -368,6 +368,11 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
 		RightDown = (action == GLFW_PRESS);
 	}
+
+	if (LeftDown) {
+		std::cerr << "Fired" << std::endl;
+		player->shootWeapon(boundingBoxList);
+	}
 }
 
 /*

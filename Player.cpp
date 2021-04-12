@@ -208,8 +208,8 @@ void Player::handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b) {
     }
 }
 
-void Player::shootWeapon() {
-    playerWeapon->Shoot(playerCamera->getPosition(), playerCamera->getDirection());
+void Player::shootWeapon(std::vector<BoundingBox *> objects) {
+    playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

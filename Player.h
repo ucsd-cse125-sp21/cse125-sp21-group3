@@ -30,7 +30,7 @@ public:
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
 
-	void shootWeapon();
+	void shootWeapon(std::vector<BoundingBox *>);
 
 	glm::vec3 getPosition() { return position; }
 	glm::vec3 getVelocity() { return velocity; }

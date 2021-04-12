@@ -7,7 +7,7 @@
 class Weapon {
 	public:
 		Weapon();
-		void Shoot(glm::vec3 origin, glm::vec3 direction);
+		void Shoot(std::vector<BoundingBox*>, glm::vec3 origin, glm::vec3 direction);
 
 		void Reload();
 
@@ -18,5 +18,5 @@ class Weapon {
 		float maxAmmo;
 		float currentAmmo;
 
-		bool reloading;
+		bool reloading = false;
 };
