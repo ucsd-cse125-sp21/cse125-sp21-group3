@@ -1,16 +1,5 @@
-﻿  Camera.cpp
-  Player.cpp
-C:\Users\Lucas\Desktop\CSE 125\starterCode\Player.cpp(66,23): warning C4018: '<': signed/unsigned mismatch
-  Window.cpp
+﻿  Window.cpp
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
 C:\Users\Lucas\Desktop\CSE 125\starterCode\packages\nupengl.core.0.1.0.1\build\native\include\GLFW\glfw3.h(92): message : see previous definition of 'APIENTRY'
-  main.cpp
-  Please define _WIN32_WINNT or _WIN32_WINDOWS appropriately. For example:
-  - add -D_WIN32_WINNT=0x0601 to the compiler command line; or
-  - add _WIN32_WINNT=0x0601 to your project's Preprocessor Definitions.
-  Assuming _WIN32_WINNT=0x0601 (i.e. Windows 7 target).
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
-C:\Users\Lucas\Desktop\CSE 125\starterCode\packages\nupengl.core.0.1.0.1\build\native\include\GLFW\glfw3.h(92): message : see previous definition of 'APIENTRY'
-  Generating Code...
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/OPT:ICF' specification
   CSE125Group3.vcxproj -> C:\Users\Lucas\Desktop\CSE 125\starterCode\Release\CSE125Group3.exe

@@ -176,9 +176,6 @@ GLFWwindow* Window::createWindow(int width, int height)
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resizeCallback(window, width, height);
 
-	//disable cursor
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
 	return window;
 }
 
@@ -236,39 +233,44 @@ void Window::idleCallback()
 	//cube->update();
 }
 
+/*
+ * Draws crosshair in middle of screen.
+ *
+ * @author Lucas Hwang
+ */
 void Window::drawCrosshair() {
 
 	const int crosshairLength = 31;
 	const int crosshairThickness = 3;
 	glm::vec3 crosshairColor(1.0f, 0.0f, 0.0f);
-	float data[crosshairLength][crosshairThickness][3];
+	float verticalBar[crosshairLength][crosshairThickness][3];
 
 	glWindowPos2i(width / 2, height / 2 - crosshairLength / 2);
 	for (int y = 0; y < crosshairLength; y++)
 	{
 		for (int x = 0; x < crosshairThickness; x++)
 		{
-			data[y][x][0] = crosshairColor.x;
-			data[y][x][1] = crosshairColor.y;
-			data[y][x][2] = crosshairColor.z;
+			verticalBar[y][x][0] = crosshairColor.x;
+			verticalBar[y][x][1] = crosshairColor.y;
+			verticalBar[y][x][2] = crosshairColor.z;
 		}
 	}
 
-	glDrawPixels(crosshairThickness, crosshairLength, GL_RGB, GL_FLOAT, data);
+	glDrawPixels(crosshairThickness, crosshairLength, GL_RGB, GL_FLOAT, verticalBar);
 
-	float data2[crosshairThickness][crosshairLength][3];
+	float horizontalBar[crosshairThickness][crosshairLength][3];
 	glWindowPos2i(width / 2 - crosshairLength / 2 + 1, height / 2 - 1);
 	for (int y = 0; y < crosshairThickness; y++)
 	{
 		for (int x = 0; x < crosshairLength; x++)
 		{
-			data2[y][x][0] = crosshairColor.x;
-			data2[y][x][1] = crosshairColor.y;
-			data2[y][x][2] = crosshairColor.z;
+			horizontalBar[y][x][0] = crosshairColor.x;
+			horizontalBar[y][x][1] = crosshairColor.y;
+			horizontalBar[y][x][2] = crosshairColor.z;
 		}
 	}
 
-	glDrawPixels(crosshairLength, crosshairThickness, GL_RGB, GL_FLOAT, data2);
+	glDrawPixels(crosshairLength, crosshairThickness, GL_RGB, GL_FLOAT, horizontalBar);
 }
 /*
  * This method is called every frame and renders all objects based on their current
@@ -293,10 +295,6 @@ void Window::displayCallback(GLFWwindow* window)
 	
 	// Swap buffers.
 	glfwSwapBuffers(window);
-
-
-	
-	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -404,6 +402,11 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);
 	Cam->setPitch(pitch);
+
+	//keeps cursor locked in the middle
+	glfwSetCursorPos(window, width / 2, height / 2);
+	MouseX = width / 2;
+	MouseY = height / 2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
