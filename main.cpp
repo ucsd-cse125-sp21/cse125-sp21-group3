@@ -37,7 +37,7 @@ void setup_callbacks(GLFWwindow* window)
 	glfwSetErrorCallback(error_callback);
 	// Set the window resize callback.
 	glfwSetWindowSizeCallback(window, Window::resizeCallback);
-	
+
 	// Set the key callback.
 	glfwSetKeyCallback(window, Window::keyCallback);
 
@@ -73,22 +73,20 @@ void print_versions()
 {
 	// Get info of GPU and supported OpenGL version.
 	std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
-	std::cout << "OpenGL version supported: " << glGetString(GL_VERSION) 
+	std::cout << "OpenGL version supported: " << glGetString(GL_VERSION)
 		<< std::endl;
 
 	//If the shading language symbol is defined.
 #ifdef GL_SHADING_LANGUAGE_VERSION
-	std::cout << "Supported GLSL version is: " << 
+	std::cout << "Supported GLSL version is: " <<
 		glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 #endif
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 /*
  * Starting point for program execution. This method contains a while loop
- * which will continue to run the program until the user terminates it. 
+ * which will continue to run the program until the user terminates it.
  *
  * @return Returns the exit code, whether or not the program exited successfully
  * @author Part of 169 starter code
@@ -108,11 +106,11 @@ int main(void)
 
 	// Initialize the shader program; exit if initialization fails.
 	if (!Window::initializeProgram()) exit(EXIT_FAILURE);
-	
+
 	// Initialize objects/pointers for rendering; exit if initialization fails.
 	if (!Window::initializeObjects()) exit(EXIT_FAILURE);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	
+
 	// Loop while GLFW window should stay open.
 	while (!glfwWindowShouldClose(window))
 	{

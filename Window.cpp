@@ -72,7 +72,7 @@ bool Window::initializeObjects()
 	// Create a cube
 	cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(1,1,1));
 	boundingBoxList.push_back(cube->getBoundingBox());
-	
+
 	//ground setup
 	ground = new Cube();
 	ground->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
@@ -176,9 +176,6 @@ GLFWwindow* Window::createWindow(int width, int height)
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resizeCallback(window, width, height);
 
-	//disable cursor
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
 	return window;
 }
 
@@ -231,10 +228,49 @@ void Window::idleCallback()
 		player->moveDirection(player->right);
 	}
 	player->update(0.1f, boundingBoxList);
-	
+
 	//cube->update();
 }
 
+/*
+ * Draws crosshair in middle of screen.
+ *
+ * @author Lucas Hwang
+ */
+void Window::drawCrosshair() {
+
+	const int crosshairLength = 31;
+	const int crosshairThickness = 3;
+	glm::vec3 crosshairColor(1.0f, 0.0f, 0.0f);
+	float verticalBar[crosshairLength][crosshairThickness][3];
+
+	glWindowPos2i(width / 2, height / 2 - crosshairLength / 2);
+	for (int y = 0; y < crosshairLength; y++)
+	{
+		for (int x = 0; x < crosshairThickness; x++)
+		{
+			verticalBar[y][x][0] = crosshairColor.x;
+			verticalBar[y][x][1] = crosshairColor.y;
+			verticalBar[y][x][2] = crosshairColor.z;
+		}
+	}
+
+	glDrawPixels(crosshairThickness, crosshairLength, GL_RGB, GL_FLOAT, verticalBar);
+
+	float horizontalBar[crosshairThickness][crosshairLength][3];
+	glWindowPos2i(width / 2 - crosshairLength / 2 + 1, height / 2 - 1);
+	for (int y = 0; y < crosshairThickness; y++)
+	{
+		for (int x = 0; x < crosshairLength; x++)
+		{
+			horizontalBar[y][x][0] = crosshairColor.x;
+			horizontalBar[y][x][1] = crosshairColor.y;
+			horizontalBar[y][x][2] = crosshairColor.z;
+		}
+	}
+
+	glDrawPixels(crosshairLength, crosshairThickness, GL_RGB, GL_FLOAT, horizontalBar);
+}
 /*
  * This method is called every frame and renders all objects based on their current
  * game state.
@@ -251,6 +287,7 @@ void Window::displayCallback(GLFWwindow* window)
 	cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
+	drawCrosshair();
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
@@ -297,7 +334,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	glm::vec3 right = glm::normalize(glm::cross(Cam->getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
 	right.y = 0.0f;
 	glm::vec3 left = -right;
-	
+
 	// Check for a key press.
 	if (action == GLFW_PRESS)
 	{
@@ -351,7 +388,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseY = (int)currY;
 
 	const float sensitivity = 0.25f;
-	
+
 	//updating camera viewing direction
 	float yaw = Cam->getYaw();
 	float pitch = Cam->getPitch();
@@ -359,6 +396,11 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);
 	Cam->setPitch(pitch);
+
+	//keeps cursor locked in the middle
+	glfwSetCursorPos(window, width / 2, height / 2);
+	MouseX = width / 2;
+	MouseY = height / 2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
