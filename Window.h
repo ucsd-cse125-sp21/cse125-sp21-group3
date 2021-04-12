@@ -51,6 +51,8 @@ public:
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
+
+	static void drawCrosshair();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
