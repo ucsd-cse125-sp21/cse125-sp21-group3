@@ -1,0 +1,27 @@
+﻿D:\Microsoft Visual Studio\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(519,5): warning MSB8028: The intermediate directory (Release\) contains files shared from another project (CSE125Group3.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Camera.cpp
+  main.cpp
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(2,1): error C2059: syntax error: '<<'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(7,1): error C2059: syntax error: '>>'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(25,1): error C2143: syntax error: missing ';' before '{'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(25,1): error C2447: '{': missing function header (old-style formal list?)
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(41,23): error C2065: 'error_callback': undeclared identifier
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(115,1): error C2059: syntax error: '<<'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(118,1): error C2059: syntax error: '=='
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(123,1): error C2059: syntax error: '>>'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(127,2): error C2143: syntax error: missing ';' before '{'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\main.cpp(131,1): error C2059: syntax error: '<<'
+  Player.cpp
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\Player.cpp(66,23): warning C4018: '<': signed/unsigned mismatch
+  Window.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\packages\nupengl.core.0.1.0.1\build\native\include\GLFW\glfw3.h(92): message : see previous definition of 'APIENTRY'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\Window.cpp(335,9): error C2039: 'SetMovement': is not a member of 'Camera'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\Camera.h(14): message : see declaration of 'Camera'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\Window.cpp(339,9): error C2039: 'SetMovement': is not a member of 'Camera'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\Camera.h(14): message : see declaration of 'Camera'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\Window.cpp(343,9): error C2039: 'SetMovement': is not a member of 'Camera'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\Camera.h(14): message : see declaration of 'Camera'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\Window.cpp(347,9): error C2039: 'SetMovement': is not a member of 'Camera'
+C:\Programs\CSE 125\cse125-sp21-group3-Graphics\Camera.h(14): message : see declaration of 'Camera'
+  Generating Code...

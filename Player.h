@@ -3,6 +3,8 @@
 #include "main.h"
 #include "Camera.h"
 #include "BoundingBox.h"
+#include "Weapon.h"
+
 /*
  * File Name: Player.h
  *
@@ -27,6 +29,8 @@ public:
 	void setVelocity(glm::vec3 v) { velocity = v; }
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
+
+	void shootWeapon();
 
 	glm::vec3 getPosition() { return position; }
 	glm::vec3 getVelocity() { return velocity; }
@@ -57,6 +61,10 @@ private:
 	glm::vec3 velocity;
 	glm::vec3 forceNet;
 	Camera* playerCamera;
+	Weapon* playerWeapon;
+
+	float currentHealth;
+	float maxHealth;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

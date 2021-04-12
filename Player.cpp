@@ -28,7 +28,11 @@ Player::Player(glm::vec3 _position) {
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
         glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    speed = 0.05f;
+    speed = 0.03f;
+    playerWeapon = new Weapon();
+
+    maxHealth = 100.0f;
+    currentHealth = 100.0f;
 }
 
 /*
@@ -122,25 +126,23 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
  * @author Lucas Hwang
  */
 void Player::moveDirection(int dir) {
+    glm::vec3 currentDirection = playerCamera->getDirection();
+    currentDirection.y = 0.0f;
 
     if (dir == forward) {
-        glm::vec3 v = glm::normalize(playerCamera->getDirection()) * speed;
-        v.y = 0.0f;
+        glm::vec3 v = glm::normalize(currentDirection) * speed;
         velocity += v;
     }
     if (dir == backward) {
-        glm::vec3 v = -glm::normalize(playerCamera->getDirection()) * speed;
-        v.y = 0.0f;
+        glm::vec3 v = -glm::normalize(currentDirection) * speed;
         velocity += v;
     }
     if (dir == left) {
-        glm::vec3 v = -glm::normalize(glm::cross(playerCamera->getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
-        v.y = 0.0f;
+        glm::vec3 v = -glm::normalize(glm::cross(currentDirection, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
         velocity += v;
     }
     if (dir == right) {
-        glm::vec3 v = glm::normalize(glm::cross(playerCamera->getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
-        v.y = 0.0f;
+        glm::vec3 v = glm::normalize(glm::cross(currentDirection, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
         velocity += v;
     }
 }
@@ -204,6 +206,10 @@ void Player::handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b) {
             velocity.z = 0.0f;
         }
     }
+}
+
+void Player::shootWeapon() {
+    playerWeapon->Shoot(playerCamera->getDirection());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -308,10 +308,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 
-		case GLFW_KEY_R:
-			resetCamera();
-			break;
-
 		default:
 			break;
 		}
