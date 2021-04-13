@@ -44,8 +44,11 @@ public:
     {
         if (!err) {
             cout << "Server received: " << data << endl;
+            std::string response;
+            response.assign(data, bytes_transferred);
+
             sock.async_write_some(
-                boost::asio::buffer(message, max_length),
+                boost::asio::buffer(response, max_length),
                 boost::bind(&con_handler::handle_write,
                     shared_from_this(),
                     boost::asio::placeholders::error,
