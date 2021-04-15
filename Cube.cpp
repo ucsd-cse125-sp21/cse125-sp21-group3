@@ -1,4 +1,5 @@
 #include "Cube.h"
+#include "Window.h"
 
 /*
  * File Name: Cube.cpp
@@ -174,7 +175,7 @@ Cube::~Cube()
  */
 void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader)
 {
-	// actiavte the shader program 
+	// activate the shader program 
 	glUseProgram(shader);
 
 	// get the locations and send the uniforms to the shader 
@@ -191,6 +192,10 @@ void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader)
 	// Unbind the VAO and shader program
 	glBindVertexArray(0);
 	glUseProgram(0);
+
+	if (Window::debugMode) {
+		boundingBox->draw(viewProjMtx, shader);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -224,6 +229,7 @@ glm::mat4 Cube::getModel() {
  */
 void Cube::setModel(glm::mat4 m) {
 	model = m;
+	boundingBox->setModel(m);
 }
 
 /*

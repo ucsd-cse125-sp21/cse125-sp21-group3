@@ -36,6 +36,9 @@ int MouseX, MouseY;
 // The shader program id
 GLuint Window::shaderProgram;
 
+//toggle to see bounding boxes
+bool Window::debugMode;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,6 +61,7 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
+	debugMode = true;
 	return true;
 }
 
@@ -286,6 +290,7 @@ void Window::displayCallback(GLFWwindow* window)
 	// Render the object.
 	cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
 	drawCrosshair();
 
