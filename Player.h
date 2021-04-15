@@ -23,6 +23,7 @@ public:
 	void integrate(float deltaTime);
 	void applyConstraints(std::vector<BoundingBox*> boundingBoxList);
 	void update(float deltaTime, std::vector<BoundingBox*> boundingBoxList);
+	void draw(const glm::mat4& viewProjMtx, GLuint shader);
 
 	// Access functions
 	void setPosition(glm::vec3 p) { position = p; }

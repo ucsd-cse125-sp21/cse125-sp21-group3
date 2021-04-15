@@ -3,3 +3,6 @@ packages/
 packages.config
 Game/
 Game.*
+x64/
+Release/
+Debug/

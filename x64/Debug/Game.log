@@ -1,9 +1,0 @@
-<<<<<<< Updated upstream
-﻿  Weapon.cpp
-  Game.vcxproj -> C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\x64\Debug\Game.exe
-=======
-﻿  Window.cpp
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
-C:\Programs\CSE 125\cse125-sp21-group3-Graphics\packages\nupengl.core.0.1.0.1\build\native\include\GLFW\glfw3.h(92): message : see previous definition of 'APIENTRY'
-  Game.vcxproj -> C:\Programs\CSE 125\cse125-sp21-group3-Graphics\x64\Debug\Game.exe
->>>>>>> Stashed changes
