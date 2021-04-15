@@ -28,7 +28,7 @@ Player::Player(glm::vec3 _position) {
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
         glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    speed = 0.03f;
+    speed = 0.1f;
     playerWeapon = new Weapon();
 
     maxHealth = 100.0f;

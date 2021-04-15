@@ -24,7 +24,7 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax)
 	model = glm::mat4(1.0f);
 
 	// The color of the cube. Try setting it to something else!
-	color = glm::vec3(1.0f, 0.95f, 0.1f); 
+	color = glm::vec3(1.0f, 0.56f, 0.0f); 
 
 	//bounding box setup
 	boundingBox = new BoundingBox(cubeMin, cubeMax);

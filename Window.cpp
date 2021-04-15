@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "Cube.h"
 #include "Player.h"
+#include "Maze.h"
 #include <windows.h>
 #include <glm/gtx/string_cast.hpp>
 
@@ -22,6 +23,9 @@ const char* Window::windowTitle = "CSE 169 Starter";
 
 // Objects to render
 Cube* Window::cube;
+
+std::vector<Cube*> walls;
+
 Cube* ground;
 Player* player;
 std::vector<BoundingBox*> boundingBoxList;
@@ -73,12 +77,34 @@ bool Window::initializeObjects()
 	cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(1,1,1));
 	boundingBoxList.push_back(cube->getBoundingBox());
 
+	//Cube* front = new Cube(glm::vec3(40, 0, -40), glm::vec3(40.1, 5, 40));
+	//Cube* back = new Cube(glm::vec3(-40, 0, -40), glm::vec3(-40.1, 5, 40));
+	//Cube* right = new Cube(glm::vec3(-40, 0, 40), glm::vec3(40, 5, 40.1));
+	//Cube* left = new Cube(glm::vec3(-40, 0, -40), glm::vec3(40, 5, -40.1));
+
+	//boundingBoxList.push_back(front->getBoundingBox());
+	//boundingBoxList.push_back(right->getBoundingBox());
+
+	int size = 21;
+	int scale = 5;
+	Maze* maze = new Maze(size, scale);
+
+	walls = maze->createWalls();
+
+
+	for (Cube* wall : walls)
+	{
+		boundingBoxList.push_back(wall->getBoundingBox());
+	}
+
 	//ground setup
-	ground = new Cube();
+	ground = new Cube(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 	ground->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
 	glm::mat4 groundModel = ground->getModel();
-	groundModel = glm::scale(groundModel, glm::vec3(20.0f, 1.0f, 20.0f));
 	groundModel = glm::translate(groundModel, glm::vec3(0.0f, -1.0f, 0.0f));
+
+	// 100
+	groundModel = glm::scale(groundModel, glm::vec3((size - 1) * scale, 1.0f, (size - 1) * scale));
 	ground->setModel(groundModel);
 
 	//player setup
@@ -284,8 +310,12 @@ void Window::displayCallback(GLFWwindow* window)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render the object.
-	cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+
+	for (Cube* wall : walls)
+	{
+		wall ->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	}
 
 	drawCrosshair();
 
