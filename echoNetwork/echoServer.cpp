@@ -2,11 +2,15 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <../gameState/game_state.cpp>
+#define MAX_CONNECTIONS 4
 
 using namespace boost::asio;
 using ip::tcp;
 using std::cout;
 using std::endl;
+
+game_state* state;
 
 class con_handler : public boost::enable_shared_from_this<con_handler>
 {
@@ -45,7 +49,7 @@ public:
         if (!err) {
             cout << "Server received: " << data << endl;
             std::string response;
-            response.assign(data, bytes_transferred);
+            response.assign((char*) state, sizeof(game_state));
 
             sock.async_write_some(
                 boost::asio::buffer(response, max_length),
@@ -82,6 +86,7 @@ class Server
 private:
     boost::asio::io_service & io_service_;
     tcp::acceptor acceptor_;
+    
     void start_accept()
     {
         // socket
@@ -106,14 +111,23 @@ public:
         }
         start_accept();
     }
+
+    
 };
 
 int main(int argc, char* argv[])
 {
     try
     {
+        
         boost::asio::io_service io_service;
         Server server(io_service);
+        //init state to dummy values
+        state = (game_state*) malloc(sizeof(game_state));
+        state -> x = (float)rand()/(float)(RAND_MAX/10.0);
+        state -> y = (float)rand()/(float)(RAND_MAX/10.0);
+        state -> z = (float)rand()/(float)(RAND_MAX/10.0);
+
         io_service.run();
     }
     catch (std::exception& e)

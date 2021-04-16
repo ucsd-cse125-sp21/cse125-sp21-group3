@@ -3,14 +3,17 @@
 #include <boost/asio.hpp>
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <../gameState/game_state.cpp>
 
 using namespace std;
 using namespace boost::asio;
 using ip::tcp;
 
+game_state* local_state;
 
 int main(int argc, char* argv[]) {
 
+    local_state = (game_state*) malloc(sizeof(game_state));
     boost::asio::io_service io_service;
 
     //socket creation
@@ -48,9 +51,11 @@ int main(int argc, char* argv[]) {
             cout << data << endl;
         }
         */
+        memcpy(local_state, messageReceived, sizeof(game_state));
 
-        cout << "Server Echoed: ";
-        cout << messageReceived << endl;
+        cout << "state.x = " << to_string(local_state -> x) << endl;
+        cout << "state.y = " << to_string(local_state -> y) << endl;
+        cout << "state.z = " << to_string(local_state -> z) << endl;
     }
     return EXIT_SUCCESS;
 }
