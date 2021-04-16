@@ -128,7 +128,11 @@ int main(int argc, char* argv[])
         state -> y = (float)rand()/(float)(RAND_MAX/10.0);
         state -> z = (float)rand()/(float)(RAND_MAX/10.0);
 
-        io_service.run();
+        boost::asio::io_service::work idleWork(io_service);
+        std::thread io_thread = std::thread([&]() {io_service.run();});
+        while(1){
+            
+        }
     }
     catch (std::exception& e)
     {
