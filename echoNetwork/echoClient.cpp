@@ -25,16 +25,16 @@ int main(int argc, char* argv[]) {
     // request/message from client
     boost::system::error_code error;
     while (true) {
-        char message[256];
-        std::cin >> message;
-        socket.write_some(boost::asio::buffer(message));
-        //boost::asio::write(socket, boost::asio::buffer(message), error);
-        if (!error) {
-            cout << "Client sent: " << message << endl;
-        }
-        else {
-            cout << "send failed: " << error.message() << endl;
-        }
+        // char message[256];
+        // std::cin >> message;
+        // socket.write_some(boost::asio::buffer(message));
+        // //boost::asio::write(socket, boost::asio::buffer(message), error);
+        // if (!error) {
+        //     cout << "Client sent: " << message << endl;
+        // }
+        // else {
+        //     cout << "send failed: " << error.message() << endl;
+        // }
 
         // getting response from server
 
