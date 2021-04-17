@@ -28,7 +28,7 @@ Player::Player(glm::vec3 _position) {
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
         glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    speed = 0.1f;
+    speed = 0.09f;
     playerWeapon = new Weapon();
 
     maxHealth = 100.0f;
@@ -99,6 +99,28 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
   
     //computeForces();
     //integrate(deltaTime);
+
+    switch (state)
+    {
+        case crouch:
+            if (position.y >= 2.0f)
+            {
+                glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
+                velocity += v;
+            }
+            velocity *= 0.5f;
+        case sprint:
+            velocity *= 1.40f;
+            break;
+        default:
+            if (position.y <= 3.5f)
+            {
+                glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
+                velocity += v;
+                velocity *= 0.5f;
+            }
+            break;
+    }
     if (glm::length(velocity) > 0.0f) {
 
         position = position + velocity * deltaTime; 
@@ -163,6 +185,27 @@ void Player::moveDirection(int dir) {
         glm::vec3 v = glm::normalize(glm::cross(currentDirection, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
         velocity += v;
     }
+
+    if (dir == crouch) {
+        state = crouch;
+    }
+    if (dir == stand) {
+        state = stand;
+    }
+    if (dir == sprint) {
+        if (state != crouch)
+        {
+            state = sprint;
+        }
+    }
+    if (dir == up) {
+        glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed;
+        velocity += v;
+    }
+    if (dir == down) {
+        glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed;
+        velocity += v;
+    }
 }
 
 
@@ -217,7 +260,10 @@ void Player::handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b) {
 }
 
 void Player::shootWeapon(std::vector<BoundingBox *> objects) {
-    playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
+    if (state != sprint)
+    {
+        playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

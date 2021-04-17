@@ -19,7 +19,7 @@
  // Window Properties
 int Window::width;
 int Window::height;
-const char* Window::windowTitle = "CSE 169 Starter";
+const char* Window::windowTitle = "Game";
 
 // Objects to render
 Cube* Window::cube;
@@ -65,7 +65,7 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-	debugMode = true;
+	debugMode = false;
 	return true;
 }
 
@@ -115,7 +115,6 @@ bool Window::initializeObjects()
 	player = new Player(Cam->getPosition());
 	player->setPlayerCamera(Cam);
 	boundingBoxList.push_back(player->getBoundingBox());
-	//cube = new Cube(glm::vec3(-1, 0, -2), glm::vec3(1, 1, 1));
 
 	return true;
 }
@@ -257,6 +256,25 @@ void Window::idleCallback()
 	if (GetAsyncKeyState(GLFW_KEY_D)) {
 		player->moveDirection(player->right);
 	}
+
+	//if (GetAsyncKeyState(VK_LCONTROL)) {
+	//	player->moveDirection(player->crouch);
+	//}
+	//else
+	//{
+	//	player->moveDirection(player->stand);
+	//}
+	//if (GetAsyncKeyState(VK_LSHIFT)) {
+	//	player->moveDirection(player->sprint);
+	//}
+
+	// Allow player to move up and down for debugging
+	if (GetAsyncKeyState(GLFW_KEY_Z)) {
+		player->moveDirection(player->up);
+	}
+	if (GetAsyncKeyState(GLFW_KEY_X)) {
+		player->moveDirection(player->down);
+	}
 	player->update(0.1f, boundingBoxList);
 
 	//cube->update();
@@ -379,7 +397,26 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
-
+		case GLFW_KEY_LEFT_CONTROL:
+			player->moveDirection(player->crouch);
+			break;
+		case GLFW_KEY_LEFT_SHIFT:
+			player->moveDirection(player->sprint);
+			break;
+		default:
+			break;
+		}
+	}
+	if (action == GLFW_RELEASE)
+	{
+		switch (key)
+		{
+		case GLFW_KEY_LEFT_CONTROL:
+			player->moveDirection(player->stand);
+			break;
+		case GLFW_KEY_LEFT_SHIFT:
+			player->moveDirection(player->stand);
+			break;
 		default:
 			break;
 		}

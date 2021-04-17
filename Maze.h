@@ -24,6 +24,9 @@ public:
 
 	void printMaze();
 
+	void generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool direction);
+
+
 
 private:
 

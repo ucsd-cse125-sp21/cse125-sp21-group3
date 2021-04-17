@@ -47,7 +47,12 @@ public:
 		forward,
 		backward,
 		left,
-		right
+		right,
+		up,
+		down,
+		crouch,
+		stand,
+		sprint
 	};
 
 private:
@@ -63,6 +68,8 @@ private:
 	glm::vec3 forceNet;
 	Camera* playerCamera;
 	Weapon* playerWeapon;
+
+	movementDirection state;
 
 	float currentHealth;
 	float maxHealth;
