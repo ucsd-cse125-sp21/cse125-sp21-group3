@@ -277,7 +277,6 @@ void Window::idleCallback()
 	}
 	player->update(0.1f, boundingBoxList);
 
-	//cube->update();
 }
 
 /*
@@ -333,7 +332,14 @@ void Window::displayCallback(GLFWwindow* window)
 
 	// Render the object.
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+
+	for (Cube* footprint : player->getFootprints()) {
+		footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	}
+
 	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+
+
 
 	for (Cube* wall : walls)
 	{

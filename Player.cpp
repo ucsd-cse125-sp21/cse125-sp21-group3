@@ -20,19 +20,31 @@
  * @author Lucas Hwang
  */
 Player::Player(glm::vec3 _position) {
-   
+
     position = _position;
+
+    lastFootPrintPos = _position;
+
     prevPosition = position;
     height = 2.0f;
     width = 1.0f;
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-        glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+        glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f), this);
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     speed = 0.09f;
     playerWeapon = new Weapon();
 
     maxHealth = 100.0f;
     currentHealth = 100.0f;
+}
+
+void Player::createFootPrint(glm::vec3 footprintPos) {
+    if (glm::distance(lastFootPrintPos, footprintPos) > 5.0f) {
+        Cube* footprint = new Cube(footprintPos - glm::vec3(1.0f, footprintPos.y, 0.5f), footprintPos - glm::vec3(0.0f, footprintPos.y - 0.01f, 0.0f));
+        footprint->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
+        this->footprints.push_back(footprint);
+        lastFootPrintPos = footprintPos;
+    }
 }
 
 /*
@@ -77,11 +89,11 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
 
                 BoundingBox* prevBoundingBox = new BoundingBox(
                     glm::vec3(prevPosition.x - width * 0.5f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.5f),
-                    glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + height * 0.25f, prevPosition.z + width * 0.5f));
+                    glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + height * 0.25f, prevPosition.z + width * 0.5f), this);
                 handleCollision(prevBoundingBox, b);
                 boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
                     glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
-     
+
                 //std::cout << "min point collision" << std::endl;
             }
         }
@@ -96,34 +108,36 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
  * @author Lucas Hwang
  */
 void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) {
-  
+
     //computeForces();
     //integrate(deltaTime);
 
     switch (state)
     {
-        case crouch:
-            if (position.y >= 2.0f)
-            {
-                glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
-                velocity += v;
-            }
+    case crouch:
+        if (position.y >= 2.0f)
+        {
+            glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
+            velocity += v;
+        }
+        velocity *= 0.5f;
+    case sprint:
+        velocity *= 1.40f;
+        break;
+    default:
+        if (position.y <= 3.5f)
+        {
+            glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
+            velocity += v;
             velocity *= 0.5f;
-        case sprint:
-            velocity *= 1.40f;
-            break;
-        default:
-            if (position.y <= 3.5f)
-            {
-                glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
-                velocity += v;
-                velocity *= 0.5f;
-            }
-            break;
+        }
+        break;
     }
     if (glm::length(velocity) > 0.0f) {
 
-        position = position + velocity * deltaTime; 
+        position = position + velocity * deltaTime;
+        
+        
         //update player bounding box
         boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
             glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
@@ -135,13 +149,14 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
         applyConstraints(boundingBoxList);
     }
 
+    createFootPrint(position);
     prevPosition = position;
     //camera and player position should always be the same, at least for now
     playerCamera->setPosition(position);
 
     //update player camera
     playerCamera->Update();
-    
+
 }
 
 /*
@@ -161,7 +176,7 @@ void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
 /*
  * Moves the player in the direction inputted.
- * 
+ *
  * @param dir Integer representing the directional key pressed
  * @author Lucas Hwang
  */
@@ -259,7 +274,7 @@ void Player::handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b) {
     }
 }
 
-void Player::shootWeapon(std::vector<BoundingBox *> objects) {
+void Player::shootWeapon(std::vector<BoundingBox*> objects) {
     if (state != sprint)
     {
         playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());

@@ -31,18 +31,18 @@ public:
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
 
-	void shootWeapon(std::vector<BoundingBox *>);
+	void shootWeapon(std::vector<BoundingBox*>);
 
 	glm::vec3 getPosition() { return position; }
 	glm::vec3 getVelocity() { return velocity; }
 	glm::vec3 getForceNet() { return forceNet; }
 	Camera* getPlayerCamera() { return playerCamera; }
 	BoundingBox* getBoundingBox() { return boundingBox; }
-	
+	void createFootPrint(glm::vec3);
 	void moveDirection(int dir);
 	void updateBoundingBox();
 	void handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b);
-
+	std::vector<Cube*> getFootprints() { return this->footprints; }
 	enum movementDirection {
 		forward,
 		backward,
@@ -68,9 +68,9 @@ private:
 	glm::vec3 forceNet;
 	Camera* playerCamera;
 	Weapon* playerWeapon;
-
+	std::vector<Cube*> footprints;
 	movementDirection state;
-
+	glm::vec3 lastFootPrintPos;
 	float currentHealth;
 	float maxHealth;
 };

@@ -39,8 +39,8 @@ Maze::~Maze()
 std::vector<Cube*>  Maze::createWalls()
 {
 	// Set seed for random creation for testing purposes
-	// srand(0);
-	srand(time(NULL));
+	srand(0);
+	//srand(time(NULL));
 	// Set borders
 	// Row = X, column = Z
 	for (int i = 0; i < mazeSize; i++)
@@ -96,7 +96,7 @@ std::vector<Cube*>  Maze::createWalls()
 			walls.push_back(newWall);
 		}
 	}
-
+	
 	// Create bottom walls (vertical)
 	for (int c = 0; c < mazeSize; c++)
 	{
