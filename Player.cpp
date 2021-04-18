@@ -54,7 +54,20 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
         
         if (snd)
         {
-            snd->setMinDistance(10.0f); // a mid sound
+            if (state == sprint) {
+                snd->setMinDistance(10.0f); // a mid sound
+                snd->setPlaybackSpeed(2.0f);
+                snd->setVolume(1.0f);
+            }
+            else if (state == crouch) {
+                snd->setMinDistance(2.0f);
+                snd->setPlaybackSpeed(0.75f);
+                snd->setVolume(0.25f);
+            }
+            else {
+                snd->setMinDistance(5.0f);
+                snd->setVolume(0.75f);
+            }
             snd->setIsPaused(false); // unpause the sound
         }
     }
