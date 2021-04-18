@@ -67,13 +67,12 @@ void Weapon::Shoot(std::vector<BoundingBox *> objects, glm::vec3 origin, glm::ve
 {
 
 	std::cerr << "Origin " << origin.x << " " << origin.y << " " << origin.z << std::endl;
-	std::cerr << "Origin " << direction.x << " " << direction.y << " " << direction.z << std::endl;
+	std::cerr << "Direction " << direction.x << " " << direction.y << " " << direction.z << std::endl;
 
 
-	std::cerr << "attempting fire" << std::endl;
 	if (!reloading)
 	{
-		std::cerr << "not reloading" << std::endl;
+		std::cerr << "Firing" << std::endl;
 		BoundingBox * minBox = closestObject(objects, origin, direction);
 		if (minBox != NULL) {
 			std::cerr << "Shot" << std::endl;

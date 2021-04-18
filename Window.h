@@ -53,6 +53,7 @@ public:
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
 
 	static void drawCrosshair();
+	static bool debugMode;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

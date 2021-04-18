@@ -1,4 +1,5 @@
 #include "Cube.h"
+#include "Window.h"
 
 /*
  * File Name: Cube.cpp
@@ -24,7 +25,7 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax)
 	model = glm::mat4(1.0f);
 	
 	// The color of the cube. Try setting it to something else!
-	color = glm::vec3(1.0f, 0.95f, 0.1f); 
+	color = glm::vec3(1.0f, 0.56f, 0.0f); 
 
 	//bounding box setup
 	boundingBox = new BoundingBox(cubeMin, cubeMax, this);
@@ -174,7 +175,7 @@ Cube::~Cube()
  */
 void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader)
 {
-	// actiavte the shader program 
+	// activate the shader program 
 	glUseProgram(shader);
 
 	// get the locations and send the uniforms to the shader 
@@ -191,6 +192,10 @@ void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader)
 	// Unbind the VAO and shader program
 	glBindVertexArray(0);
 	glUseProgram(0);
+
+	if (Window::debugMode) {
+		boundingBox->draw(viewProjMtx, shader);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -224,6 +229,7 @@ glm::mat4 Cube::getModel() {
  */
 void Cube::setModel(glm::mat4 m) {
 	model = m;
+	boundingBox->setModel(m);
 }
 
 /*

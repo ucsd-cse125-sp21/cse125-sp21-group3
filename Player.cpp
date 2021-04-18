@@ -28,7 +28,7 @@ Player::Player(glm::vec3 _position) {
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
         glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    speed = 0.03f;
+    speed = 0.09f;
     playerWeapon = new Weapon();
 
     maxHealth = 100.0f;
@@ -79,7 +79,9 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
                     glm::vec3(prevPosition.x - width * 0.5f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.5f),
                     glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + height * 0.25f, prevPosition.z + width * 0.5f));
                 handleCollision(prevBoundingBox, b);
-                updateBoundingBox();
+                boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
+                    glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+     
                 //std::cout << "min point collision" << std::endl;
             }
         }
@@ -97,11 +99,34 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
   
     //computeForces();
     //integrate(deltaTime);
+
+    switch (state)
+    {
+        case crouch:
+            if (position.y >= 2.0f)
+            {
+                glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
+                velocity += v;
+            }
+            velocity *= 0.5f;
+        case sprint:
+            velocity *= 1.40f;
+            break;
+        default:
+            if (position.y <= 3.5f)
+            {
+                glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
+                velocity += v;
+                velocity *= 0.5f;
+            }
+            break;
+    }
     if (glm::length(velocity) > 0.0f) {
 
         position = position + velocity * deltaTime; 
         //update player bounding box
-        updateBoundingBox();
+        boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
+            glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
         //std::cout << "player bounding box min: " << glm::to_string(boundingBox->getMin()) << std::endl;
         //std::cout << "player bounding box max: " << glm::to_string(boundingBox->getMax()) << std::endl;
     }
@@ -117,6 +142,21 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     //update player camera
     playerCamera->Update();
     
+}
+
+/*
+ * Called each frame to draw the player's model.
+ *
+ * @param viewProjMtx The view projection matrix needed to render the cube to the window.
+ * Check the rendering reference section of the project documentation for more details.
+ * @param shader The shader used to render the cube
+ * @author Lucas Hwang
+ */
+void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
+
+    if (Window::debugMode) {
+        boundingBox->draw(viewProjMtx, shader);
+    }
 }
 
 /*
@@ -145,16 +185,27 @@ void Player::moveDirection(int dir) {
         glm::vec3 v = glm::normalize(glm::cross(currentDirection, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
         velocity += v;
     }
-}
 
-/*
- * Updates the min and max points of the bounding box based on the player position.
- *
- * @author Lucas Hwang
- */
-void Player::updateBoundingBox() {
-    boundingBox->setMin(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f));
-    boundingBox->setMax(glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+    if (dir == crouch) {
+        state = crouch;
+    }
+    if (dir == stand) {
+        state = stand;
+    }
+    if (dir == sprint) {
+        if (state != crouch)
+        {
+            state = sprint;
+        }
+    }
+    if (dir == up) {
+        glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed;
+        velocity += v;
+    }
+    if (dir == down) {
+        glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed;
+        velocity += v;
+    }
 }
 
 
@@ -209,7 +260,10 @@ void Player::handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b) {
 }
 
 void Player::shootWeapon(std::vector<BoundingBox *> objects) {
-    playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
+    if (state != sprint)
+    {
+        playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

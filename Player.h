@@ -23,6 +23,7 @@ public:
 	void integrate(float deltaTime);
 	void applyConstraints(std::vector<BoundingBox*> boundingBoxList);
 	void update(float deltaTime, std::vector<BoundingBox*> boundingBoxList);
+	void draw(const glm::mat4& viewProjMtx, GLuint shader);
 
 	// Access functions
 	void setPosition(glm::vec3 p) { position = p; }
@@ -46,7 +47,12 @@ public:
 		forward,
 		backward,
 		left,
-		right
+		right,
+		up,
+		down,
+		crouch,
+		stand,
+		sprint
 	};
 
 private:
@@ -62,6 +68,8 @@ private:
 	glm::vec3 forceNet;
 	Camera* playerCamera;
 	Weapon* playerWeapon;
+
+	movementDirection state;
 
 	float currentHealth;
 	float maxHealth;
