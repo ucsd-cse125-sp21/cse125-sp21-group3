@@ -42,6 +42,9 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
     if (glm::distance(lastFootPrintPos, footprintPos) > 5.0f) {
         Cube* footprint = new Cube(footprintPos - glm::vec3(1.0f, footprintPos.y, 0.5f), footprintPos - glm::vec3(0.0f, footprintPos.y - 0.01f, 0.0f));
         footprint->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
+        if (this->footprints.size() > 10) {
+            this->footprints.pop_front();
+        }
         this->footprints.push_back(footprint);
         lastFootPrintPos = footprintPos;
     }

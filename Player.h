@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "BoundingBox.h"
 #include "Weapon.h"
+#include <deque>
 
 /*
  * File Name: Player.h
@@ -42,7 +43,7 @@ public:
 	void moveDirection(int dir);
 	void updateBoundingBox();
 	void handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b);
-	std::vector<Cube*> getFootprints() { return this->footprints; }
+	std::deque<Cube*> getFootprints() { return this->footprints; }
 	enum movementDirection {
 		forward,
 		backward,
@@ -68,7 +69,7 @@ private:
 	glm::vec3 forceNet;
 	Camera* playerCamera;
 	Weapon* playerWeapon;
-	std::vector<Cube*> footprints;
+	std::deque<Cube*> footprints;
 	movementDirection state;
 	glm::vec3 lastFootPrintPos;
 	float currentHealth;
