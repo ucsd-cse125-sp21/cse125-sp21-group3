@@ -18,10 +18,11 @@
  * @return Player object
  * @author Lucas Hwang
  */
-BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax) {
+BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, void * parentObj) {
    
     min = boxMin;
     max = boxMax;
+    parentObj = parentObj;
     active = true;
 }
 

@@ -14,7 +14,7 @@
 class BoundingBox {
 public:
 	
-	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax);
+	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, void* parentObj);
 
 	glm::vec3 getMin() { return min; }
 	glm::vec3 getMax() { return max; }
@@ -32,7 +32,7 @@ private:
 	//min and max points of the bounding box
 	glm::vec3 min;
 	glm::vec3 max;
-
+	void* parentObj;
 	//used to toggle collisions
 	bool active;
 	

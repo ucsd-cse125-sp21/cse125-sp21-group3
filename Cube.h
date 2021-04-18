@@ -21,7 +21,7 @@ private:
 
 	glm::mat4 model;
 	glm::vec3 color;
-
+	float health = 100.0f;
 	// Cube Information
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
