@@ -25,13 +25,13 @@ public:
 	void applyConstraints(std::vector<BoundingBox*> boundingBoxList);
 	void update(float deltaTime, std::vector<BoundingBox*> boundingBoxList);
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);
-
+	
 	// Access functions
 	void setPosition(glm::vec3 p) { position = p; }
 	void setVelocity(glm::vec3 v) { velocity = v; }
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
-
+	void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
 	void shootWeapon(std::vector<BoundingBox*>);
 
 	glm::vec3 getPosition() { return position; }
@@ -68,6 +68,7 @@ private:
 	glm::vec3 velocity;
 	glm::vec3 forceNet;
 	Camera* playerCamera;
+	irrklang::ISoundEngine* soundEngine;
 	Weapon* playerWeapon;
 	std::deque<Cube*> footprints;
 	movementDirection state;

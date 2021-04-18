@@ -2,6 +2,7 @@
 #include "glm/gtx/euler_angles.hpp"
 #include <glm\gtx\string_cast.hpp>
 
+
 /*
  * File Name: Player.cpp
  *
@@ -20,7 +21,7 @@
  * @author Lucas Hwang
  */
 Player::Player(glm::vec3 _position) {
-
+    
     position = _position;
 
     lastFootPrintPos = _position;
@@ -40,6 +41,8 @@ Player::Player(glm::vec3 _position) {
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
     if (glm::distance(lastFootPrintPos, footprintPos) > 5.0f) {
+        irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
+        irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
         Cube* footprint = new Cube(footprintPos - glm::vec3(1.0f, footprintPos.y, 0.5f), footprintPos - glm::vec3(0.0f, footprintPos.y - 0.01f, 0.0f));
         footprint->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         if (this->footprints.size() > 10) {
@@ -47,6 +50,13 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
         }
         this->footprints.push_back(footprint);
         lastFootPrintPos = footprintPos;
+        
+        
+        if (snd)
+        {
+            snd->setMinDistance(10.0f); // a mid sound
+            snd->setIsPaused(false); // unpause the sound
+        }
     }
 }
 

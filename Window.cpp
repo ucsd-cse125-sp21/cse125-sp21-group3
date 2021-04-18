@@ -33,6 +33,8 @@ std::vector<BoundingBox*> boundingBoxList;
 // Camera Properties
 Camera* Cam;
 
+irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
+
 // Interaction Variables
 bool LeftDown, RightDown;
 int MouseX, MouseY;
@@ -54,7 +56,7 @@ bool Window::debugMode;
  */
  // Constructors and desctructors
 bool Window::initializeProgram() {
-
+	
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
 
@@ -114,6 +116,7 @@ bool Window::initializeObjects()
 	//player setup
 	player = new Player(Cam->getPosition());
 	player->setPlayerCamera(Cam);
+	player->setSoundEngine(soundEngine);
 	boundingBoxList.push_back(player->getBoundingBox());
 
 	return true;
@@ -144,6 +147,7 @@ void Window::cleanUp()
  */
 GLFWwindow* Window::createWindow(int width, int height)
 {
+
 	// Initialize GLFW.
 	if (!glfwInit())
 	{
@@ -151,6 +155,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 		return NULL;
 	}
 
+	
 	// 4x antialiasing.
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
@@ -168,7 +173,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 
 	// Create the GLFW window.
 	GLFWwindow* window = glfwCreateWindow(width, height, windowTitle, NULL, NULL);
-
+	
 	// Check if the window could not be created.
 	if (!window)
 	{
@@ -204,7 +209,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resizeCallback(window, width, height);
-
+	
 	return window;
 }
 
@@ -339,7 +344,13 @@ void Window::displayCallback(GLFWwindow* window)
 
 	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
-
+	
+	Camera* playCam = player->getPlayerCamera();
+	irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
+	irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
+	irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
+	irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
+	soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
 
 	for (Cube* wall : walls)
 	{
