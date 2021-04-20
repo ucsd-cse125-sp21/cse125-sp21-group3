@@ -111,10 +111,10 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
       <AdditionalDependencies>irrKlang.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
