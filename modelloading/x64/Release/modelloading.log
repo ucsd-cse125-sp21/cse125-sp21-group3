@@ -1,0 +1,17 @@
+﻿  model_loading.cpp
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\shader.h(56,40): warning C4101: 'e': unreferenced local variable
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\mesh.h(88,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\model_loading.cpp(98,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\model_loading.cpp(180,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\model_loading.cpp(181,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\model_loading.cpp(185,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\model_loading.cpp(186,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\model_loading.cpp(188,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\model_loading.cpp(189,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Lucas\Desktop\learnopengl\modelloading\modelloading\model_loading.cpp(198,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Generating code
+  1 of 763 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    8 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  modelloading.vcxproj -> C:\Users\Lucas\Desktop\learnopengl\modelloading\x64\Release\modelloading.exe
