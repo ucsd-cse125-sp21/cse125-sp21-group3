@@ -110,11 +110,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>irrKlang.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc140-mt.lib;irrKlang.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\Assimp\lib\x64;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\Assimp\include;C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -123,17 +123,22 @@
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Maze.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AssimpToGlmHelper.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Maze.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Player.h" />
@@ -142,6 +147,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="shaders\shader.frag" />
+    <None Include="shaders\shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,7 @@
 #include "Cube.h"
 #include "Player.h"
 #include "Maze.h"
+#include "Model.h"
 #include <windows.h>
 #include <glm/gtx/string_cast.hpp>
 
@@ -44,6 +45,7 @@ GLuint Window::shaderProgram;
 
 //toggle to see bounding boxes
 bool Window::debugMode;
+Model* chest;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +120,9 @@ bool Window::initializeObjects()
 	player->setPlayerCamera(Cam);
 	player->setSoundEngine(soundEngine);
 	boundingBoxList.push_back(player->getBoundingBox());
-
+	glm::mat4 chestRootTransform(1.0f);
+	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
+	chest = new Model("C:/Users/Lucas/Desktop/CSE 125/chestStill.gltf", chestRootTransform);
 	return true;
 }
 
@@ -356,7 +360,8 @@ void Window::displayCallback(GLFWwindow* window)
 	{
 		wall ->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
-
+	
+	chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	drawCrosshair();
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
