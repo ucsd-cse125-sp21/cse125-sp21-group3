@@ -9,7 +9,7 @@
 #include <assimp/pbrmaterial.h>
 
 #include "Mesh.h"
-
+#include "AnimationPlayer.h"
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -24,9 +24,11 @@ class Model
 public:
     // model data 
     vector<Mesh*> meshes;
+
     string directory;
     bool gammaCorrection;
     glm::mat4 rootModel;
+    AnimationPlayer* animationPlayer;
 
     // constructor, expects a filepath to a 3D model.
     Model(string const& path, glm::mat4 _rootModel);
@@ -40,6 +42,8 @@ private:
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode* node, const aiScene* scene, glm::mat4 rootTransform);
+
+    void processAnimations(const aiScene* scene);
 
     Mesh* processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 model);
 };

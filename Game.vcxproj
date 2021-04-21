@@ -118,6 +118,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationClip.cpp" />
+    <ClCompile Include="AnimationPlayer.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
@@ -131,6 +133,8 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationClip.h" />
+    <ClInclude Include="AnimationPlayer.h" />
     <ClInclude Include="AssimpToGlmHelper.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Camera.h" />

@@ -122,7 +122,7 @@ bool Window::initializeObjects()
 	boundingBoxList.push_back(player->getBoundingBox());
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
-	chest = new Model("C:/Users/Lucas/Desktop/CSE 125/chestStill.gltf", chestRootTransform);
+	chest = new Model("C:/Users/Lucas/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
 	return true;
 }
 
