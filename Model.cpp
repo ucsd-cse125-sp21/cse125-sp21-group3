@@ -1,6 +1,6 @@
 #include "Model.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image.h"
 #include <glm/gtx/string_cast.hpp>
 #include "AssimpToGlmHelper.h"
 #define AI_MATKEY_GLTF_MATNAME "?mat.name", 0, 0
@@ -10,8 +10,10 @@ Model::Model(string const& path, glm::mat4 _rootModel)
 {
     rootModel = _rootModel;
     gammaCorrection = false;
-    loadModel(path);
     animationPlayer = new AnimationPlayer();
+    meshCounter = 0;
+    nodeModelCounter = 0;
+    loadModel(path);
 }
 
 // draws the model, and thus all its meshes
@@ -25,8 +27,8 @@ void Model::loadModel(string const& path)
 {
     // read file via ASSIMP
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-    
+
+    const aiScene* scene = importer.ReadFile(path + ".gltf", aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
@@ -38,9 +40,12 @@ void Model::loadModel(string const& path)
     directory = path.substr(0, path.find_last_of('/'));
 
     // process ASSIMP's root node recursively
-    processNode(scene->mRootNode, scene, rootModel);
+    processGltfNode(scene->mRootNode, scene, rootModel);
 
-    processAnimations(scene);
+    const aiScene* animScene = importer.ReadFile(path + ".gltf", aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+
+    processFbxNode(animScene->mRootNode, animScene);
+    processAnimations(animScene);
 }
 
 void Model::processAnimations(const aiScene* scene) {
@@ -48,34 +53,64 @@ void Model::processAnimations(const aiScene* scene) {
     for (int i = 0; i < scene->mNumAnimations; i++) {
         aiAnimation* animation = scene->mAnimations[i];
         //cout << "animation name: " << animation->mName.C_Str() << endl;
-        vector<aiNodeAnim*> animNodeList;
+        vector<AnimationNode*> animNodeList;
+        //cout << "mNumChannels: " << animation->mNumChannels << endl;
         for (int j = 0; j < animation->mNumChannels; j++) {
-            aiNodeAnim* animNode = animation->mChannels[j];
-            animNodeList.push_back(animNode);
-            //cout << "node name: " << node->mNodeName.C_Str() << endl;
+            aiNodeAnim* aiNodeAnim = animation->mChannels[j];
+            animNodeList.push_back(new AnimationNode(aiNodeAnim, meshes));
         }
-        animationPlayer->animationClipList.push_back(new AnimationClip(animNodeList, meshes));
+        //cout << "animNodeList size: " << animNodeList.size() << endl;
+        animationPlayer->animationClipList.push_back(new AnimationClip(animNodeList));
     }
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 rootTransform)
+void Model::processGltfNode(aiNode* node, const aiScene* scene, glm::mat4 rootTransform)
 {
     //cout << "processing node: " << node->mName.C_Str() << endl;
     //cout << "numMeshes: " << node->mNumMeshes << endl;
     // process each mesh located at the current node
+    glm::mat4 model(1.0f);
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         // the node object only contains indices to index the actual objects in the scene. 
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         glm::mat4 localTransform = AssimpToGlmHelper::convertAiMat4ToGlmMat4(node->mTransformation);
-        glm::mat4 model = rootTransform * localTransform;
+        model = rootTransform * localTransform;
+        nodeModels.push_back(model);
+        cout << "node: " << node->mName.C_Str() << endl;
+        cout << "gltf model: " << glm::to_string(model) << endl;
+        //meshes.push_back(processMesh(mesh, scene, model));
+    }
+    // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
+    for (unsigned int i = 0; i < node->mNumChildren; i++)
+    {
+        processGltfNode(node->mChildren[i], scene, rootTransform);  
+    }
+
+}
+
+void Model::processFbxNode(aiNode* node, const aiScene* scene)
+{
+    //cout << "processing node: " << node->mName.C_Str() << endl;
+    //cout << "numMeshes: " << node->mNumMeshes << endl;
+    // process each mesh located at the current node
+    glm::mat4 model(1.0f);
+    for (unsigned int i = 0; i < node->mNumMeshes; i++)
+    {
+        // the node object only contains indices to index the actual objects in the scene. 
+        // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        glm::mat4 model = nodeModels.at(nodeModelCounter);
+        cout << "node: " << node->mName.C_Str() << endl;
+        cout << "fbx model: " << glm::to_string(model) << endl;
+        nodeModelCounter++;
         meshes.push_back(processMesh(mesh, scene, model));
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        processNode(node->mChildren[i], scene, rootTransform);  
+        processFbxNode(node->mChildren[i], scene);
     }
 
 }
@@ -126,8 +161,10 @@ Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 model)
     // return a mesh object created from the extracted mesh data
     Mesh* m = new Mesh(positions, normals, indices);
     m->model = model;
-    m->baseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    //m->baseColor = glm::vec4(color.r, color.g, color.b, color.a);
+    //m->baseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    m->baseColor = glm::vec4(color.r, color.g, color.b, color.a);
     m->name = mesh->mName.C_Str();
+    m->id = meshCounter;
+    meshCounter++;
     return m;
 }

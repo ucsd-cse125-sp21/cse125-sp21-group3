@@ -46,6 +46,7 @@ GLuint Window::shaderProgram;
 //toggle to see bounding boxes
 bool Window::debugMode;
 Model* chest;
+int modelIndex = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +123,8 @@ bool Window::initializeObjects()
 	boundingBoxList.push_back(player->getBoundingBox());
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
-	chest = new Model("C:/Users/Lucas/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
+	//chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
+	chest = new Model("C:/Users/Lucas/Desktop/CSE 125/chestOpen", chestRootTransform);
 	return true;
 }
 
@@ -286,6 +288,9 @@ void Window::idleCallback()
 	}
 	player->update(0.1f, boundingBoxList);
 
+	glm::mat4 chestRootTransform(1.0f);
+	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
+	
 }
 
 /*
@@ -343,7 +348,7 @@ void Window::displayCallback(GLFWwindow* window)
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
 	for (Cube* footprint : player->getFootprints()) {
-		footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+		//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 
 	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
@@ -424,6 +429,9 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
 			player->moveDirection(player->sprint);
+			break;
+		case GLFW_KEY_ENTER:
+			chest->animationPlayer->animationClipList.at(0)->update();
 			break;
 		default:
 			break;

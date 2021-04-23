@@ -5,10 +5,10 @@
 #include <glm/gtx/string_cast.hpp>
 
 
-AnimationClip::AnimationClip(vector<aiNodeAnim*> _animNodeList, vector<Mesh*> _meshList) {
+AnimationClip::AnimationClip(vector<AnimationNode*> _animNodeList) {
 	animNodeList = _animNodeList;
-	meshList = _meshList;
 	prevTime = 0;
+	index = 0;
 }
 
 AnimationClip::~AnimationClip() {
@@ -19,43 +19,43 @@ bool AnimationClip::load(char* filename) {
 	return true;
 }
 
-void AnimationClip::evaluate(float time, glm::mat4 & rootWorld) {
+void AnimationClip::evaluate(int modelIndex, glm::mat4 & rootWorld) {
+	
 	
 	for (int i = 0; i < animNodeList.size(); i++) {
-		aiNodeAnim* animNode = animNodeList.at(i);
-		glm::mat4 translation(1.0f);
-		glm::mat4 rotation(1.0f);
-		glm::mat4 scaling(1.0f);
-		for (int j = animNode->mNumPositionKeys - 1; j >= 0; j--) {
-			aiVectorKey key = animNode->mPositionKeys[j];
-			if (time > key.mTime) {
-				translation = glm::translate(translation, AssimpToGlmHelper::convertAiVec3ToGlmVec3(key.mValue));
-				break;
-			}
-		}
-		for (int j = animNode->mNumRotationKeys - 1; j >= 0; j--) {
-			aiQuatKey key = animNode->mRotationKeys[j];
-			if (key.mTime > time) {
-				rotation = AssimpToGlmHelper::convertAiMat3ToGlmMat3(key.mValue.GetMatrix());
-				cout << "rotation: " << endl;
-				cout << glm::to_string(rotation) << endl;
-				break;
-			}
-		}
-		for (int j = animNode->mNumScalingKeys - 1; j >= 0; j--) {
-			aiVectorKey key = animNode->mScalingKeys[j];
-			if (key.mTime > time) {
-				scaling = glm::scale(scaling, AssimpToGlmHelper::convertAiVec3ToGlmVec3(key.mValue));
-				break;
-			}
-		}
-	
-		glm::mat4 transform = transform * translation * rotation * scaling;
-		string nodeName = animNode->mNodeName.C_Str();
-		for (int j = 0; j < meshList.size(); j++) {
-			if (nodeName.compare(meshList.at(j)->name) == 0) {
-				meshList.at(j)->model = transform * rootWorld;
-			}
+		AnimationNode* animationNode = animNodeList.at(i);
+		//cout << "mesh list size: " << animationNode->meshList.size() << endl;
+		for (int j = 0; j < animationNode->meshList.size(); j++) {
+			Mesh* mesh = animationNode->meshList.at(j);
+			//if (animationNode->modelList.size() > 0) {
+			//	
+			//	mesh->model = animationNode->modelList.at(modelIndex);
+			//	//cout << "mesh model: " << endl;
+			//	//cout << glm::to_string(mesh->model) << endl;
+			//	//mesh->model = glm::rotate(mesh->model, 1.57f, glm::vec3(1.0f, 0.0f, 0.0f));
+			//	//std::cout << "mesh position: " << mesh->model[3][0] << " " << mesh->model[3][1] << " " << mesh->model[3][2] << endl;
+			//}
+			//else {
+			//	cout << "model list empty" << endl;
+			//}
 		}
 	}
+}
+
+void AnimationClip::update() {
+
+	for (int i = 0; i < animNodeList.size(); i++) {
+		AnimationNode* animationNode = animNodeList.at(i);
+		//cout << "mesh list size: " << animationNode->meshList.size() << endl;
+		for (int j = 0; j < animationNode->meshList.size(); j++) {
+			Mesh* mesh = animationNode->meshList.at(j);
+			//aiQuaternion quaternion(0.0f, 0.0f, 1.57f);
+			//glm::mat4 rotation = AssimpToGlmHelper::convertAiMat3ToGlmMat3(quaternion.GetMatrix());
+			mesh->model = mesh->model * animationNode->positionTransforms.at(index) *
+				animationNode->orientationTransforms.at(index) * animationNode->scalingTransforms.at(index);
+			//mesh->model = glm::rotate(mesh->model, 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+	}
+
+	index++;
 }

@@ -15,10 +15,10 @@
 
 Mesh::Mesh(vector<glm::vec3> _positions, vector<glm::vec3> _normals, vector<unsigned int> _indices)
 {
-    this->positions = _positions;
-    this->normals = _normals;
-    this->indices = _indices;
-
+    positions = _positions;
+    normals = _normals;
+    indices = _indices;
+	id = 0;
     // now that we have all the required data, set the vertex buffers and its attribute pointers.
     setupMesh();
 }

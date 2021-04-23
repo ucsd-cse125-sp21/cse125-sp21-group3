@@ -11,7 +11,7 @@ class AnimationPlayer
 public:
 
 	std::vector<AnimationClip*> animationClipList;
-	void play(AnimationClip* animationClip, float time, glm::mat4 & rootWorld);
+	void play(AnimationClip* animationClip, int modelIndex, glm::mat4 & rootWorld);
 	AnimationPlayer();
 	~AnimationPlayer();
 };

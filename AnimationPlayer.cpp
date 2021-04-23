@@ -6,7 +6,7 @@ AnimationPlayer::AnimationPlayer() {
 
 }
 
-void AnimationPlayer::play(AnimationClip* animationClip, float time, glm::mat4 & rootWorld) {
+void AnimationPlayer::play(AnimationClip* animationClip, int modelIndex, glm::mat4 & rootWorld) {
 
-	animationClip->evaluate(time, rootWorld);
+	animationClip->evaluate(modelIndex, rootWorld);
 }

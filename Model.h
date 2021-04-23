@@ -24,7 +24,9 @@ class Model
 public:
     // model data 
     vector<Mesh*> meshes;
-
+    int meshCounter;
+    int nodeModelCounter;
+    vector<glm::mat4> nodeModels;
     string directory;
     bool gammaCorrection;
     glm::mat4 rootModel;
@@ -41,7 +43,8 @@ private:
     void loadModel(string const& path);
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-    void processNode(aiNode* node, const aiScene* scene, glm::mat4 rootTransform);
+    void processGltfNode(aiNode* node, const aiScene* scene, glm::mat4 rootTransform);
+    void processFbxNode(aiNode* node, const aiScene* scene);
 
     void processAnimations(const aiScene* scene);
 

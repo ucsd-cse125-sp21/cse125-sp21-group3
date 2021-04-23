@@ -13,7 +13,7 @@ public:
     //vector<Vertex>       vertices;
     //vector<unsigned int> indices;
     //vector<Texture>      textures;
-
+    int id;
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
     std::vector<unsigned int> indices;
