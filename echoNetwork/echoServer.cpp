@@ -3,6 +3,7 @@
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <../gameState/game_state.cpp>
+#include <../util/ts_queue.cpp>
 #define MAX_CONNECTIONS 4
 #define PERIOD 500 //server period in ms
 
@@ -21,6 +22,7 @@ private:
     enum { max_length = 1024 };
     char data[max_length];
     int pid;
+    ThreadSafeQueue<std::string> input_buffer;
 
 public:
     typedef boost::shared_ptr<con_handler> pointer;
@@ -49,16 +51,17 @@ public:
     void handle_read(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (!err) {
-            cout << "Server received: " << data << endl;
-            std::string response;
-            response.assign((char*) state, sizeof(game_state));
+            std::string incoming;
+            incoming.assign(data, bytes_transferred);
+            input_buffer.push(incoming);
 
-            sock.async_write_some(
-                boost::asio::buffer(response, max_length),
-                boost::bind(&con_handler::handle_write,
-                    shared_from_this(),
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred));
+            sock.async_read_some(
+            boost::asio::buffer(data, max_length),
+            boost::bind(&con_handler::handle_read,
+                shared_from_this(),
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
+
         }
         else {
             std::cerr << "error: " << err.message() << std::endl;
@@ -98,6 +101,10 @@ public:
                     shared_from_this(),
                     boost::asio::placeholders::error,
                     boost::asio::placeholders::bytes_transferred));
+    }
+
+    std::string dequeue(){
+        return input_buffer.pop();
     }
 };
 
@@ -139,6 +146,16 @@ public:
         while(1){
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
             if(counter > 0){
+
+                //first handle incoming messages, if there are any
+                int player;
+                for(player = 0; player < counter; player++){
+                    std::string nextMessage = players[player] -> dequeue();
+                    if(!nextMessage.empty())
+                        cout << nextMessage << endl; //replace with message parser
+
+                }
+                //then broadcast the game_state
                 std::string response;
                 response.assign((char*) state, sizeof(game_state));
                 int i;

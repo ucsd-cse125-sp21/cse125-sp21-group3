@@ -3,7 +3,7 @@
 template<class T>
 class ThreadSafeQueue {
     private:
-        std::queue<T*> q;
+        std::queue<T> q;
         std::mutex m;
 
     public:
@@ -17,10 +17,13 @@ class ThreadSafeQueue {
 
         T pop(){
             m.lock();
-            if(q.empty())
-                return NULL;
+            if(q.empty()){
+                m.unlock();
+                return ""; //empty string for null
+            }
             T popped = q.front();
             q.pop();
+            m.unlock();
             return popped;
         }
-};
+};  
