@@ -430,9 +430,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_LEFT_SHIFT:
 			player->moveDirection(player->sprint);
 			break;
-		case GLFW_KEY_ENTER:
-			chest->animationPlayer->animationClipList.at(0)->update();
-			break;
 		default:
 			break;
 		}
