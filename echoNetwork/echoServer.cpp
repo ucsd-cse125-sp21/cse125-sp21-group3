@@ -4,6 +4,8 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <../gameState/game_state.cpp>
 #include <../util/ts_queue.cpp>
+#include <../parsing/serverParse.cpp>
+
 #define MAX_CONNECTIONS 4
 #define PERIOD 500 //server period in ms
 
@@ -21,16 +23,18 @@ private:
     std::string message = "Hello From Server!";
     enum { max_length = 1024 };
     char data[max_length];
-    int pid;
     ThreadSafeQueue<std::string> input_buffer;
 
 public:
+    int pid;
+    string pid_str; //for parser
+
     typedef boost::shared_ptr<con_handler> pointer;
-    con_handler(boost::asio::io_service& io_service, int pid) : sock(io_service), pid(pid) {}
+    con_handler(boost::asio::io_service& io_service, int pid, std::string pid_str) : sock(io_service), pid(pid), pid_str(pid_str) {}
     // creating the pointer
     static pointer create(boost::asio::io_service& io_service, int pid)
     {
-        return pointer(new con_handler(io_service, pid));
+        return pointer(new con_handler(io_service, pid, to_string(pid)));
     }
     //socket creation
     tcp::socket& socket()
@@ -46,6 +50,7 @@ public:
                 shared_from_this(),
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred));
+                
     }
 
     void handle_read(const boost::system::error_code& err, size_t bytes_transferred)
@@ -96,7 +101,7 @@ public:
     void send_game_state(std::string state_string)
     {
          sock.async_write_some(
-                boost::asio::buffer(state_string, max_length),
+                boost::asio::buffer(state_string, state_string.size()),
                 boost::bind(&con_handler::handle_send_state,
                     shared_from_this(),
                     boost::asio::placeholders::error,
@@ -106,6 +111,8 @@ public:
     std::string dequeue(){
         return input_buffer.pop();
     }
+
+    
 };
 
 class Server
@@ -114,7 +121,7 @@ private:
     boost::asio::io_service & io_service_;
     tcp::acceptor acceptor_;
     int counter;
-    con_handler::pointer players[MAX_CONNECTIONS];
+    con_handler::pointer playerConnections[MAX_CONNECTIONS];
     
     void start_accept()
     {
@@ -136,31 +143,46 @@ public:
     void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
     {
         if (!err) {
+            cout << "YES!" << endl;
             connection->start();
-            players[counter++] = connection;
+            playerConnections[counter++] = connection;
+            joinMessageHandler();
         }
         start_accept();
+    }
+
+    void broadcast(std::string msg)
+    {
+        int x;
+        for(x = 0; x < userIdCount; x++)
+            playerConnections[x] -> send_game_state(msg);
     }
 
     void handle_timeout(){
         while(1){
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
-            if(counter > 0){
+            if(userIdCount > 0){
 
                 //first handle incoming messages, if there are any
-                int player;
-                for(player = 0; player < counter; player++){
-                    std::string nextMessage = players[player] -> dequeue();
+                int bufIndex;
+                for(bufIndex = 0; bufIndex < userIdCount; bufIndex++){
+                    std::string nextMessage = playerConnections[bufIndex] -> dequeue();
                     if(!nextMessage.empty())
-                        cout << nextMessage << endl; //replace with message parser
+                        sortClientMessage(nextMessage);
 
                 }
                 //then broadcast the game_state
-                std::string response;
-                response.assign((char*) state, sizeof(game_state));
-                int i;
-                for(i = 0; i < counter; i++)
-                    players[i] -> send_game_state(response);
+                cout << "BROADCASTING!" << endl;
+                for(int p = 0; p < userIdCount; p++){
+                    std::string playerStateString = buildPlayerMessage(playerConnections[p] -> pid_str);
+                    broadcast(playerStateString);
+
+                }
+                // std::string response;
+                // response.assign((char*) state, sizeof(game_state));
+                // int i;
+                // for(i = 0; i < counter; i++)
+                //     playerConnections[i] -> send_game_state(response);
 
             }
         }

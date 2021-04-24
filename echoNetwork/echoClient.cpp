@@ -1,61 +1,77 @@
 #include <iostream>
-#include <cstdlib>
 #include <boost/asio.hpp>
-#include <boost/asio.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/bind.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <../gameState/game_state.cpp>
+#include <../util/ts_queue.cpp>
+#include <../parsing/clientParse.cpp>
 
-using namespace std;
+
 using namespace boost::asio;
 using ip::tcp;
+using std::cout;
+using std::endl;
 
-game_state* local_state;
+game_state* state;
 
-int main(int argc, char* argv[]) {
 
-    local_state = (game_state*) malloc(sizeof(game_state));
-    boost::asio::io_service io_service;
+class Client
+{
 
-    //socket creation
-    tcp::socket socket(io_service);
+public:
 
-    //connection
-    socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
-    
-    // request/message from client
-    boost::system::error_code error;
-    while (true) {
-        // char message[256];
-        // std::cin >> message;
-        // socket.write_some(boost::asio::buffer(message));
-        // //boost::asio::write(socket, boost::asio::buffer(message), error);
-        // if (!error) {
-        //     cout << "Client sent: " << message << endl;
-        // }
-        // else {
-        //     cout << "send failed: " << error.message() << endl;
-        // }
+    boost::asio::io_service & io_service_;
+    tcp::socket sock;
+    std::string input_buf;
+    char data[200];
 
-        // getting response from server
+    Client(boost::asio::io_service& io_service) : io_service_(io_service), sock(io_service) {
 
-        char messageReceived[256];
-        socket.read_some(boost::asio::buffer(messageReceived, 256));
-        //boost::asio::read(socket, receive_buffer, boost::asio::transfer_all(), error);
-        /*
-        if (error && error != boost::asio::error::eof) {
-            cout << "receive failed: " << error.message() << endl;
+    }
+
+    void start(){
+        async_read_until(
+                sock,
+                boost::asio::dynamic_buffer(input_buf),
+                "\r\n",
+                boost::bind(&Client::client_handle_read,
+                    this,
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+    }
+
+    void client_handle_read(const boost::system::error_code& err, size_t bytes_transferred)
+    {
+        if (!err) {
+            sortServerMessage(input_buf);
+            input_buf = ""; //clear the input buffer
+            async_read_until(
+                sock,
+                boost::asio::dynamic_buffer(input_buf),
+                "\r\n",
+                boost::bind(&Client::client_handle_read,
+                    this,
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+
         }
         else {
-            const char* data = boost::asio::buffer_cast<const char*>(receive_buffer.data());
-            cout << "Server Echoed: ";
-            cout << data << endl;
+            std::cerr << "error: " << err.message() << std::endl;
+            sock.close();
         }
-        */
-        memcpy(local_state, messageReceived, sizeof(game_state));
-
-        cout << "state.x = " << to_string(local_state -> x) << endl;
-        cout << "state.y = " << to_string(local_state -> y) << endl;
-        cout << "state.z = " << to_string(local_state -> z) << endl;
     }
-    return EXIT_SUCCESS;
+
+    
+};
+
+int main(int argc, char* argv[])
+{
+    boost::asio::io_service io_service;
+    Client client(io_service);
+    //boost::asio::io_service::work idleWork(io_service);
+    client.sock.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
+    client.start();
+    client.io_service_.run();
+    while(1){
+    }
 }
