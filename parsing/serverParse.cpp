@@ -32,6 +32,8 @@ class Client{
         double playerDirection;
         bool isFiring = false;
 
+        string unsentMazeUpdates = "";
+
         /*
          * Must somehow maintain connection with client.  Server still needs to
          * send player, maze, and start messages to client before regular
@@ -69,6 +71,16 @@ class Client{
         int getHealth()
         {
             return health;
+        }
+
+        /*
+         * Return maze updates for this Client.  Clear unsent maze update
+         * list.
+         */
+        string getMazeUpdates(){
+            string mazeUpdates = unsentMazeUpdates;
+            unsentMazeUpdates = "";
+            return mazeUpdates;
         }
 
         void setKeyDirection(vector<string> keyInputVector)
@@ -109,11 +121,41 @@ class Client{
         {
             this->health = health;
         }
+
+        void addMazeUpdate(string mazeUpdate){
+            unsentMazeUpdates += mazeUpdate;
+        }
 };
 
+/*
+ * Field variables.
+ */
 const string MESSAGE_TAIL = "\r\n"; // Attatched to the end of every message.
 unordered_map<string,Client> idClientMap;  // Map unique userId's with each client.
 int userIdCount = 0; // Incrementing counter that assigns new userId's
+
+
+/*
+ * Mazes are represented by a 2D-Array.  A hidden wall is represented by 0.  A
+ * east-west wall is represented by a 1.  A north-south wall is represented by
+ * a 2.
+ */
+const int MAZE_SIZE = 4; // Height and width of maze.
+int mazeArr[MAZE_SIZE][MAZE_SIZE];
+
+/*
+ * Update the 2D-Array representation of the array.  Once abilities are added,
+ * inputMessageHandler will call this method to update the map.
+ * 
+ * Add update message
+ */
+void updateMaze(int row, int col, int wallState) {
+    mazeArr[row][col] = wallState;
+    string mazeUpdate = "," + to_string(row) + "," + to_string(col) + "," + to_string(wallState);
+    for (auto it = idClientMap.begin(); it != idClientMap.end(); ++it) {
+        it->second.addMazeUpdate(mazeUpdate);
+    }
+}
 
 /*
  * Create new entry in idClientMap
@@ -192,6 +234,41 @@ string buildStartMessage() {
     return "start" + MESSAGE_TAIL;
 }
 
+/*
+ * Return the initial maze message sent before the game.
+ */
+string buildMazeInitialMessage() {
+    string message = "mazeInitial," + to_string(MAZE_SIZE);
+    for (int i = 0; i < MAZE_SIZE; i++) {
+        for (int j = 0; j < MAZE_SIZE; j++) {
+            message += "," + to_string(mazeArr[i][j]);
+        }
+    }
+    return message + MESSAGE_TAIL;
+}
+
+/*
+ * Return the update maze message sent during the game after updates to the
+ * maze for the passed client.
+ */
+string buildMazeUpdateMessage(string clientId) {
+    return "mazeUpdate" + idClientMap[clientId].getMazeUpdates() + MESSAGE_TAIL;
+}
+
+/*
+ * Method to display 2D array in string form.  Only for verifying methods.
+ */
+void printArray() {
+
+    for (int i = 0; i < MAZE_SIZE; i++) {
+        string row = "";
+        for (int j = 0; j < MAZE_SIZE; j++) {
+            row += to_string(mazeArr[i][j]) + " ";
+        }
+        cout << row << endl;
+    }
+}
+
 int main(int argc, char* argv[]) {
 
     // Client with userId "0" will be created and deleted
@@ -204,10 +281,23 @@ int main(int argc, char* argv[]) {
     cout << "ClientId 1's Player Direction: ";
     cout << idClientMap["1"].playerDirection << endl;
 
+    // Set maze, update maze
+    int exampleArr[4][4]  = {{0,1,2,0},{1,2,0,1},{2,1,0,1},{2,1,1,0}};
+    memcpy(mazeArr,exampleArr,sizeof(mazeArr));
+    printArray();
+    updateMaze(0,0,1);
+    cout << "Client 1 maze update 1:" << idClientMap["1"].unsentMazeUpdates << endl;
+    updateMaze(1,1,0);
+    cout << "Client 1 maze update 2:" << idClientMap["1"].unsentMazeUpdates << endl;
+    printArray();
+
     // Print messages sent by server.
     cout << "Join Response:" << buildJoinResponse("1") << endl;
     cout << "Player Message:" << buildPlayerMessage("1") << endl;
     cout << "Start Message:" << buildStartMessage() << endl;
+    cout << "Maze Initial:" << buildMazeInitialMessage() << endl;
+    cout << "Maze Update (Client 1):" << buildMazeUpdateMessage("1") << endl;
+    cout << "Client 1's empty maze updates:" << idClientMap["1"].unsentMazeUpdates << endl;
 
     return EXIT_SUCCESS;
 }

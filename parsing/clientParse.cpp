@@ -16,6 +16,8 @@ const string JOIN_RESPONSE = "joinResponse,0";
 const string START_MESSAGE = "start";
 const string PLAYER_MESSAGE_INITIAL = "player,1,432.1,-123.4,65";
 const string PLAYER_MESSAGE_UPDATE = "player,1,555.5,444.4,33";
+const string MAZE_INITIAL = "mazeInitial,4,1,1,2,0,1,0,0,1,2,1,0,1,2,1,1,0";
+const string MAZE_UPDATE = "mazeUpdate,0,0,2,1,1,2";
 
 
 /*
@@ -68,6 +70,16 @@ bool hasGameStarted = false;
 const string MESSAGE_TAIL = "\r\n";  //Attatched to the end of every message.
 
 /*
+ * Mazes are represented by a 2D-Array.  A hidden wall is represented by 0.  A
+ * east-west wall is represented by a 1.  A north-south wall is represented by
+ * a 2.
+ */
+const int MAZE_UPDATE_SIZE = 3;
+int mazeSize; // Height and width of maze.
+int **mazeArr; // 2D representation of maze.
+//int mazeArr[][]; 
+
+/*
  * Set selfId field to userId sent in Join Response message.
  */
 void joinResponseHandler(string userId) {
@@ -78,7 +90,6 @@ void joinResponseHandler(string userId) {
  * Record information about the player in Player Message in idPlayerMap.
  */
 void playerMessageHandler(vector<string> messageValues) {        
-
     string userId = messageValues.at(1);
     if (hasGameStarted) {
         idPlayerMap[userId].setX(stod(messageValues.at(2)));
@@ -92,10 +103,40 @@ void playerMessageHandler(vector<string> messageValues) {
 }
 
 /*
- * To be created method to handle storing the maze and updated version of it.
+ * Store the 2D Array representation of the maze.
  */
-void mazeMessageHandler(vector<string> messageValues) {
+void mazeInitialMessageHandler(vector<string> messageValues) {
 
+    //Initialize maze 2D-array
+    mazeSize = stoi(messageValues.at(1));
+    mazeArr = new int*[mazeSize];
+    for (int i = 0; i < mazeSize; ++i) {
+        mazeArr[i] = new int[mazeSize];
+    }
+
+    cout << "Maze initialized" << endl;
+
+    //Populate 2D-Array
+    int valuesInd = 2;
+    for (int row = 0; row < mazeSize; row++) {
+        for (int col = 0; col < mazeSize; col++) {
+            mazeArr[row][col] = stoi(messageValues.at(valuesInd));
+            valuesInd++;
+        }
+    }
+}
+
+/*
+ * Update the 2D Array representation of the maze.  There may be multiple
+ * maze updates in a single message.
+ */
+void mazeUpdateMessageHandler(vector<string> messageValues) {
+    for (int i = 1; i < messageValues.size(); i+=MAZE_UPDATE_SIZE) {
+        int row = stoi(messageValues.at(i));
+        int col = stoi(messageValues.at(i+1));
+        int wallState = stoi(messageValues.at(i+2));
+        mazeArr[row][col] = wallState;
+    }
 }
 
 /*
@@ -121,8 +162,11 @@ void sortServerMessage(string serverMessage) {
     else if (header=="player") {
         playerMessageHandler(messageValues);
     }
-    else if (header=="maze"){
-        mazeMessageHandler(messageValues);
+    else if (header=="mazeInitial"){
+        mazeInitialMessageHandler(messageValues);
+    }
+    else if (header=="mazeUpdate") {
+        mazeUpdateMessageHandler(messageValues);
     }
     else if (header=="start") {
         startMessageHandler();
@@ -154,6 +198,20 @@ string buildInputMessage() {
         + MESSAGE_TAIL;
 }
 
+/*
+ * Method to display 2D array in string form.  Only for verifying methods.
+ */
+void printArray() {
+
+    for (int i = 0; i < mazeSize; i++) {
+        string row = "";
+        for (int j = 0; j < mazeSize; j++) {
+            row += to_string(mazeArr[i][j]) + " ";
+        }
+        cout << row << endl;
+    }
+}
+
 int main(int argc, char* argv[]) {
 
     // Client assigned userId of "0".
@@ -177,6 +235,13 @@ int main(int argc, char* argv[]) {
     if (hasGameStarted == true) {
         cout << "Game started" << endl;
     }
+
+    // Store initial maze and maze update messages.
+    sortServerMessage(MAZE_INITIAL);
+    printArray();
+    cout << endl;
+    sortServerMessage(MAZE_UPDATE);
+    printArray();
 
     // Print messages sent by client.
     cout << "Join Message:" << buildJoinMessage() << endl;
