@@ -8,7 +8,13 @@
 AnimationClip::AnimationClip(vector<AnimationNode*> _animNodeList) {
 	animNodeList = _animNodeList;
 	prevTime = 0;
-	index = 0;
+	int numKeys = animNodeList.at(0)->positionKeys.size();
+	if (numKeys > 0) {
+		duration = animNodeList.at(0)->positionKeys[numKeys - 1]->time;
+	}
+	else {
+		duration = 0;
+	}
 }
 
 AnimationClip::~AnimationClip() {
@@ -19,43 +25,80 @@ bool AnimationClip::load(char* filename) {
 	return true;
 }
 
-void AnimationClip::evaluate(int modelIndex, glm::mat4 & rootWorld) {
-	
+
+int findKeyframe(float time, AnimationNode* animationNode) {
+	for (int j = 0; j < animationNode->positionKeys.size(); j++) {
+		if (time <= animationNode->positionKeys[j]->time) {
+			return j;
+		}
+	}
+
+	return animationNode->positionKeys.size() - 1;
+}
+void AnimationClip::evaluate(float time, glm::mat4 rootWorld) {
 	
 	for (int i = 0; i < animNodeList.size(); i++) {
 		AnimationNode* animationNode = animNodeList.at(i);
-		//cout << "mesh list size: " << animationNode->meshList.size() << endl;
+		glm::mat4 positionTransform(1.0f);
+		glm::mat4 rotationTransform(1.0f);
+		glm::mat4 scalingTransform(1.0f);
+		int keyframe = findKeyframe(time, animationNode);
+		if (keyframe == 0 || keyframe == animationNode->positionKeys.size() - 1) {
+			positionTransform = glm::translate(positionTransform, animationNode->positionKeys[keyframe]->value);
+			rotationTransform = glm::toMat4(animationNode->rotationKeys[keyframe]->value);
+			scalingTransform = glm::scale(scalingTransform, animationNode->scalingKeys[keyframe]->value);
+			
+		}
+		else {
+			float timeA = animationNode->positionKeys[keyframe - 1]->time;
+			float timeB = animationNode->positionKeys[keyframe]->time;
+			float ratio = (time - timeA) / (timeB - timeA); 
+			
+			glm::vec3 position;
+			glm::vec3 scaling;
+			glm::quat rotation;
+			if (animationNode->positionKeys[keyframe]->tangentIn == glm::vec3(0.0f, 0.0f, 0.0f)) {
+				position = animationNode->positionKeys[keyframe]->value;
+			}
+			else {
+				position = animationNode->positionKeys[keyframe]->tangentIn * (ratio);
+				
+			}
+			if (animationNode->scalingKeys[keyframe]->tangentIn == glm::vec3(0.0f, 0.0f, 0.0f)) {
+				scaling = animationNode->scalingKeys[keyframe]->value;
+			}
+			else {
+				scaling = animationNode->scalingKeys[keyframe]->tangentIn * (ratio);
+			}
+			if (animationNode->rotationKeys[keyframe - 1]->value == animationNode->rotationKeys[keyframe]->value) {
+				rotation = animationNode->rotationKeys[keyframe]->value;
+			}
+			else {
+				rotation = glm::slerp(animationNode->rotationKeys[keyframe - 1]->value, animationNode->rotationKeys[keyframe]->value, ratio);
+			}
+			
+			positionTransform = glm::translate(positionTransform, position);
+			scalingTransform = glm::scale(scalingTransform, scaling);
+			rotationTransform = glm::toMat4(rotation);
+		}
+
 		for (int j = 0; j < animationNode->meshList.size(); j++) {
 			Mesh* mesh = animationNode->meshList.at(j);
-			//if (animationNode->modelList.size() > 0) {
-			//	
-			//	mesh->model = animationNode->modelList.at(modelIndex);
-			//	//cout << "mesh model: " << endl;
-			//	//cout << glm::to_string(mesh->model) << endl;
-			//	//mesh->model = glm::rotate(mesh->model, 1.57f, glm::vec3(1.0f, 0.0f, 0.0f));
-			//	//std::cout << "mesh position: " << mesh->model[3][0] << " " << mesh->model[3][1] << " " << mesh->model[3][2] << endl;
-			//}
-			//else {
-			//	cout << "model list empty" << endl;
-			//}
+			mesh->model = rootWorld * positionTransform * rotationTransform * scalingTransform;
 		}
 	}
 }
 
-void AnimationClip::update() {
+void AnimationClip::selectKeyframe(int keyframe, glm::mat4 rootWorld) {
 
 	for (int i = 0; i < animNodeList.size(); i++) {
 		AnimationNode* animationNode = animNodeList.at(i);
-		//cout << "mesh list size: " << animationNode->meshList.size() << endl;
 		for (int j = 0; j < animationNode->meshList.size(); j++) {
 			Mesh* mesh = animationNode->meshList.at(j);
-			//aiQuaternion quaternion(0.0f, 0.0f, 1.57f);
-			//glm::mat4 rotation = AssimpToGlmHelper::convertAiMat3ToGlmMat3(quaternion.GetMatrix());
-			mesh->model = mesh->model * animationNode->positionTransforms.at(index) *
-				animationNode->orientationTransforms.at(index) * animationNode->scalingTransforms.at(index);
-			//mesh->model = glm::rotate(mesh->model, 0.2f, glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::mat4 positionTransform = glm::translate(glm::mat4(1.0f), animationNode->positionKeys[keyframe]->value);
+			glm::mat4 rotationTransform = glm::toMat4(animationNode->rotationKeys[keyframe]->value);
+			glm::mat4 scalingTransform = glm::scale(glm::mat4(1.0f), animationNode->scalingKeys[keyframe]->value);
+			mesh->model = rootWorld * positionTransform * rotationTransform * scalingTransform;
 		}
 	}
-
-	index++;
 }

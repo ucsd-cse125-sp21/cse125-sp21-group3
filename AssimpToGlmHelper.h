@@ -7,6 +7,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <iostream>
+#include <glm/gtc/quaternion.hpp> 
+#include <glm/gtx/quaternion.hpp>
 using namespace std;
 
 class AssimpToGlmHelper {
@@ -48,6 +50,11 @@ public:
 			{m.a3, m.b3, m.c3, m.d3},
 			{m.a4, m.b4, m.c4, m.d4}
 			});
+	}
+
+	static glm::quat convertAiQuatToGlmQuat(aiQuaternion q) {
+
+		return glm::quat(q.w, q.x, q.y, q.z);
 	}
 };
 #endif

@@ -11,14 +11,12 @@ class AnimationClip
 
 public:
 	
-	float rangeStart;
-	float rangeEnd;
 	float prevTime;
+	float duration;
 	string name;
 	vector<AnimationNode*> animNodeList;
-	int index;
-	void evaluate(int modelIndex, glm::mat4 & rootWorld);
-	void update();
+	void evaluate(float time, glm::mat4 rootWorld);
+	void selectKeyframe(int keyframe, glm::mat4 rootWorld);
 	bool load(char* filename);
 
 	~AnimationClip();

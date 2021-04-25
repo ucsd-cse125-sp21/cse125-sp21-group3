@@ -73,9 +73,10 @@ void Camera::Reset() {
     yaw = -90.0f;
     pitch = 0.0f;
     world = glm::mat4(1.0f);
-    world[3][2] = 2.0f;
-    world[3][1] = 3.5f;
+
     world[3][0] = 2.0f;
+    world[3][1] = 3.5f;
+    world[3][2] = 2.0f;
 
     cameraFront = glm::vec3(0.0f - world[3][0], 3.5f, 0.0f - world[3][2]);
 

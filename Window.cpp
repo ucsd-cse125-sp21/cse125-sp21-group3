@@ -46,7 +46,8 @@ GLuint Window::shaderProgram;
 //toggle to see bounding boxes
 bool Window::debugMode;
 Model* chest;
-int modelIndex = 0;
+Model* gun;
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,8 +84,6 @@ bool Window::initializeProgram() {
 bool Window::initializeObjects()
 {
 	// Create a cube
-	cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(1,1,1));
-	boundingBoxList.push_back(cube->getBoundingBox());
 
 	//Cube* front = new Cube(glm::vec3(40, 0, -40), glm::vec3(40.1, 5, 40));
 	//Cube* back = new Cube(glm::vec3(-40, 0, -40), glm::vec3(-40.1, 5, 40));
@@ -96,6 +95,7 @@ bool Window::initializeObjects()
 
 	int size = 21;
 	int scale = 5;
+
 	Maze* maze = new Maze(size, scale);
 
 	walls = maze->createWalls();
@@ -124,7 +124,11 @@ bool Window::initializeObjects()
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
 	//chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-	chest = new Model("C:/Users/Lucas/Desktop/CSE 125/chestOpen", chestRootTransform);
+	chest = new Model("C:/Users/Lucas/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
+	glm::mat4 gunRootTransform(1.0f);
+	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
+	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(8.0f, 2.0f, 4.0f));
+	gun = new Model("C:/Users/Lucas/Desktop/CSE 125/gun1.gltf", gunRootTransform);
 	return true;
 }
 
@@ -290,7 +294,9 @@ void Window::idleCallback()
 
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
-	
+
+
+	chest->animationPlayer->play(chest->animationPlayer->animationClipList.at(0), 0.01f, chestRootTransform);
 }
 
 /*
@@ -367,6 +373,7 @@ void Window::displayCallback(GLFWwindow* window)
 	}
 	
 	chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	drawCrosshair();
 
 	// Gets events, including input such as keyboard and mouse or window resizing.

@@ -23,7 +23,20 @@ public:
 	void setMin(glm::vec3 p) { min = p; }
 	void setMax(glm::vec3 p) { max = p; }
 	void setActive(bool val) { active = val; }
-	void setModel(glm::mat4 m) { model = m; }
+	void setModel(glm::mat4 m) {
+		
+		//apply transformation to min and max
+		glm::mat4 someTransformation = glm::inverse(model) * m;
+		glm::vec4 minTemp(min.x, min.y, min.z, 1.0f);
+		glm::vec4 maxTemp(max.x, max.y, max.z, 1.0f);
+		minTemp = minTemp * someTransformation;
+		maxTemp = maxTemp * someTransformation;
+		min = glm::vec3(minTemp.x / minTemp.w, minTemp.y / minTemp.w, minTemp.z / minTemp.w);
+		max = glm::vec3(maxTemp.x / maxTemp.w, maxTemp.y / maxTemp.w, maxTemp.z / maxTemp.w);
+		
+		//update model
+		model = m;
+	}
 	bool checkCollision(BoundingBox* b);
 	
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);

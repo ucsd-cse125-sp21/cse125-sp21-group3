@@ -124,6 +124,8 @@
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="MatrixKeyframe.cpp" />
+    <ClCompile Include="VectorKeyframe.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Maze.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -142,6 +144,8 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="MatrixKeyframe.h" />
+    <ClInclude Include="VectorKeyframe.h" />
     <ClInclude Include="Maze.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />

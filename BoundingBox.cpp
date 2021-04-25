@@ -1,5 +1,7 @@
 #include "BoundingBox.h"
 #include "glm/gtx/euler_angles.hpp"
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 
 /*
  * File Name: BoundingBox.cpp
@@ -162,6 +164,10 @@ bool BoundingBox::checkCollision(BoundingBox* b) {
 	glm::vec3 a_max = max;
 	glm::vec3 b_min = b->getMin();
 	glm::vec3 b_max = b->getMax();
+	//std::cout << "a_min: " << glm::to_string(a_min) << std::endl;
+	//std::cout << "b_min: " << glm::to_string(b_min) << std::endl;
+	//std::cout << "a_max: " << glm::to_string(a_max) << std::endl;
+	//std::cout << "b_max: " << glm::to_string(b_max) << std::endl;
 	return (a_min.x <= b_max.x && a_max.x >= b_min.x) &&
 		(a_min.y <= b_max.y && a_max.y >= b_min.y) &&
 		(a_min.z <= b_max.z && a_max.z >= b_min.z);

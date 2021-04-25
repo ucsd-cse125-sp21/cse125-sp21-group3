@@ -6,7 +6,12 @@ AnimationPlayer::AnimationPlayer() {
 
 }
 
-void AnimationPlayer::play(AnimationClip* animationClip, int modelIndex, glm::mat4 & rootWorld) {
+void AnimationPlayer::play(AnimationClip* animationClip, float speed, glm::mat4 & rootWorld) {
 
-	animationClip->evaluate(modelIndex, rootWorld);
+	float time = animationClip->prevTime + speed;
+	if (time > animationClip->duration) {
+		time = 0.0f;
+	}
+	animationClip->evaluate(time, rootWorld);
+	animationClip->prevTime = time;
 }
