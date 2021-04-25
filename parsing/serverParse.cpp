@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 #include <unordered_map>
+#include <queue>
 
 using namespace std;
 using namespace boost::asio;
@@ -16,11 +17,35 @@ const string JOIN_MESSAGE = "join";
 const string LEAVE_MESSAGE = "leave,0";
 const string INPUT_MESSAGE = "input,1,true,false,false,false,true,false,300.58,false";
 
+
+const int MAX_FOOTSTEPS = 10;
 /*
  * Store information about the client including the most recent input message
  * data.
  */
 class Client{
+
+    class Footstep{
+
+        public:
+
+            double x;
+            double y;
+            
+            Footstep() {
+
+            }
+
+            Footstep(double x,double y) {
+                this->x = x;
+                this->y = y;
+            }
+
+            string toString() {
+                return "," + to_string(x) + "," + to_string(y);
+            }
+    };
+
     public:
         double positionX = 0;
         double positionY = 0;
@@ -33,6 +58,7 @@ class Client{
         bool isFiring = false;
 
         string unsentMazeUpdates = "";
+        deque<Footstep> footstepQueue; //Youngest to oldest from front to back.
 
         /*
          * Must somehow maintain connection with client.  Server still needs to
@@ -71,6 +97,18 @@ class Client{
         int getHealth()
         {
             return health;
+        }
+
+        /*
+         * Return the stringified payload for player_message.
+         */
+        string getPayloadString() {
+            string footsteps = "";
+            for (int i = 0; i < footstepQueue.size(); i++) {
+                footsteps += footstepQueue[i].toString();
+            }
+            return "," + to_string(positionX) + "," + to_string(positionY) 
+                + "," + to_string(health) + footsteps;
         }
 
         /*
@@ -124,6 +162,18 @@ class Client{
 
         void addMazeUpdate(string mazeUpdate){
             unsentMazeUpdates += mazeUpdate;
+        }
+
+        /*
+         * Add a footstep to the footstep queue.  Remove the oldest footstep
+         * if there are more than 10 footsteps stored.  The queue stores
+         * footsteps youngest to oldest from front to back.
+         */
+        void addFootstep(double x, double y) {
+            footstepQueue.push_front(Footstep(x,y));
+            if (footstepQueue.size() > MAX_FOOTSTEPS) {
+                footstepQueue.pop_back();
+            }
         }
 };
 
@@ -221,9 +271,7 @@ string buildJoinResponse(string clientId) {
  * Return the player message string.
  */
 string buildPlayerMessage(string clientId) {
-    Client client = idClientMap[clientId];
-    return "player," + clientId + "," + to_string(client.getX()) + "," 
-        + to_string(client.getY()) + "," + to_string(client.getHealth()) 
+    return "player," + clientId + idClientMap[clientId].getPayloadString() 
         + MESSAGE_TAIL;
 }
 
@@ -290,6 +338,12 @@ int main(int argc, char* argv[]) {
     updateMaze(1,1,0);
     cout << "Client 1 maze update 2:" << idClientMap["1"].unsentMazeUpdates << endl;
     printArray();
+
+    // Add 11 footsteps to Client with userId "1".
+    for (double i = 0; i < 11; i++) {
+        idClientMap["1"].addFootstep(i,i+1);
+    }
+    cout << "Num footsteps: " << idClientMap["1"].footstepQueue.size() << endl;
 
     // Print messages sent by server.
     cout << "Join Response:" << buildJoinResponse("1") << endl;

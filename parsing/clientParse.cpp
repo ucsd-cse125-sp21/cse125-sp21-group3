@@ -14,20 +14,38 @@ using ip::tcp;
  */
 const string JOIN_RESPONSE = "joinResponse,0";
 const string START_MESSAGE = "start";
-const string PLAYER_MESSAGE_INITIAL = "player,1,432.1,-123.4,65";
-const string PLAYER_MESSAGE_UPDATE = "player,1,555.5,444.4,33";
+const string PLAYER_MESSAGE_INITIAL = "player,1,0.0,0.0,100";
+const string PLAYER_MESSAGE_UPDATE = "player,1,555.5,444.4,33,11.0,12.0,10.0,11.0,9.0,10.0,8.0,9.0,7.0,8.0,6.0,7.0,5.0,6.0,4.0,5.0,3.0,4.0,2.0,3.0";
 const string MAZE_INITIAL = "mazeInitial,4,1,1,2,0,1,0,0,1,2,1,0,1,2,1,1,0";
 const string MAZE_UPDATE = "mazeUpdate,0,0,2,1,1,2";
-
 
 /*
  * Store information about each player in the game.
  */
 class Player {
+
     public:
+
+        class Footstep{
+            public:
+
+                double x;
+                double y;
+                
+                Footstep() {
+
+                }
+
+                Footstep(double x,double y) {
+                    this->x = x;
+                    this->y = y;
+                }
+        };
+
         double positionX;
         double positionY;
         int health;
+        vector<Footstep> footstepVector; //Youngest to oldest from front to back.
 
         Player() {
 
@@ -51,6 +69,10 @@ class Player {
             return health;
         }
 
+        vector<Footstep> getFootsteps() {
+            return footstepVector;
+        }
+
         void setX(double positionX) {
             this->positionX = positionX;
         }
@@ -61,6 +83,14 @@ class Player {
 
         void setHealth(int health) {
             this->health = health;
+        }
+
+        void setFootsteps(vector<string> footstepStrings) {
+            footstepVector.clear();
+            for (int i = 0; i < footstepStrings.size(); i+=2) {
+                footstepVector.push_back(
+                    Footstep(stod(footstepStrings.at(i)),stod(footstepStrings.at(i+1))));
+            }
         }
 };
 
@@ -95,6 +125,9 @@ void playerMessageHandler(vector<string> messageValues) {
         idPlayerMap[userId].setX(stod(messageValues.at(2)));
         idPlayerMap[userId].setY(stod(messageValues.at(3)));
         idPlayerMap[userId].setHealth(stoi(messageValues.at(4)));
+
+        vector<string> footstepStrings(&messageValues[5],&messageValues[messageValues.size()]);
+        idPlayerMap[userId].setFootsteps(footstepStrings);
     }
     else {
         // Creation of entry in idPlayerMap.
@@ -212,6 +245,19 @@ void printArray() {
     }
 }
 
+/*
+ * Method to display footsteps in string form.  Only for verifying methods.
+ */
+void printFootsteps(string playerId) {
+    vector<Player::Footstep> footsteps = idPlayerMap[playerId].getFootsteps();
+    string footstepString = "";
+    for (int i = 0; i < footsteps.size(); i++) {
+        footstepString += "(" + to_string(footsteps.at(i).x) + "," 
+            + to_string(footsteps.at(i).y) + ")";
+    }
+    cout << "Footsteps: " << footstepString << endl;
+}
+
 int main(int argc, char* argv[]) {
 
     // Client assigned userId of "0".
@@ -223,12 +269,11 @@ int main(int argc, char* argv[]) {
     cout << "X: " << idPlayerMap["1"].getX() << endl;
     cout << "Y: " << idPlayerMap["1"].getY() << endl;
     cout << "Health: " << idPlayerMap["1"].getHealth() << endl;
+    printFootsteps("1");
 
-    // Updates position and health of player with userId "1".
-    sortServerMessage(PLAYER_MESSAGE_UPDATE);
-    cout << "X: " << idPlayerMap["1"].getX() << endl;
-    cout << "Y: " << idPlayerMap["1"].getY() << endl;
-    cout << "Health: " << idPlayerMap["1"].getHealth() << endl;
+    // Store initial maze
+    sortServerMessage(MAZE_INITIAL);
+    printArray();
 
     // Ensures game start event has been recorded.
     sortServerMessage(START_MESSAGE);
@@ -236,10 +281,14 @@ int main(int argc, char* argv[]) {
         cout << "Game started" << endl;
     }
 
-    // Store initial maze and maze update messages.
-    sortServerMessage(MAZE_INITIAL);
-    printArray();
-    cout << endl;
+    // Update position and health of player with userId "1".
+    sortServerMessage(PLAYER_MESSAGE_UPDATE);
+    cout << "X: " << idPlayerMap["1"].getX() << endl;
+    cout << "Y: " << idPlayerMap["1"].getY() << endl;
+    cout << "Health: " << idPlayerMap["1"].getHealth() << endl;
+    printFootsteps("1");
+
+    // Store maze update message.
     sortServerMessage(MAZE_UPDATE);
     printArray();
 
