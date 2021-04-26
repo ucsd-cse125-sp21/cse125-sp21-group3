@@ -227,7 +227,7 @@ string buildLeaveMessage() {
  * Return the input message string.
  */
 string buildInputMessage() {
-    return "player," + selfId + ",true,false,false,false,true,false,300.58,false" 
+    return "input," + selfId + ",true,false,false,false,true,false,300.58,false" 
         + MESSAGE_TAIL;
 }
 
@@ -258,44 +258,44 @@ void printFootsteps(string playerId) {
     cout << "Footsteps: " << footstepString << endl;
 }
 
-int main(int argc, char* argv[]) {
+// int main(int argc, char* argv[]) {
 
-    // Client assigned userId of "0".
-    sortServerMessage(JOIN_RESPONSE);
-    cout << "userId: " << selfId << endl;
+//     // Client assigned userId of "0".
+//     sortServerMessage(JOIN_RESPONSE);
+//     cout << "userId: " << selfId << endl;
 
-    // Records position and health of player with userId "1".
-    sortServerMessage(PLAYER_MESSAGE_INITIAL);
-    cout << "X: " << idPlayerMap["1"].getX() << endl;
-    cout << "Y: " << idPlayerMap["1"].getY() << endl;
-    cout << "Health: " << idPlayerMap["1"].getHealth() << endl;
-    printFootsteps("1");
+//     // Records position and health of player with userId "1".
+//     sortServerMessage(PLAYER_MESSAGE_INITIAL);
+//     cout << "X: " << idPlayerMap["1"].getX() << endl;
+//     cout << "Y: " << idPlayerMap["1"].getY() << endl;
+//     cout << "Health: " << idPlayerMap["1"].getHealth() << endl;
+//     printFootsteps("1");
 
-    // Store initial maze
-    sortServerMessage(MAZE_INITIAL);
-    printArray();
+//     // Store initial maze
+//     sortServerMessage(MAZE_INITIAL);
+//     printArray();
 
-    // Ensures game start event has been recorded.
-    sortServerMessage(START_MESSAGE);
-    if (hasGameStarted == true) {
-        cout << "Game started" << endl;
-    }
+//     // Ensures game start event has been recorded.
+//     sortServerMessage(START_MESSAGE);
+//     if (hasGameStarted == true) {
+//         cout << "Game started" << endl;
+//     }
 
-    // Update position and health of player with userId "1".
-    sortServerMessage(PLAYER_MESSAGE_UPDATE);
-    cout << "X: " << idPlayerMap["1"].getX() << endl;
-    cout << "Y: " << idPlayerMap["1"].getY() << endl;
-    cout << "Health: " << idPlayerMap["1"].getHealth() << endl;
-    printFootsteps("1");
+//     // Update position and health of player with userId "1".
+//     sortServerMessage(PLAYER_MESSAGE_UPDATE);
+//     cout << "X: " << idPlayerMap["1"].getX() << endl;
+//     cout << "Y: " << idPlayerMap["1"].getY() << endl;
+//     cout << "Health: " << idPlayerMap["1"].getHealth() << endl;
+//     printFootsteps("1");
 
-    // Store maze update message.
-    sortServerMessage(MAZE_UPDATE);
-    printArray();
+//     // Store maze update message.
+//     sortServerMessage(MAZE_UPDATE);
+//     printArray();
 
-    // Print messages sent by client.
-    cout << "Join Message:" << buildJoinMessage() << endl;
-    cout << "Leave Message:" << buildLeaveMessage() << endl;
-    cout << "Input Message:" << buildInputMessage() << endl;
+//     // Print messages sent by client.
+//     cout << "Join Message:" << buildJoinMessage() << endl;
+//     cout << "Leave Message:" << buildLeaveMessage() << endl;
+//     cout << "Input Message:" << buildInputMessage() << endl;
 
-    return EXIT_SUCCESS;
-}
+//     return EXIT_SUCCESS;
+// }

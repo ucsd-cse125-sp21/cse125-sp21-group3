@@ -14,7 +14,6 @@ using ip::tcp;
 using std::cout;
 using std::endl;
 
-game_state* state;
 
 class con_handler : public boost::enable_shared_from_this<con_handler>
 {
@@ -22,7 +21,7 @@ private:
     tcp::socket sock;
     std::string message = "Hello From Server!";
     enum { max_length = 1024 };
-    char data[max_length];
+    std::string input_str;
     ThreadSafeQueue<std::string> input_buffer;
 
 public:
@@ -42,10 +41,16 @@ public:
         return sock;
     }
 
+    /*
+     * Start the async read loop of the server
+     */
+
     void start()
     {
-        sock.async_read_some(
-            boost::asio::buffer(data, max_length),
+        async_read_until(
+            sock,
+            boost::asio::dynamic_buffer(input_str),
+            "\r\n",
             boost::bind(&con_handler::handle_read,
                 shared_from_this(),
                 boost::asio::placeholders::error,
@@ -53,15 +58,22 @@ public:
                 
     }
 
+    /*
+     * Read handler which will push incoming messages onto the input queue
+     */
+
     void handle_read(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (!err) {
-            std::string incoming;
-            incoming.assign(data, bytes_transferred);
-            input_buffer.push(incoming);
+            //std::string incoming;
+            //incoming.assign(data, bytes_transferred);
+            input_buffer.push(input_str);
+            input_str = "";
 
-            sock.async_read_some(
-            boost::asio::buffer(data, max_length),
+            async_read_until(
+            sock,
+            boost::asio::dynamic_buffer(input_str),
+            "\r\n",
             boost::bind(&con_handler::handle_read,
                 shared_from_this(),
                 boost::asio::placeholders::error,
@@ -73,23 +85,10 @@ public:
             sock.close();
         }
     }
-    void handle_write(const boost::system::error_code& err, size_t bytes_transferred)
-    {
-        if (!err) {
-            cout << "Server sent Hello message!" << endl;
-            sock.async_read_some(
-                boost::asio::buffer(data, max_length),
-                boost::bind(&con_handler::handle_read,
-                    shared_from_this(),
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred));
-        }
-        else {
-            std::cerr << "error: " << err.message() << endl;
-            sock.close();
-        }
-    }
-
+    
+    /*
+     * Simple handler to terminate connection upon error
+     */ 
     void handle_send_state(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (err) {
@@ -97,6 +96,27 @@ public:
             sock.close();
         }
     }
+
+    /*
+     * Join handler which will begin listening for incoming messages from a player
+     * once it is confirmed that they have received the join_response
+     */ 
+
+    void handle_send_join(const boost::system::error_code& err, size_t bytes_transferred)
+    {
+        if (!err) {
+           joinMessageHandler();
+           start();
+        } else {
+            std::cerr << "error: " << err.message() << endl;
+            sock.close();
+        }
+
+    }
+
+    /*
+     * Method to send the state of the game to the player at the other end of this connection
+     */
 
     void send_game_state(std::string state_string)
     {
@@ -107,6 +127,25 @@ public:
                     boost::asio::placeholders::error,
                     boost::asio::placeholders::bytes_transferred));
     }
+
+    /*
+     * Method to send join_response to the player at the other end of this connection
+     */
+
+    void send_join_message(){
+        std::string join_msg = buildJoinResponse(to_string(userIdCount));
+
+        sock.async_write_some(
+                boost::asio::buffer(join_msg, join_msg.size()),
+                boost::bind(&con_handler::handle_send_join,
+                    shared_from_this(),
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+    }
+
+    /*
+     * Method which pops the first message from this connections input buffer
+     */ 
 
     std::string dequeue(){
         return input_buffer.pop();
@@ -126,7 +165,7 @@ private:
     void start_accept()
     {
         // socket
-        con_handler::pointer connection = con_handler::create(io_service_, counter);
+        con_handler::pointer connection = con_handler::create(io_service_, userIdCount);
 
         // asynchronous accept operation and wait for a new connection.
         acceptor_.async_accept(connection->socket(),
@@ -143,13 +182,15 @@ public:
     void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
     {
         if (!err) {
-            cout << "YES!" << endl;
-            connection->start();
-            playerConnections[counter++] = connection;
-            joinMessageHandler();
+            playerConnections[userIdCount++] = connection;
+            connection -> send_join_message();
         }
         start_accept();
     }
+
+    /*
+     *Helper function to send a msg to all clients
+     */
 
     void broadcast(std::string msg)
     {
@@ -157,6 +198,12 @@ public:
         for(x = 0; x < userIdCount; x++)
             playerConnections[x] -> send_game_state(msg);
     }
+
+    /*
+     *This function will be called once and will run perpetually.
+     *Every PERIOD milliseconds, the function will handle one message per 
+     *input queue and broadcast the player info to all connected clients
+     */
 
     void handle_timeout(){
         while(1){
@@ -172,17 +219,12 @@ public:
 
                 }
                 //then broadcast the game_state
-                cout << "BROADCASTING!" << endl;
                 for(int p = 0; p < userIdCount; p++){
+                    cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p] -> pid_str) + "\n";
                     std::string playerStateString = buildPlayerMessage(playerConnections[p] -> pid_str);
                     broadcast(playerStateString);
 
                 }
-                // std::string response;
-                // response.assign((char*) state, sizeof(game_state));
-                // int i;
-                // for(i = 0; i < counter; i++)
-                //     playerConnections[i] -> send_game_state(response);
 
             }
         }
@@ -200,10 +242,6 @@ int main(int argc, char* argv[])
         boost::asio::io_service io_service;
         Server server(io_service);
         //init state to dummy values
-        state = (game_state*) malloc(sizeof(game_state));
-        state -> x = (float)rand()/(float)(RAND_MAX/10.0);
-        state -> y = (float)rand()/(float)(RAND_MAX/10.0);
-        state -> z = (float)rand()/(float)(RAND_MAX/10.0);
 
         boost::asio::io_service::work idleWork(io_service);
         std::thread io_thread = std::thread([&]() {io_service.run();});

@@ -213,7 +213,7 @@ void updateMaze(int row, int col, int wallState) {
 void joinMessageHandler(){
     idClientMap[to_string(userIdCount)] = Client();
     cout << "New User Id:" << userIdCount << endl;
-    userIdCount++;
+    //userIdCount++;
 }
 
 /*
@@ -256,6 +256,7 @@ void sortClientMessage(string clientMessage) {
         inputMessageHandler(messageValues);
     }
     else {
+        cout << clientMessage << endl;
         cout<<"Unexpected message type from client"<<endl;
     }
 }
@@ -264,7 +265,7 @@ void sortClientMessage(string clientMessage) {
  * Return the join response string.
  */
 string buildJoinResponse(string clientId) {
-    return "join," + clientId + MESSAGE_TAIL;
+    return "joinResponse," + clientId + MESSAGE_TAIL;
 }
 
 /*
@@ -317,41 +318,41 @@ void printArray() {
     }
 }
 
-int main(int argc, char* argv[]) {
+// int main(int argc, char* argv[]) {
 
-    // Client with userId "0" will be created and deleted
-    sortClientMessage(JOIN_MESSAGE);
-    sortClientMessage(LEAVE_MESSAGE);
+//     // Client with userId "0" will be created and deleted
+//     sortClientMessage(JOIN_MESSAGE);
+//     sortClientMessage(LEAVE_MESSAGE);
 
-    // Client with userId "1" will be created and input stored
-    sortClientMessage(JOIN_MESSAGE);
-    sortClientMessage(INPUT_MESSAGE);
-    cout << "ClientId 1's Player Direction: ";
-    cout << idClientMap["1"].playerDirection << endl;
+//     // Client with userId "1" will be created and input stored
+//     sortClientMessage(JOIN_MESSAGE);
+//     sortClientMessage(INPUT_MESSAGE);
+//     cout << "ClientId 1's Player Direction: ";
+//     cout << idClientMap["1"].playerDirection << endl;
 
-    // Set maze, update maze
-    int exampleArr[4][4]  = {{0,1,2,0},{1,2,0,1},{2,1,0,1},{2,1,1,0}};
-    memcpy(mazeArr,exampleArr,sizeof(mazeArr));
-    printArray();
-    updateMaze(0,0,1);
-    cout << "Client 1 maze update 1:" << idClientMap["1"].unsentMazeUpdates << endl;
-    updateMaze(1,1,0);
-    cout << "Client 1 maze update 2:" << idClientMap["1"].unsentMazeUpdates << endl;
-    printArray();
+//     // Set maze, update maze
+//     int exampleArr[4][4]  = {{0,1,2,0},{1,2,0,1},{2,1,0,1},{2,1,1,0}};
+//     memcpy(mazeArr,exampleArr,sizeof(mazeArr));
+//     printArray();
+//     updateMaze(0,0,1);
+//     cout << "Client 1 maze update 1:" << idClientMap["1"].unsentMazeUpdates << endl;
+//     updateMaze(1,1,0);
+//     cout << "Client 1 maze update 2:" << idClientMap["1"].unsentMazeUpdates << endl;
+//     printArray();
 
-    // Add 11 footsteps to Client with userId "1".
-    for (double i = 0; i < 11; i++) {
-        idClientMap["1"].addFootstep(i,i+1);
-    }
-    cout << "Num footsteps: " << idClientMap["1"].footstepQueue.size() << endl;
+//     // Add 11 footsteps to Client with userId "1".
+//     for (double i = 0; i < 11; i++) {
+//         idClientMap["1"].addFootstep(i,i+1);
+//     }
+//     cout << "Num footsteps: " << idClientMap["1"].footstepQueue.size() << endl;
 
-    // Print messages sent by server.
-    cout << "Join Response:" << buildJoinResponse("1") << endl;
-    cout << "Player Message:" << buildPlayerMessage("1") << endl;
-    cout << "Start Message:" << buildStartMessage() << endl;
-    cout << "Maze Initial:" << buildMazeInitialMessage() << endl;
-    cout << "Maze Update (Client 1):" << buildMazeUpdateMessage("1") << endl;
-    cout << "Client 1's empty maze updates:" << idClientMap["1"].unsentMazeUpdates << endl;
+//     // Print messages sent by server.
+//     cout << "Join Response:" << buildJoinResponse("1") << endl;
+//     cout << "Player Message:" << buildPlayerMessage("1") << endl;
+//     cout << "Start Message:" << buildStartMessage() << endl;
+//     cout << "Maze Initial:" << buildMazeInitialMessage() << endl;
+//     cout << "Maze Update (Client 1):" << buildMazeUpdateMessage("1") << endl;
+//     cout << "Client 1's empty maze updates:" << idClientMap["1"].unsentMazeUpdates << endl;
 
-    return EXIT_SUCCESS;
-}
+//     return EXIT_SUCCESS;
+// }
