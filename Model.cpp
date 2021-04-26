@@ -48,8 +48,6 @@ void Model::processAnimations(const aiScene* scene) {
 
     for (int i = 0; i < scene->mNumAnimations; i++) {
         aiAnimation* animation = scene->mAnimations[i];
-        cout << "duration: " << animation->mDuration << endl;
-        cout << "ticks per second: " << animation->mTicksPerSecond << endl;
         vector<AnimationNode*> animNodeList;
         for (int j = 0; j < animation->mNumChannels; j++) {
             aiNodeAnim* aiNodeAnim = animation->mChannels[j];

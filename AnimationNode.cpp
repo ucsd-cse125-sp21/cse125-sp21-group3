@@ -20,7 +20,6 @@ AnimationNode::AnimationNode(aiNodeAnim* aiNodeAnim, vector<Mesh*> masterMeshLis
 		positionKeys.push_back(positionKey);
 		scalingKeys.push_back(scalingKey);
 		rotationKeys.push_back(rotationKey);		
-		cout << positionKeys.at(i)->time << endl;
 	}
 
 	//setting tangents for the position and scaling keys
