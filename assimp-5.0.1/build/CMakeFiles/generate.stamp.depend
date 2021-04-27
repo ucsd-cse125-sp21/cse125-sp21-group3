@@ -1,0 +1,41 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCXXInformation.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeGenericSystem.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeInitializeConfigs.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeParseArguments.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeRCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeSystemSpecificInformation.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeSystemSpecificInitialize.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CheckFunctionExists.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CheckIncludeFile.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CheckIncludeFileCXX.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/CheckTypeSize.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/Compiler/MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/Compiler/MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/Platform/Windows-MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/Platform/Windows-MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/Platform/Windows-MSVC.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/Platform/Windows.cmake
+C:/Program Files/CMake/share/cmake-3.20/Modules/Platform/WindowsPaths.cmake
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/CMakeLists.txt
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/assimp-config-version.cmake.in
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/assimp-config.cmake.in
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/assimp.pc.in
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/assimpTargets-debug.cmake.in
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/assimpTargets-release.cmake.in
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/assimpTargets.cmake.in
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/build/CMakeFiles/3.20.1/CMakeCCompiler.cmake
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/build/CMakeFiles/3.20.1/CMakeCXXCompiler.cmake
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/build/CMakeFiles/3.20.1/CMakeRCCompiler.cmake
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/build/CMakeFiles/3.20.1/CMakeSystem.cmake
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/cmake-modules/FindDirectX.cmake
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/cmake-modules/FindPkgMacros.cmake
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/cmake-modules/PrecompiledHeader.cmake
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/cmake-modules/cmake_uninstall.cmake.in
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/cmake/HunterGate.cmake
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/include/assimp/config.h.in
+C:/Users/Student/Desktop/assimp-5.0.1/assimp-5.0.1/revision.h.in

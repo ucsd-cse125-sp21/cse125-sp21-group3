@@ -27,10 +27,12 @@ Player::Player(glm::vec3 _position, Maze* mz) {
     lastFootPrintPos = _position;
 
     prevPosition = position;
-    height = 2.0f;
+    height = 4.0f;
     width = 1.0f;
-    boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-        glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f), this);
+    //std::cout << "position.y: " << position.y << std::endl;
+    //std::cout << "player min at start: " << (position.y - height * 0.75f) << std::endl;
+    boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.875f, position.z - width * 0.5f),
+        glm::vec3(position.x + width * 0.5f, position.y + height * 0.125f, position.z + width * 0.5f), this);
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     speed = 0.35f;
     playerWeapon = new Weapon();
@@ -117,9 +119,12 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
         BoundingBox* b = boundingBoxList.at(i);
         //check to make sure bounding box is active for object
         //and that we are not checking against our own bounding box
+        
         if (b->getActive() && b != boundingBox) {
+
             if (boundingBox->checkCollision(b)) {
 
+                
                 BoundingBox* prevBoundingBox = new BoundingBox(
                     glm::vec3(prevPosition.x - width * 0.5f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.5f),
                     glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + height * 0.25f, prevPosition.z + width * 0.5f), this);
@@ -178,7 +183,7 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     if (glm::length(velocity) > 0.0f) {
 
         position = position + velocity * deltaTime;
-        
+        //std::cout << "velocity: " << glm::to_string(velocity) << std::endl;
         
         //update player bounding box
         boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),

@@ -2,6 +2,7 @@
 #include "Cube.h"
 #include "Player.h"
 #include "Maze.h"
+#include "Model.h"
 #include <windows.h>
 #include <glm/gtx/string_cast.hpp>
 
@@ -43,7 +44,9 @@ int MouseX, MouseY;
 GLuint Window::shaderProgram;
 
 //toggle to see bounding boxes
-bool Window::debugMode; \
+bool Window::debugMode;
+Model* chest;
+Model* gun;
 
 Maze* maze;
 
@@ -99,7 +102,14 @@ bool Window::initializeObjects()
 	boundingBoxList.push_back(ground->getBoundingBox());
 
 	boundingBoxList.push_back(player->getBoundingBox());
-
+	glm::mat4 chestRootTransform(1.0f);
+	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
+	//chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
+	chest = new Model("C:/Users/Calpok/Desktop/chestOpen.gltf", chestRootTransform);
+	glm::mat4 gunRootTransform(1.0f);
+	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
+	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(8.0f, 2.0f, 4.0f));
+	gun = new Model("C:/Users/Calpok/Desktop/gun1.gltf", gunRootTransform);
 	return true;
 }
 
@@ -257,6 +267,11 @@ void Window::idleCallback()
 	}
 	player->update(0.1f, boundingBoxList);
 
+	glm::mat4 chestRootTransform(1.0f);
+	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
+
+
+	chest->animationPlayer->play(chest->animationPlayer->animationClipList.at(0), 0.01f, chestRootTransform);
 }
 
 /*
@@ -314,7 +329,7 @@ void Window::displayCallback(GLFWwindow* window)
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
 	for (Cube* footprint : player->getFootprints()) {
-		footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+		//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 
 	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
@@ -331,10 +346,13 @@ void Window::displayCallback(GLFWwindow* window)
 	{
 		wall ->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
+	
+	chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
-	for (Cube* chest : maze->getChests())
+	for (Cube* abilityChests : maze->getChests())
 	{
-		chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+		abilityChests->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 
 	drawCrosshair();

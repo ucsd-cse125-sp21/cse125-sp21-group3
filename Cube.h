@@ -51,7 +51,7 @@ public:
 	glm::vec3 getMazePosition() { return mazePosition; }
 
 	bool getDirection() { return direction; }
-	bool getType() { return type; }
+	int getType() { return type; }
 
 	bool isDeletable() { return canDelete; }
 
