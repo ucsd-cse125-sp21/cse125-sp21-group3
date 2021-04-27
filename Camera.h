@@ -13,7 +13,7 @@
 
 class Camera {
 public:
-	Camera();
+	Camera(glm::vec3 position);
 
 	void Update();
 	void Reset();
@@ -27,6 +27,7 @@ public:
 	void setWorld(glm::mat4 w) { world = w; }
 	void setDirection(glm::vec3 d) { direction = d; }
 	void setPosition(glm::vec3 p);
+	void setFarClip(float clip) { FarClip = clip; }
 
 
 	float getYaw() { return yaw; }
@@ -37,6 +38,7 @@ public:
 	glm::vec3 getPosition();
 
 	const glm::mat4& GetViewProjectMtx() { return ViewProjectMtx; }
+
 
 private:
 	// Perspective controls

@@ -63,7 +63,7 @@ BoundingBox* closestObject(std::vector<BoundingBox *> boundingBoxList, glm::vec3
 
 
 
-void Weapon::Shoot(std::vector<BoundingBox *> objects, glm::vec3 origin, glm::vec3 direction)
+BoundingBox * Weapon::Shoot(std::vector<BoundingBox *> objects, glm::vec3 origin, glm::vec3 direction)
 {
 
 	std::cerr << "Origin " << origin.x << " " << origin.y << " " << origin.z << std::endl;
@@ -76,8 +76,10 @@ void Weapon::Shoot(std::vector<BoundingBox *> objects, glm::vec3 origin, glm::ve
 		BoundingBox * minBox = closestObject(objects, origin, direction);
 		if (minBox != NULL) {
 			std::cerr << "Shot" << std::endl;
+			return minBox;
 		}
 	}
+	return NULL;
 }
 
 void Weapon::Reload()

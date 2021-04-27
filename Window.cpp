@@ -43,7 +43,9 @@ int MouseX, MouseY;
 GLuint Window::shaderProgram;
 
 //toggle to see bounding boxes
-bool Window::debugMode;
+bool Window::debugMode; \
+
+Maze* maze;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,44 +81,23 @@ bool Window::initializeProgram() {
  */
 bool Window::initializeObjects()
 {
-	// Create a cube
-	cube = new Cube(glm::vec3(0, 0, 0), glm::vec3(1,1,1));
-	boundingBoxList.push_back(cube->getBoundingBox());
-
-	//Cube* front = new Cube(glm::vec3(40, 0, -40), glm::vec3(40.1, 5, 40));
-	//Cube* back = new Cube(glm::vec3(-40, 0, -40), glm::vec3(-40.1, 5, 40));
-	//Cube* right = new Cube(glm::vec3(-40, 0, 40), glm::vec3(40, 5, 40.1));
-	//Cube* left = new Cube(glm::vec3(-40, 0, -40), glm::vec3(40, 5, -40.1));
-
-	//boundingBoxList.push_back(front->getBoundingBox());
-	//boundingBoxList.push_back(right->getBoundingBox());
-
 	int size = 21;
-	int scale = 5;
-	Maze* maze = new Maze(size, scale);
+	int scale = 7;
+	maze = new Maze(size, scale);
+
+	ground = maze->createGround();
 
 	walls = maze->createWalls();
-
-
-	for (Cube* wall : walls)
-	{
-		boundingBoxList.push_back(wall->getBoundingBox());
-	}
-
-	//ground setup
-	ground = new Cube(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-	ground->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
-	glm::mat4 groundModel = ground->getModel();
-	groundModel = glm::translate(groundModel, glm::vec3(0.0f, -1.0f, 0.0f));
-
-	// 100
-	groundModel = glm::scale(groundModel, glm::vec3((size - 1) * scale, 1.0f, (size - 1) * scale));
-	ground->setModel(groundModel);
+	
 
 	//player setup
-	player = new Player(Cam->getPosition());
+	player = new Player(Cam->getPosition(), maze);
 	player->setPlayerCamera(Cam);
 	player->setSoundEngine(soundEngine);
+	boundingBoxList = maze->getBoundingBox();
+
+	boundingBoxList.push_back(ground->getBoundingBox());
+
 	boundingBoxList.push_back(player->getBoundingBox());
 
 	return true;
@@ -200,7 +181,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 	glfwSwapInterval(0);
 
 	// set up the camera
-	Cam = new Camera();
+	Cam = new Camera(glm::vec3(2.5f, 3.5f, 2.5f));
 	Cam->SetAspect(float(width) / float(height));
 
 	// initialize the interaction variables
@@ -261,18 +242,12 @@ void Window::idleCallback()
 	if (GetAsyncKeyState(GLFW_KEY_D)) {
 		player->moveDirection(player->right);
 	}
-
-	//if (GetAsyncKeyState(VK_LCONTROL)) {
-	//	player->moveDirection(player->crouch);
-	//}
-	//else
-	//{
-	//	player->moveDirection(player->stand);
-	//}
-	//if (GetAsyncKeyState(VK_LSHIFT)) {
-	//	player->moveDirection(player->sprint);
-	//}
-
+	if (GetAsyncKeyState(GLFW_KEY_E)) {
+		player->useAbility();
+	}
+	if (GetAsyncKeyState(GLFW_KEY_F)) {
+		player->pickUpAbility();
+	}
 	// Allow player to move up and down for debugging
 	if (GetAsyncKeyState(GLFW_KEY_Z)) {
 		player->moveDirection(player->up);
@@ -357,6 +332,11 @@ void Window::displayCallback(GLFWwindow* window)
 		wall ->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 
+	for (Cube* chest : maze->getChests())
+	{
+		chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	}
+
 	drawCrosshair();
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
@@ -415,10 +395,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 		case GLFW_KEY_LEFT_CONTROL:
-			player->moveDirection(player->crouch);
+			player->setState(player->crouch);
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
-			player->moveDirection(player->sprint);
+			player->setState(player->sprint);
 			break;
 		default:
 			break;
@@ -429,10 +409,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		switch (key)
 		{
 		case GLFW_KEY_LEFT_CONTROL:
-			player->moveDirection(player->stand);
+			player->setState(player->stand);
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
-			player->moveDirection(player->stand);
+			player->setState(player->stand);
 			break;
 		default:
 			break;

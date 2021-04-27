@@ -2,6 +2,9 @@
 
 #include "core.h"
 
+class Cube;
+class Player;
+
 /*
  * File Name: BoundingBox.h
  *
@@ -14,11 +17,15 @@
 class BoundingBox {
 public:
 	
-	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, void* parentObj);
+	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube* parentObj);
+	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj);
 
 	glm::vec3 getMin() { return min; }
 	glm::vec3 getMax() { return max; }
 	bool getActive() { return active; }
+
+	Player* getParentPlayer() { return parentPlayer; }
+	Cube* getParentCube() { return parentCube; }
 
 	void setMin(glm::vec3 p) { min = p; }
 	void setMax(glm::vec3 p) { max = p; }
@@ -34,7 +41,8 @@ private:
 	//min and max points of the bounding box
 	glm::vec3 min;
 	glm::vec3 max;
-	void* parentObj;
+	Cube* parentCube;
+	Player* parentPlayer;
 	//used to toggle collisions
 	bool active;
 	
