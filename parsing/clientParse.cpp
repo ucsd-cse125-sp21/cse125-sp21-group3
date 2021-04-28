@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 #include <unordered_map>
+#include <queue>
 
 using namespace std;
 using namespace boost::asio;
@@ -15,9 +16,11 @@ using ip::tcp;
 const string JOIN_RESPONSE = "joinResponse,0";
 const string START_MESSAGE = "start";
 const string PLAYER_MESSAGE_INITIAL = "player,1,0.0,0.0,100";
-const string PLAYER_MESSAGE_UPDATE = "player,1,555.5,444.4,33,11.0,12.0,10.0,11.0,9.0,10.0,8.0,9.0,7.0,8.0,6.0,7.0,5.0,6.0,4.0,5.0,3.0,4.0,2.0,3.0";
+const string PLAYER_MESSAGE_UPDATE = "player,1,555.5,444.4,33";
 const string MAZE_INITIAL = "mazeInitial,4,1,1,2,0,1,0,0,1,2,1,0,1,2,1,1,0";
 const string MAZE_UPDATE = "mazeUpdate,0,0,2,1,1,2";
+
+const int MAX_FOOTSTEPS = 10;
 
 /*
  * Store information about each player in the game.
@@ -45,7 +48,12 @@ class Player {
         double positionX;
         double positionY;
         int health;
-        vector<Footstep> footstepVector; //Youngest to oldest from front to back.
+
+        /*
+         * Stores all footsteps player has taken.  Most recent footsteps stored
+         * first.  Only the first certain number of foosteps should be rendered.
+         */
+        deque<Footstep> footstepQueue;
 
         Player() {
 
@@ -69,8 +77,8 @@ class Player {
             return health;
         }
 
-        vector<Footstep> getFootsteps() {
-            return footstepVector;
+        deque<Footstep> getFootsteps() {
+            return footstepQueue;
         }
 
         void setX(double positionX) {
@@ -85,11 +93,15 @@ class Player {
             this->health = health;
         }
 
-        void setFootsteps(vector<string> footstepStrings) {
-            footstepVector.clear();
-            for (int i = 0; i < footstepStrings.size(); i+=2) {
-                footstepVector.push_back(
-                    Footstep(stod(footstepStrings.at(i)),stod(footstepStrings.at(i+1))));
+        /*
+         * Add a footstep to the footstep queue.  Remove the oldest footstep
+         * if there are more than MAX_FOOTSTEPS footsteps stored.  The queue stores
+         * footsteps youngest to oldest from front to back.
+         */
+        void addFootstep(double x, double y) {
+            footstepQueue.push_front(Footstep(x,y));
+            if (footstepQueue.size() > MAX_FOOTSTEPS) {
+                footstepQueue.pop_back();
             }
         }
 };
@@ -107,7 +119,6 @@ const string MESSAGE_TAIL = "\r\n";  //Attatched to the end of every message.
 const int MAZE_UPDATE_SIZE = 3;
 int mazeSize; // Height and width of maze.
 int **mazeArr; // 2D representation of maze.
-//int mazeArr[][]; 
 
 /*
  * Set selfId field to userId sent in Join Response message.
@@ -125,9 +136,6 @@ void playerMessageHandler(vector<string> messageValues) {
         idPlayerMap[userId].setX(stod(messageValues.at(2)));
         idPlayerMap[userId].setY(stod(messageValues.at(3)));
         idPlayerMap[userId].setHealth(stoi(messageValues.at(4)));
-
-        vector<string> footstepStrings(&messageValues[5],&messageValues[messageValues.size()]);
-        idPlayerMap[userId].setFootsteps(footstepStrings);
     }
     else {
         // Creation of entry in idPlayerMap.
@@ -249,11 +257,11 @@ void printArray() {
  * Method to display footsteps in string form.  Only for verifying methods.
  */
 void printFootsteps(string playerId) {
-    vector<Player::Footstep> footsteps = idPlayerMap[playerId].getFootsteps();
+    deque<Player::Footstep> footsteps = idPlayerMap[playerId].getFootsteps();
     string footstepString = "";
     for (int i = 0; i < footsteps.size(); i++) {
-        footstepString += "(" + to_string(footsteps.at(i).x) + "," 
-            + to_string(footsteps.at(i).y) + ")";
+        footstepString += "(" + to_string(footsteps[i].x) + "," 
+            + to_string(footsteps[i].y) + ")";
     }
     cout << "Footsteps: " << footstepString << endl;
 }
@@ -286,6 +294,14 @@ void printFootsteps(string playerId) {
 //     cout << "X: " << idPlayerMap["1"].getX() << endl;
 //     cout << "Y: " << idPlayerMap["1"].getY() << endl;
 //     cout << "Health: " << idPlayerMap["1"].getHealth() << endl;
+
+//     // Add footsteps and check
+//    idPlayerMap["1"].addFootstep(1.0,1.0);
+//     printFootsteps("1");
+
+//     for (double i = 2.0; i < 12.0; i++) {
+//         idPlayerMap["1"].addFootstep(i,i);
+//     }
 //     printFootsteps("1");
 
 //     // Store maze update message.
@@ -298,4 +314,4 @@ void printFootsteps(string playerId) {
 //     cout << "Input Message:" << buildInputMessage() << endl;
 
 //     return EXIT_SUCCESS;
-// }
+//}
