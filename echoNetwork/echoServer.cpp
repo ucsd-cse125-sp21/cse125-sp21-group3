@@ -2,7 +2,6 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <../gameState/game_state.cpp>
 #include <../util/ts_queue.cpp>
 #include <../parsing/serverParse.cpp>
 
