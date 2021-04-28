@@ -232,7 +232,8 @@ string buildLeaveMessage() {
 }
 
 /*
- * Return the input message string.
+ * Return the input message string.  String inserted here is a sample.  Input
+ * parameters will need to be added.
  */
 string buildInputMessage() {
     return "input," + selfId + ",true,false,false,false,true,false,300.58,false" 
