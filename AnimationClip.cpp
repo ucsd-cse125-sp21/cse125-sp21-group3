@@ -47,7 +47,6 @@ void AnimationClip::evaluate(float time, glm::mat4 rootWorld) {
 			positionTransform = glm::translate(positionTransform, animationNode->positionKeys[keyframe]->value);
 			rotationTransform = glm::toMat4(animationNode->rotationKeys[keyframe]->value);
 			scalingTransform = glm::scale(scalingTransform, animationNode->scalingKeys[keyframe]->value);
-			
 		}
 		else {
 			float timeA = animationNode->positionKeys[keyframe - 1]->time;
@@ -61,14 +60,16 @@ void AnimationClip::evaluate(float time, glm::mat4 rootWorld) {
 				position = animationNode->positionKeys[keyframe]->value;
 			}
 			else {
-				position = animationNode->positionKeys[keyframe]->tangentIn * (ratio);
+				glm::vec3 prevPosition = animationNode->positionKeys[keyframe - 1]->value;
+				position = prevPosition + animationNode->positionKeys[keyframe]->tangentIn * (ratio);
 				
 			}
 			if (animationNode->scalingKeys[keyframe]->tangentIn == glm::vec3(0.0f, 0.0f, 0.0f)) {
 				scaling = animationNode->scalingKeys[keyframe]->value;
 			}
 			else {
-				scaling = animationNode->scalingKeys[keyframe]->tangentIn * (ratio);
+				glm::vec3 prevScale = animationNode->scalingKeys[keyframe - 1]->value;
+				scaling = prevScale + animationNode->scalingKeys[keyframe]->tangentIn * (ratio);
 			}
 			if (animationNode->rotationKeys[keyframe - 1]->value == animationNode->rotationKeys[keyframe]->value) {
 				rotation = animationNode->rotationKeys[keyframe]->value;

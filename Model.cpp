@@ -48,6 +48,7 @@ void Model::processAnimations(const aiScene* scene) {
 
     for (int i = 0; i < scene->mNumAnimations; i++) {
         aiAnimation* animation = scene->mAnimations[i];
+        cout << "animation: " << animation->mName.C_Str() << endl;
         vector<AnimationNode*> animNodeList;
         for (int j = 0; j < animation->mNumChannels; j++) {
             aiNodeAnim* aiNodeAnim = animation->mChannels[j];
