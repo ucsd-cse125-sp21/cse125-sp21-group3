@@ -432,8 +432,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_F:
 			player->pickUpAbility();
+			break;
 		case GLFW_KEY_E:
 			player->useAbility();
+			break;
 		default:
 			break;
 		}
