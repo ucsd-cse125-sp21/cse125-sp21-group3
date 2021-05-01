@@ -7,6 +7,7 @@ AnimationNode::AnimationNode(aiNodeAnim* aiNodeAnim, vector<Mesh*> masterMeshLis
 	assert(aiNodeAnim->mNumPositionKeys == aiNodeAnim->mNumRotationKeys && 
 		aiNodeAnim->mNumRotationKeys == aiNodeAnim->mNumScalingKeys);
 
+	name = aiNodeAnim->mNodeName.C_Str();
 
 	for (int i = 0; i < aiNodeAnim->mNumPositionKeys; i++) {
 		

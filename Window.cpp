@@ -22,8 +22,7 @@ int Window::width;
 int Window::height;
 const char* Window::windowTitle = "Game";
 
-// Objects to render
-Cube* Window::cube;
+
 
 std::vector<Cube*> walls;
 
@@ -47,9 +46,9 @@ GLuint Window::shaderProgram;
 bool Window::debugMode;
 Model* chest;
 Model* gun;
+Model* character;
 
 Maze* maze;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -102,14 +101,21 @@ bool Window::initializeObjects()
 	boundingBoxList.push_back(ground->getBoundingBox());
 
 	boundingBoxList.push_back(player->getBoundingBox());
+
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
-	//chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-	chest = new Model("C:/Users/Calpok/Desktop/chestOpen.gltf", chestRootTransform);
+	chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
+	chest = new Model("C:/Users/Calpok/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
+	
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
-	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(8.0f, 2.0f, 4.0f));
-	gun = new Model("C:/Users/Calpok/Desktop/gun1.gltf", gunRootTransform);
+	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(20.0f, 2.0f, 4.0f));
+	gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolFire.gltf", gunRootTransform);
+
+	glm::mat4 characterRootTransform(1.0f);
+	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
+	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(10.0f, 0.0f, 4.0f));
+	character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
 	return true;
 }
 
@@ -121,7 +127,16 @@ bool Window::initializeObjects()
 void Window::cleanUp()
 {
 	// Deallcoate the objects.
-	delete cube;
+	for (BoundingBox* bound : maze->getBoundingBox())
+	{
+		delete bound;
+	}
+
+	delete maze;
+	delete chest;
+	delete gun;
+	delete player;
+	delete Cam;
 
 	// Delete the shader program.
 	glDeleteProgram(shaderProgram);
@@ -252,12 +267,12 @@ void Window::idleCallback()
 	if (GetAsyncKeyState(GLFW_KEY_D)) {
 		player->moveDirection(player->right);
 	}
-	if (GetAsyncKeyState(GLFW_KEY_E)) {
-		player->useAbility();
-	}
-	if (GetAsyncKeyState(GLFW_KEY_F)) {
-		player->pickUpAbility();
-	}
+	//if (GetAsyncKeyState(GLFW_KEY_E)) {
+	//	player->useAbility();
+	//}
+	//if (GetAsyncKeyState(GLFW_KEY_F)) {
+	//	player->pickUpAbility();
+	//}
 	// Allow player to move up and down for debugging
 	if (GetAsyncKeyState(GLFW_KEY_Z)) {
 		player->moveDirection(player->up);
@@ -267,11 +282,8 @@ void Window::idleCallback()
 	}
 	player->update(0.1f, boundingBoxList);
 
-	glm::mat4 chestRootTransform(1.0f);
-	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
-
-
-	chest->animationPlayer->play(chest->animationPlayer->animationClipList.at(0), 0.01f, chestRootTransform);
+	chest->animationPlayer->play(chest->animationPlayer->animationClipList.at(0), 0.01f, chest->rootModel);
+	gun->animationPlayer->play(gun->animationPlayer->animationClipList.at(0), 0.05f, gun->rootModel);
 }
 
 /*
@@ -333,7 +345,6 @@ void Window::displayCallback(GLFWwindow* window)
 	}
 
 	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-
 	
 	Camera* playCam = player->getPlayerCamera();
 	irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
@@ -355,6 +366,7 @@ void Window::displayCallback(GLFWwindow* window)
 		abilityChests->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 
+	character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	drawCrosshair();
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
@@ -418,6 +430,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_LEFT_SHIFT:
 			player->setState(player->sprint);
 			break;
+		case GLFW_KEY_F:
+			player->pickUpAbility();
+		case GLFW_KEY_E:
+			player->useAbility();
 		default:
 			break;
 		}

@@ -186,7 +186,7 @@ Cube::~Cube()
 	glDeleteVertexArrays(1, &VAO);
 
 	std::cout << "Deleting" << std::endl;
-	delete boundingBox;
+	boundingBox->setActive(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
