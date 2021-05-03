@@ -18,6 +18,7 @@ Model::Model(string const& path, glm::mat4 _rootModel)
 // draws the model, and thus all its meshes
 void Model::draw(const glm::mat4& viewProjMtx, GLuint shader)
 {
+    //cout << "meshes.size: " << meshes.size() << endl;
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i]->draw(viewProjMtx, shader);
 }
@@ -28,7 +29,6 @@ void Model::loadModel(string const& path)
     Assimp::Importer importer;
 
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-    
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
@@ -40,7 +40,7 @@ void Model::loadModel(string const& path)
 
     // process ASSIMP's root node recursively
     processNode(scene->mRootNode, scene, rootModel);
-
+    processBones(scene);
     processAnimations(scene);
 }
 
@@ -60,74 +60,72 @@ void Model::processAnimations(const aiScene* scene) {
 
 void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 rootTransform)
 {
-    //cout << "processing node: " << node->mName.C_Str() << endl;
-    //cout << "numMeshes: " << node->mNumMeshes << endl;
     // process each mesh located at the current node
-    glm::mat4 model(1.0f);
+    glm::mat4 localTransform = AssimpToGlmHelper::convertAiMat4ToGlmMat4(node->mTransformation);
+    glm::mat4 nodeModel = rootTransform * localTransform;
+    nodeTransformMap.insert(pair<string, glm::mat4>(node->mName.C_Str(), nodeModel));
+    
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         // the node object only contains indices to index the actual objects in the scene. 
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        glm::mat4 localTransform = AssimpToGlmHelper::convertAiMat4ToGlmMat4(node->mTransformation);
-        model = rootTransform * localTransform;
-        meshes.push_back(processMesh(mesh, scene, model));
+        meshes.push_back(processMesh(mesh, scene, nodeModel));
     }
     // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        processNode(node->mChildren[i], scene, rootTransform);  
+        //processNode(node->mChildren[i], scene, rootTransform);  
+        processNode(node->mChildren[i], scene, nodeModel);
     }
-
 }
-
 
 Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 model)
 {
-    // data to fill
-    vector<glm::vec3> positions;
-    vector<glm::vec3> normals;
-    vector<unsigned int> indices;
-    
-    // walk through each of the mesh's vertices
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-    {
-        positions.push_back(glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
-        // normals
-        if (mesh->HasNormals())
-        {
-            normals.push_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
-        }
-    }
-    // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-    {
-        aiFace face = mesh->mFaces[i];
-        // retrieve all indices of the face and store them in the indices vector
-        for (unsigned int j = 0; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
-    }
-    // process materials
-    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-    // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-    // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-    // Same applies to other texture as the following list summarizes:
-    // diffuse: texture_diffuseN
-    // specular: texture_specularN
-    // normal: texture_normalN
-
-    // 1. diffuse maps
-
-    aiColor4D color(0.0f, 0.0f, 0.0f, 1.0f);
-    material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color);
-
     // return a mesh object created from the extracted mesh data
-    Mesh* m = new Mesh(positions, normals, indices);
-    m->model = model;
-    m->baseColor = glm::vec4(color.r, color.g, color.b, color.a);
-    m->name = mesh->mName.C_Str();
+    Mesh* m = new Mesh(mesh, scene, model);
     m->id = meshCounter;
     meshCounter++;
     return m;
+}
+
+void Model::processBones(const aiScene* scene) {
+
+    
+    for (int i = 0; i < meshes.size(); i++) {
+        Mesh* mesh = meshes.at(i);
+        vector<glm::vec3> bonePositions(mesh->positions.size());
+        vector<glm::vec3> boneNormals(mesh->positions.size());
+        for (int j = 0; j < mesh->bones.size(); j++) {
+            Bone* bone = mesh->bones.at(j);
+            //for loading in model using bones
+            glm::mat4 nodeModel(1.0f);
+            if (nodeTransformMap.find(bone->name) != nodeTransformMap.end()) {
+                nodeModel = nodeTransformMap.find(bone->name)->second;
+            }
+            else {
+                cout << "could not find nodeModel for: " << bone->name << endl;
+            }
+            
+            for (int k = 0; k < bone->vertexIds.size(); k++) {
+            	int vertexId = bone->vertexIds.at(k);
+            	glm::vec4 v(mesh->positions.at(vertexId).x, mesh->positions.at(vertexId).y, mesh->positions.at(vertexId).z, 1.0f);
+            	glm::vec4 v_prime = nodeModel * bone->offsetMatrix * v;
+            	bonePositions.at(vertexId) += glm::vec3(v_prime.x, v_prime.y, v_prime.z) * bone->weights.at(k);
+
+            	glm::vec4 n(mesh->normals.at(vertexId).x, mesh->normals.at(vertexId).y, mesh->normals.at(vertexId).z, 0.0f);
+            	glm::vec4 n_prime = nodeModel * bone->offsetMatrix * n;
+            	boneNormals.at(vertexId) += glm::vec3(n_prime.x, n_prime.y, n_prime.z) * bone->weights.at(k);
+            }
+        }
+
+        if (mesh->bones.size() > 0) {
+            mesh->positions = bonePositions;
+            mesh->normals = boneNormals;
+            glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO_positions);
+            glBufferSubData(GL_ARRAY_BUFFER, 0.0f, sizeof(glm::vec3) * mesh->positions.size(), mesh->positions.data());
+            glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO_normals);
+            glBufferSubData(GL_ARRAY_BUFFER, 0.0f, sizeof(glm::vec3) * mesh->normals.size(), mesh->normals.data());
+        }
+    }
 }

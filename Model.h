@@ -30,7 +30,7 @@ public:
     bool gammaCorrection;
     glm::mat4 rootModel;
     AnimationPlayer* animationPlayer;
-
+    map<string, glm::mat4> nodeTransformMap;
     // constructor, expects a filepath to a 3D model.
     Model(string const& path, glm::mat4 _rootModel);
 
@@ -43,6 +43,8 @@ private:
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode* node, const aiScene* scene, glm::mat4 rootTransform);
+    
+    void processBones(const aiScene* scene);
 
     void processAnimations(const aiScene* scene);
 

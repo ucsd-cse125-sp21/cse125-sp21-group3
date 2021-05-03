@@ -40,6 +40,7 @@ public:
 	glm::vec3 getColor();
 	void setColor(glm::vec3 c);
 	BoundingBox* getBoundingBox() { return boundingBox; }
+	void test();
 };
 
 ////////////////////////////////////////////////////////////////////////////////

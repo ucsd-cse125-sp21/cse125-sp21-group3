@@ -35,10 +35,12 @@ int findKeyframe(float time, AnimationNode* animationNode) {
 
 	return animationNode->positionKeys.size() - 1;
 }
+
 void AnimationClip::evaluate(float time, glm::mat4 rootWorld) {
 	
 	for (int i = 0; i < animNodeList.size(); i++) {
 		AnimationNode* animationNode = animNodeList.at(i);
+		//cout << "evaluating animationNode: " << animationNode->name << endl;
 		glm::mat4 positionTransform(1.0f);
 		glm::mat4 rotationTransform(1.0f);
 		glm::mat4 scalingTransform(1.0f);
@@ -85,7 +87,27 @@ void AnimationClip::evaluate(float time, glm::mat4 rootWorld) {
 
 		for (int j = 0; j < animationNode->meshList.size(); j++) {
 			Mesh* mesh = animationNode->meshList.at(j);
-			mesh->model = rootWorld * positionTransform * rotationTransform * scalingTransform;
+			string meshName = mesh->name;
+			//cout << "meshName: " << meshName << endl;
+			if (meshName.find("-") != string::npos) {
+				meshName = meshName.substr(0, meshName.find("-"));
+			}
+
+			//if the animationNode name matches the mesh name then just apply the animation to mesh
+			if (meshName.compare(animationNode->name) == 0) {
+				mesh->model = rootWorld * positionTransform * rotationTransform * scalingTransform;
+			}
+			else { //iterate through bones and check to see if animation can be applied to bone
+				for (int k = 0; k < mesh->bones.size(); k++) {
+					string boneName = mesh->bones.at(k)->name;
+					//cout << "animationNode evaluate: " << animationNode->name << endl;
+					//cout << "boneName evaluate: " << boneName << endl;
+					if (boneName.compare(animationNode->name) == 0) {
+						mesh->bones.at(k)->applyTransform(positionTransform, rotationTransform, scalingTransform);
+					}
+				}
+				mesh->model = rootWorld;
+			}
 		}
 	}
 }
@@ -99,6 +121,7 @@ void AnimationClip::selectKeyframe(int keyframe, glm::mat4 rootWorld) {
 			glm::mat4 positionTransform = glm::translate(glm::mat4(1.0f), animationNode->positionKeys[keyframe]->value);
 			glm::mat4 rotationTransform = glm::toMat4(animationNode->rotationKeys[keyframe]->value);
 			glm::mat4 scalingTransform = glm::scale(glm::mat4(1.0f), animationNode->scalingKeys[keyframe]->value);
+			
 			mesh->model = rootWorld * positionTransform * rotationTransform * scalingTransform;
 		}
 	}

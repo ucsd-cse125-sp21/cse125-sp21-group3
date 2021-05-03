@@ -4,6 +4,7 @@
 #include "VectorKeyframe.h"
 #include "MatrixKeyframe.h"
 #include <assimp/anim.h>
+#include "Bone.h"
 
 class AnimationNode {
 

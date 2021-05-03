@@ -18,6 +18,7 @@ public:
 	void evaluate(float time, glm::mat4 rootWorld);
 	void selectKeyframe(int keyframe, glm::mat4 rootWorld);
 	bool load(char* filename);
+	//void calculateTransforms(AnimationNode* animationNode, int keyframe);
 
 	~AnimationClip();
 	AnimationClip(vector<AnimationNode*> _animNodeList);

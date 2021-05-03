@@ -24,6 +24,7 @@ const char* Window::windowTitle = "Game";
 
 // Objects to render
 Cube* Window::cube;
+Cube* cube2;
 
 std::vector<Cube*> walls;
 
@@ -89,7 +90,24 @@ bool Window::initializeObjects()
 	//Cube* back = new Cube(glm::vec3(-40, 0, -40), glm::vec3(-40.1, 5, 40));
 	//Cube* right = new Cube(glm::vec3(-40, 0, 40), glm::vec3(40, 5, 40.1));
 	//Cube* left = new Cube(glm::vec3(-40, 0, -40), glm::vec3(40, 5, -40.1));
-
+	
+	//cube testing stuff
+	//glm::mat4 cubeTransform(1.0f);
+	//cubeTransform = glm::translate(cubeTransform, glm::vec3(10.0f, 0.0f, 0.0f));
+	//cubeTransform = glm::scale(cubeTransform, glm::vec3(2.0f, 2.0f, 2.0f));
+	//cube = new Cube(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(6.0f, 1.0f, 1.0f));
+	//cube->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
+	////cube->setModel(cubeTransform);
+	//glm::mat4 cube2Transform(1.0f);
+	//glm::mat4 scaleTransform = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 2.0f));
+	//glm::mat4 translateTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
+	//glm::mat4 rotateTransform = glm::rotate(glm::mat4(1.0f), 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
+	//glm::mat4 translateTransform2 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
+	//cube2 = new Cube(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(1.0f, 1.0f, 6.0f));
+	//cube2->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
+	//cube2->test();
+	//cube2->setModel(translateTransform2 * rotateTransform * translateTransform);
+	
 	//boundingBoxList.push_back(front->getBoundingBox());
 	//boundingBoxList.push_back(right->getBoundingBox());
 
@@ -130,11 +148,11 @@ bool Window::initializeObjects()
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
 	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(20.0f, 2.0f, 4.0f));
-	gun = new Model("C:/Users/Lucas/Desktop/CSE 125/pistolFire.gltf", gunRootTransform);
+	gun = new Model("C:/Users/Lucas/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
 
 	glm::mat4 characterRootTransform(1.0f);
-	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
-	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(10.0f, 0.0f, 4.0f));
+	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
+	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
 	character = new Model("C:/Users/Lucas/Desktop/CSE 125/character.gltf", characterRootTransform);
 	return true;
 }
@@ -301,6 +319,7 @@ void Window::idleCallback()
 
 	chest->animationPlayer->play(chest->animationPlayer->animationClipList.at(0), 0.01f, chest->rootModel);
 	gun->animationPlayer->play(gun->animationPlayer->animationClipList.at(0), 0.05f, gun->rootModel);
+	//character->animationPlayer->play(character->animationPlayer->animationClipList.at(0), 0.05f, character->rootModel);
 }
 
 /*
@@ -378,6 +397,8 @@ void Window::displayCallback(GLFWwindow* window)
 	chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//cube2->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	drawCrosshair();
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
