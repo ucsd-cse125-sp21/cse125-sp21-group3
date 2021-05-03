@@ -5,6 +5,7 @@
 #include "BoundingBox.h"
 #include "Weapon.h"
 #include <deque>
+#include "Maze.h"
 
 /*
  * File Name: Player.h
@@ -15,9 +16,12 @@
  * @author Lucas Hwang
  */
 
+class Maze;
+
+
 class Player {
 public:
-	Player(glm::vec3 _position);
+	Player(glm::vec3 _position, Maze* mz);
 
 	void applyForce(glm::vec3 f) { forceNet += f; }
 	void computeForces();
@@ -32,7 +36,8 @@ public:
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
 	void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
-	void shootWeapon(std::vector<BoundingBox*>);
+
+	BoundingBox* shootWeapon(std::vector<BoundingBox*>);
 
 	glm::vec3 getPosition() { return position; }
 	glm::vec3 getVelocity() { return velocity; }
@@ -44,21 +49,62 @@ public:
 	void updateBoundingBox();
 	void handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b);
 	std::deque<Cube*> getFootprints() { return this->footprints; }
+
+	float getHealth() { return currentHealth; }
+	float getMaxHealth() { return maxHealth; }
+	float getArmor() { return currentArmor; }
+	float getDamageBoost() { return currentDamageBoost; }
+	float getState() { return state; }
+
+
+	void setHealth(float health);
+	void setArmor(float armor);
+	void setDamageBoost(float damageBoost);
+	void setMaxHealth(float max);
+
+	void setState(int st);
+
+	void useAbility();
+
+	void pickUpAbility();
+
+	bool removeWallAbility();
+	bool seeMapAbility();
+
+
+
 	enum movementDirection {
 		forward,
 		backward,
 		left,
 		right,
 		up,
-		down,
+		down
+	};
+
+	enum playerPositions {
 		crouch,
 		stand,
-		sprint
+		sprint,
+		still,
+		dead
+	};
+
+	enum abilityTypes {
+		none,
+		removeWall,
+		trackPlayer,
+		seeMap,
+		healPlayer,
+		increasePlayerHealth,
+		armorPlayer,
+		damageBoost
 	};
 
 private:
+
+	BoundingBox* boundingBox; // used to check collisions
 	
-	BoundingBox* boundingBox; //used to check collisions
 	float mass;
 	float speed;
 	float height;
@@ -70,11 +116,23 @@ private:
 	Camera* playerCamera;
 	irrklang::ISoundEngine* soundEngine;
 	Weapon* playerWeapon;
+
+	float oldPitch;
+
+	int state;
+
 	std::deque<Cube*> footprints;
-	movementDirection state;
 	glm::vec3 lastFootPrintPos;
 	float currentHealth;
 	float maxHealth;
+
+	float currentArmor;
+
+	float currentDamageBoost;
+
+	int currentAbility;
+
+	Maze* maze;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

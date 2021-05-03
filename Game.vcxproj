@@ -101,20 +101,20 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>irrKlang.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlib.lib;irrKlang.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1\build\Release;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1\build\code\Release;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1\build\include;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1\include;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\irrKlang-64bit-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>zlib.lib;IrrXML.lib;assimp-vc142-mt.lib;irrKlang.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\assimp-5.0.1\build\contrib\zlib\Release;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\assimp-5.0.1\build\contrib\irrXML\Release;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\assimp-5.0.1\build\code\Release;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlib.lib;irrKlang.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1\build\Release;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1\build\code\Release;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\lib\Winx64-visualStudio;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\assimp-5.0.1\build\include;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\assimp-5.0.1\include;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\Assimp\include;C:\Users\Kabir Nagrecha\Desktop\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;C:\Users\Lucas\Desktop\CSE 125\cse125-sp21-group3\irrKlang-64bit-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1\build\include;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\assimp-5.0.1\include;C:\Programs\CSE 125\cse125-sp21-group3-Graphics\irrKlang-64bit-1.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

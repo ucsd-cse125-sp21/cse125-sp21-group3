@@ -16,11 +16,17 @@ Maze::Maze(int size, int scale)
 		{
 			mazeArray[r][c].right = false;
 			mazeArray[r][c].bottom = false;
+			mazeArray[r][c].ability = Player::none;
 		}
 	}
 
 	mapScale = scale;
-	wallWidth = 0.1;
+	wallWidth = 0.1f;
+	wallHeight = 5.0f;
+
+	// Set seed for random creation for testing purposes
+	//srand(0);
+	srand(time(NULL));
 }
 
 
@@ -34,104 +40,191 @@ Maze::~Maze()
 	delete[] mazeArray;
 }
 
+Cube * Maze::createGround()
+{
+	//ground = new Cube(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), Cube::border);
+	ground = new Cube(glm::vec3(0, -1.0f, 0.0f), glm::vec3((mazeSize - 1) * mapScale, 0.0f, (mazeSize - 1) * mapScale), Cube::border);
+	ground->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
+	glm::mat4 groundModel = ground->getModel();
+	//groundModel = glm::translate(groundModel, glm::vec3(0.0f, -1.0f, 0.0f));
+
+	//groundModel = glm::scale(groundModel, glm::vec3((mazeSize - 1) * mapScale, 1.0f, (mazeSize - 1) * mapScale));
+	//ground->setModel(groundModel);
+
+
+	boundingBoxList.push_back(ground->getBoundingBox());
+	return ground;
+}
+
+std::vector<Cube*>  Maze::createAbilityChests()
+{
+	int numAbilities = 15;
+	for (int i = 0; i < numAbilities; i++)
+	{
+		int abilityType = rand() % 8;
+		while (abilityType == Player::none || abilityType == Player::trackPlayer)
+		{
+			abilityType = rand() % 8;
+		}
+		int row = rand() % (mazeSize - 1);
+		int column = rand() % (mazeSize - 1);
+		if (mazeArray[row][column].ability == Player::none)
+		{
+			mazeArray[row][column].ability = abilityType;
+		}
+		else
+		{
+			numAbilities++;
+		}
+	}
+	for (int r = 0; r < mazeSize; r++)
+	{
+		for (int c = 0; c < mazeSize; c++)
+		{
+			if (mazeArray[r][c].ability != Player::none)
+			{
+				Cube* chest = new Cube(glm::vec3(r * mapScale + wallWidth, 0.0f, c * mapScale + wallWidth), glm::vec3((r + 0.5) * mapScale, wallHeight/2, (c + 0.5) * mapScale), Cube::abilityChest);
+				chest->setColor(glm::vec3(0.2f, 0.5f, 0.9f));
+				abilityChests.push_back(chest);
+				boundingBoxList.push_back(chest->getBoundingBox());
+				chestBoundingBoxList.push_back(chest->getBoundingBox());
+
+			}
+		}
+	}
+	return abilityChests;
+}
 
 // Generate the maze and create wall objects
 std::vector<Cube*>  Maze::createWalls()
 {
-	// Set seed for random creation for testing purposes
-	srand(0);
-	//srand(time(NULL));
+	createAbilityChests();
 	// Set borders
 	// Row = X, column = Z
-	for (int i = 0; i < mazeSize; i++)
+	for (int i = 0; i < mazeSize - 1; i++)
 	{
-		mazeArray[0][i].right = true; // Top
-		mazeArray[i][0].bottom = true; // Left
-		mazeArray[mazeSize - 1][i].right = true; // Bottom
-		mazeArray[i][mazeSize - 1].bottom = true; // Right
+		mazeArray[0][i].bottom = true; // Left border
+		mazeArray[i][0].right = true; // Top border
+		mazeArray[mazeSize - 1][i].bottom = true; // Right border
+		mazeArray[i][mazeSize - 1].right = true; // Bottom border
 	}
 
 	// Generate random walls
 	generateMaze(0, mazeSize - 1, 0, mazeSize - 1, rand() % 2);
 
-	//printMaze();
+	if (Window::debugMode)
+	{
+		printMaze();
+	}
 
 	// Add an end
-	mazeArray[mazeSize - 1][mazeSize - 2].right = false;
+	mazeArray[mazeSize - 2][mazeSize - 1].right = false;
 
-
-
-
-	// Create right walls (horizontal)
+	// Add a beginning
+	mazeArray[0][0].right = false;
+	
+	// Create Unit walls
 	for (int r = 0; r < mazeSize; r++)
 	{
-		bool prev = false;
-		int lowerBound = 0;
 		for (int c = 0; c < mazeSize; c++)
 		{
-			// Wall continues on here
-			if (mazeArray[r][c].right)
-			{
-				if (!prev)
-				{
-					lowerBound = c;
-				}
-				prev = true;
-			}
-			// Wall ends here
-			else
-			{
-				if (prev)
-				{
-					Cube* newWall = new Cube(glm::vec3(r*mapScale, 0, lowerBound*mapScale), glm::vec3(r*mapScale + wallWidth, 5, c*mapScale));
-					walls.push_back(newWall);
-				}
-				prev = false;
-			}
-		}
-		// Wall goes to edge of maze
-		if (prev)
-		{
-			Cube* newWall = new Cube(glm::vec3(r*mapScale, 0, lowerBound*mapScale), glm::vec3(r*mapScale + wallWidth, 5, (mazeSize - 1)*mapScale));
-			walls.push_back(newWall);
-		}
-	}
-	
-	// Create bottom walls (vertical)
-	for (int c = 0; c < mazeSize; c++)
-	{
-		bool prev = false;
-		int lowerBound = -1;
-		for (int r = 0; r < mazeSize; r++)
-		{
-			// Wall continues on here
+			int canDelete = Cube::wall;
 			if (mazeArray[r][c].bottom)
 			{
-				if (!prev)
+				if (r == 0 || r == mazeSize - 1)
 				{
-					lowerBound = r;
+					canDelete = Cube::border;
 				}
-				prev = true;
-
+				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3(r * mapScale + wallWidth, wallHeight, (c + 1) * mapScale + wallWidth), canDelete);
+				walls.push_back(newWall);
+				boundingBoxList.push_back(newWall->getBoundingBox());
 			}
-			// Wall ends here
-			else
+			if (mazeArray[r][c].right)
 			{
-				if (prev)
+				if (c == 0 || c == mazeSize - 1)
 				{
-					Cube* newWall = new Cube(glm::vec3(lowerBound*mapScale, 0, c * mapScale), glm::vec3(r * mapScale, 5, c * mapScale + wallWidth));
-					walls.push_back(newWall);
+					canDelete = Cube::border;
 				}
-				prev = false;
+				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3((r+1) * mapScale, wallHeight, c * mapScale + wallWidth), canDelete);
+				walls.push_back(newWall);
+				boundingBoxList.push_back(newWall->getBoundingBox());
 			}
-		}
-		// Wall goes to edge of maze
-		if (prev)
-		{
-			Cube* newWall = new Cube(glm::vec3(lowerBound * mapScale, 0, c * mapScale), glm::vec3((mazeSize - 1) * mapScale, 5, c * mapScale + wallWidth));
-			walls.push_back(newWall);
 		}
 	}
+
+	// Create connected walls as single object
+	// Create right walls (horizontal)
+	//for (int r = 0; r < mazeSize; r++)
+	//{
+	//	bool prev = false;
+	//	int lowerBound = 0;
+	//	for (int c = 0; c < mazeSize; c++)
+	//	{
+	//		// Wall continues on here
+	//		if (mazeArray[r][c].right)
+	//		{
+	//			if (!prev)
+	//			{
+	//				lowerBound = c;
+	//			}
+	//			prev = true;
+	//		}
+	//		// Wall ends here
+	//		else
+	//		{
+	//			if (prev)
+	//			{
+	//				Cube* newWall = new Cube(glm::vec3(r*mapScale, -2.0f, lowerBound*mapScale), glm::vec3(r*mapScale + wallWidth, wallHeight, c*mapScale));
+	//				walls.push_back(newWall);
+	//				boundingBoxList.push_back(newWall->getBoundingBox());
+	//			}
+	//			prev = false;
+	//		}
+	//	}
+	//	// Wall goes to edge of maze
+	//	if (prev)
+	//	{
+	//		Cube* newWall = new Cube(glm::vec3(r*mapScale, -2.0f, lowerBound*mapScale), glm::vec3(r*mapScale + wallWidth, wallHeight, (mazeSize - 1)*mapScale));
+	//		walls.push_back(newWall);
+	//	}
+	//}
+	//
+	//// Create bottom walls (vertical)
+	//for (int c = 0; c < mazeSize; c++)
+	//{
+	//	bool prev = false;
+	//	int lowerBound = -1;
+	//	for (int r = 0; r < mazeSize; r++)
+	//	{
+	//		// Wall continues on here
+	//		if (mazeArray[r][c].bottom)
+	//		{
+	//			if (!prev)
+	//			{
+	//				lowerBound = r;
+	//			}
+	//			prev = true;
+
+	//		}
+	//		// Wall ends here
+	//		else
+	//		{
+	//			if (prev)
+	//			{
+	//				Cube* newWall = new Cube(glm::vec3(lowerBound*mapScale, -2.0f, c * mapScale), glm::vec3(r * mapScale, wallHeight, c * mapScale + wallWidth));
+	//				walls.push_back(newWall);
+	//			}
+	//			prev = false;
+	//		}
+	//	}
+	//	// Wall goes to edge of maze
+	//	if (prev)
+	//	{
+	//		Cube* newWall = new Cube(glm::vec3(lowerBound * mapScale, -2.0f, c * mapScale), glm::vec3((mazeSize - 1) * mapScale, wallHeight, c * mapScale + wallWidth));
+	//		walls.push_back(newWall);
+	//	}
+	//}
+	//
 	return walls;
 }
 
@@ -150,7 +243,7 @@ void Maze::generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool dir
 		bool chooseDirection1 = rand() % (r_end - r_begin + c_end - c_begin) <= (r_end - r_begin);
 		bool chooseDirection2 = rand() % (r_end - r_begin + c_end - c_begin) <= (r_end - r_begin);
 
-		// Walls going right
+		// Walls going bottom
 		if (direction)
 		{
 			int randomRow = rand() % (r_end - r_begin - 1) + r_begin + 1;
@@ -161,7 +254,7 @@ void Maze::generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool dir
 			{
 				if (i != randomOpening)
 				{
-					mazeArray[randomRow][i].right = true;
+					mazeArray[randomRow][i].bottom = true;
 				}
 			}
 			// Recursively call for the other two sides (created from the wall currently bisecting the area into two)
@@ -169,7 +262,7 @@ void Maze::generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool dir
 			generateMaze(randomRow, r_end, c_begin, c_end, chooseDirection2);
 
 		}
-		// Walls going bottom/down
+		// Walls going right
 		else
 		{
 			int randomColumn = rand() % (c_end - c_begin - 1) + c_begin + 1;
@@ -180,7 +273,7 @@ void Maze::generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool dir
 			{
 				if (i != randomOpening)
 				{
-					mazeArray[i][randomColumn].bottom = true;
+					mazeArray[i][randomColumn].right = true;
 				}
 			}
 
@@ -193,6 +286,25 @@ void Maze::generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool dir
 	}
 }
 
+
+int* Maze::getCoordinates(glm::vec3 position)
+{
+	int* coordinates = new int[2];
+	coordinates[0] = position[0] / mapScale;
+	coordinates[1] = position[2] / mapScale;
+
+	return coordinates;
+}
+
+int Maze::getAbility(int* coordinate)
+{
+	return mazeArray[coordinate[0]][coordinate[1]].ability;
+}
+
+void Maze::removeAbility(int* coordinate)
+{
+	mazeArray[coordinate[0]][coordinate[1]].ability = Player::none;
+}
 
 
 // Print out maze to console

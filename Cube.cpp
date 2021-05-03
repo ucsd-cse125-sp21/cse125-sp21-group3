@@ -20,7 +20,7 @@
  * @return new Cube object
  * @author Part of 169 starter code
  */
-Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax) 
+Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax, int deletable) 
 {
 	// Model matrix.
 	model = glm::mat4(1.0f);
@@ -30,6 +30,28 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax)
 
 	//bounding box setup
 	boundingBox = new BoundingBox(cubeMin, cubeMax, this);
+
+	mazePosition = cubeMin;
+
+	if (cubeMax[0] - cubeMin[0] < 1.0f)
+	{
+		direction = true; // bottom
+	}
+	else
+	{
+		direction = false; // right
+	}
+
+	if (deletable == wall)
+	{
+		canDelete = true;
+	}
+	else
+	{
+		canDelete = false;
+	}
+
+	type = deletable;
 
 	// Specify vertex positions
 	positions = {
@@ -163,6 +185,9 @@ Cube::~Cube()
 	glDeleteBuffers(1, &VBO_normals);
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &VAO);
+
+	std::cout << "Deleting" << std::endl;
+	boundingBox->setActive(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

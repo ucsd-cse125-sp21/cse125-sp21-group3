@@ -20,7 +20,7 @@
  * @return Player object
  * @author Lucas Hwang
  */
-Player::Player(glm::vec3 _position) {
+Player::Player(glm::vec3 _position, Maze* mz) {
     
     position = _position;
 
@@ -34,11 +34,19 @@ Player::Player(glm::vec3 _position) {
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.875f, position.z - width * 0.5f),
         glm::vec3(position.x + width * 0.5f, position.y + height * 0.125f, position.z + width * 0.5f), this);
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    speed = 0.09f;
+    speed = 0.35f;
     playerWeapon = new Weapon();
 
     maxHealth = 100.0f;
     currentHealth = 100.0f;
+
+    currentArmor = 0.0f;
+    currentDamageBoost = 0.0f;
+
+    currentAbility = none;
+
+    maze = mz;
+
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -113,10 +121,7 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
         //and that we are not checking against our own bounding box
         
         if (b->getActive() && b != boundingBox) {
-            //std::cout << "i: " << std::endl;
-            //std::cout << "player.min: " << glm::to_string(boundingBox->getMin()) << std::endl;
-           // std::cout << "plyaer.max: " << glm::to_string(boundingBox->getMax()) << std::endl;
-           
+
             if (boundingBox->checkCollision(b)) {
 
                 
@@ -126,7 +131,7 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
                 handleCollision(prevBoundingBox, b);
                 boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
                     glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
-
+                delete prevBoundingBox;
                 //std::cout << "min point collision" << std::endl;
             }
         }
@@ -145,27 +150,35 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     //computeForces();
     //integrate(deltaTime);
 
+
+
+
     switch (state)
     {
-    case crouch:
-        if (position.y >= 2.0f)
-        {
-            glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
-            velocity += v;
-        }
-        velocity *= 0.5f;
-    case sprint:
-        velocity *= 1.40f;
-        break;
-    default:
-        
-        if (position.y <= 3.5f)
-        {
-            glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
-            velocity += v;
+        case crouch:
+            if (position.y >= 2.0f)
+            {
+                glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
+                velocity += v;
+            }
             velocity *= 0.5f;
-        }
-        break;
+        case sprint:
+            velocity *= 1.40f;
+            break;
+        case dead:
+            velocity *= 3;
+            break;
+        case still:
+            velocity *= 0;
+            break;
+        default:
+            if (position.y <= 3.5f)
+            {
+                glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
+                velocity += v;
+                velocity *= 0.5f;
+            }
+            break;
     }
     if (glm::length(velocity) > 0.0f) {
 
@@ -180,13 +193,19 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     }
 
     if (boundingBox->getActive()) {
-        applyConstraints(boundingBoxList);
+        applyConstraints(maze -> getBoundingBox());
     }
-
-    createFootPrint(position);
-    prevPosition = position;
+    if (state != dead && state != still)
+    {
+        createFootPrint(position);
+    }
+    if (state != still)
+    {
+        prevPosition = position;
+        oldPitch = playerCamera -> getPitch();
     //camera and player position should always be the same, at least for now
-    playerCamera->setPosition(position);
+        playerCamera->setPosition(position);
+    }
 
     //update player camera
     playerCamera->Update();
@@ -234,26 +253,16 @@ void Player::moveDirection(int dir) {
         glm::vec3 v = glm::normalize(glm::cross(currentDirection, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
         velocity += v;
     }
-
-    if (dir == crouch) {
-        state = crouch;
-    }
-    if (dir == stand) {
-        state = stand;
-    }
-    if (dir == sprint) {
-        if (state != crouch)
-        {
-            state = sprint;
+    if (state == dead || true)
+    {
+        if (dir == up) {
+            glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed;
+            velocity += v;
         }
-    }
-    if (dir == up) {
-        glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed;
-        velocity += v;
-    }
-    if (dir == down) {
-        glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed;
-        velocity += v;
+        if (dir == down) {
+            glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed;
+            velocity += v;
+        }
     }
 }
 
@@ -306,13 +315,153 @@ void Player::handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b) {
             velocity.z = 0.0f;
         }
     }
+
 }
 
-void Player::shootWeapon(std::vector<BoundingBox*> objects) {
-    if (state != sprint)
+
+
+void Player::setHealth(float health)
+{
+    if (maxHealth <= health)
     {
-        playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
+        health = maxHealth;
     }
+    currentHealth = health;
+    if (currentHealth < 0.0f && state != dead)
+    {
+        state = dead;
+    }
+}
+
+void Player::setArmor(float armor)
+{
+    currentArmor = armor;
+}
+
+void Player::setDamageBoost(float damageBoost)
+{
+    currentDamageBoost = damageBoost;
+}
+
+void Player::setMaxHealth(float max)
+{
+    maxHealth = max;
+}
+
+void Player::setState(int st)
+{
+    state = st;
+}
+
+void Player::pickUpAbility()
+{
+    BoundingBox* shotObject = shootWeapon(maze -> getChestBoundingBox());
+    if (shotObject == NULL)
+    {
+        return;
+    }
+    Cube* parentCube = shotObject -> getParentCube();
+    std::cout << "LMAO" << parentCube->getType() << std::endl;
+    if (parentCube->getType() == Cube::abilityChest || true)
+    {
+        int* playerPos = maze -> getCoordinates(getPosition());
+        int* chestPos = maze -> getCoordinates(parentCube->getMazePosition());
+        if ((playerPos[0] == chestPos[0] && playerPos[1] == chestPos[1]) || 
+            (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) || 
+            (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
+        {
+            currentAbility = maze->getAbility(chestPos);
+            maze->removeAbility(chestPos);
+
+            std::cout << "Picked up ability:" << currentAbility << std::endl;
+
+            delete parentCube;
+            delete playerPos;
+            delete chestPos;
+        }
+    }
+}
+
+void Player::useAbility()
+{
+    bool used = false;
+    switch (currentAbility)
+    {
+    case none:
+        break;
+    case removeWall:
+        used = removeWallAbility();
+        break;
+    case trackPlayer:
+        break;
+    case seeMap:
+    {
+        used = seeMapAbility();
+        break;
+    }
+    case healPlayer:
+        setHealth(getHealth() + 100.0f);
+        used = true;
+        break;
+    case increasePlayerHealth:
+        setMaxHealth(getMaxHealth() + 50.0f);
+        used = true;
+        break;
+    case armorPlayer:
+        setArmor(getArmor() + 1.0f);
+        used = true;
+        break;
+    case damageBoost:
+        setDamageBoost(getDamageBoost() + 50.0f);
+        used = true;
+        break;
+    default:
+        break;
+    }
+    if (used)
+    {
+        currentAbility = none;
+    }
+}
+
+
+
+BoundingBox* Player::shootWeapon(std::vector<BoundingBox *> objects) {
+    if (state != sprint && state != dead)
+    {
+        BoundingBox* shotObject = playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
+        return shotObject;
+    }
+    return 0;
+}
+
+bool Player::removeWallAbility()
+{
+    BoundingBox* shotObject = shootWeapon(maze->getBoundingBox());
+    if (shotObject == NULL)
+    {
+        return false;
+    }
+    Cube* parentCube = shotObject->getParentCube();
+    if (parentCube != NULL && parentCube->isDeletable())
+    {
+        delete parentCube;
+        return true;
+    }
+    return false;
+}
+
+bool Player::seeMapAbility()
+{
+    float mazeSize = maze->getMazeSize();
+    float mapScale = maze->getMapScale();
+    float middleMap = (mazeSize - 1) * mapScale / 2.0f;
+    playerCamera->Reset();
+    playerCamera->setPitch(-90.0f);
+    playerCamera->setPosition(glm::vec3(middleMap, 200.0f, middleMap));
+    setState(still);
+    playerCamera->setFarClip(350.0f);
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
