@@ -2,8 +2,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <../util/ts_queue.cpp>
-#include <../parsing/serverParse.cpp>
+#include "../util/ts_queue.cpp"
+#include "../parsing/serverParse.cpp"
 
 #define MAX_CONNECTIONS 4
 #define PERIOD 500 //server period in ms

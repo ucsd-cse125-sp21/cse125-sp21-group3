@@ -2,8 +2,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <../util/ts_queue.cpp>
-#include <../parsing/clientParse.cpp>
+#include "../util/ts_queue.cpp"
+#include "../parsing/clientParse.cpp"
 
 #define PERIOD 500 //client period in ms
 
