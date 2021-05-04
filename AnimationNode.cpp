@@ -17,7 +17,7 @@ AnimationNode::AnimationNode(aiNodeAnim* aiNodeAnim, vector<Mesh*> masterMeshLis
 		positionKey->time /= ticksPerSecond;
 		scalingKey->time /= ticksPerSecond;
 		rotationKey->time /= ticksPerSecond;
-		
+	
 		positionKeys.push_back(positionKey);
 		scalingKeys.push_back(scalingKey);
 		rotationKeys.push_back(rotationKey);		

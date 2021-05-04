@@ -47,9 +47,6 @@ public:
 	glm::vec3 getColor();
 	void setColor(glm::vec3 c);
 	BoundingBox* getBoundingBox() { return boundingBox; }
-<<<<<<< HEAD
-	void test();
-=======
 
 	glm::vec3 getMazePosition() { return mazePosition; }
 
@@ -66,7 +63,6 @@ public:
 		wall,
 		abilityChest
 	};
->>>>>>> f356a9f5cae565f7fd2a736f964f6f5174d052f0
 };
 
 ////////////////////////////////////////////////////////////////////////////////

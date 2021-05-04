@@ -278,22 +278,4 @@ glm::vec3 Cube::getColor() {
 	return color;
 }
 
-void Cube::test() {
-
-	glm::mat4 scaleTransform = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 2.0f));
-	glm::mat4 translateTransform = glm::translate(glm::mat4(1.0f), glm::vec3(10.0f, 0.0f, 0.0f));
-	for (int i = 0; i < positions.size(); i++) {
-
-		glm::vec4 v(positions.at(i).x, positions.at(i).y, positions.at(i).z, 1.0f);
-		glm::vec4 v_prime = scaleTransform * translateTransform * v;
-		positions.at(i) = glm::vec3(v_prime.x / v_prime.w, v_prime.y / v_prime.w, v_prime.z / v_prime.w);
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
-	glBufferSubData(GL_ARRAY_BUFFER, 0.0f, sizeof(glm::vec3) * positions.size(), positions.data());
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_normals);
-	glBufferSubData(GL_ARRAY_BUFFER, 0.0f, sizeof(glm::vec3) * normals.size(), normals.data());
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////

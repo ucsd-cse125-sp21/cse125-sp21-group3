@@ -18,8 +18,12 @@ public:
     //vector<unsigned int> indices;
     //vector<Texture>      textures;
     int id;
+    std::vector<glm::vec3> initialPositions;
+    std::vector<glm::vec3> initialNormals;
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
+    std::vector<glm::vec3> bonePositions;
+    std::vector<glm::vec3> boneNormals;
     std::vector<unsigned int> indices;
     std::vector<Bone*> bones;
     glm::mat4 model;
@@ -32,8 +36,8 @@ public:
     
     // render the mesh
     void draw(const glm::mat4& viewProjMtx, GLuint shader);
-    void animateBone(glm::mat4 transform, Bone* bone);
-
+ 
+    void clearBoneData();
     // render data 
     GLuint VAO;
     GLuint VBO_positions, VBO_normals, EBO;

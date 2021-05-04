@@ -22,13 +22,7 @@ int Window::width;
 int Window::height;
 const char* Window::windowTitle = "Game";
 
-<<<<<<< HEAD
-// Objects to render
-Cube* Window::cube;
-Cube* cube2;
-=======
 
->>>>>>> f356a9f5cae565f7fd2a736f964f6f5174d052f0
 
 std::vector<Cube*> walls;
 
@@ -89,36 +83,6 @@ bool Window::initializeProgram() {
  */
 bool Window::initializeObjects()
 {
-<<<<<<< HEAD
-	// Create a cube
-
-	//Cube* front = new Cube(glm::vec3(40, 0, -40), glm::vec3(40.1, 5, 40));
-	//Cube* back = new Cube(glm::vec3(-40, 0, -40), glm::vec3(-40.1, 5, 40));
-	//Cube* right = new Cube(glm::vec3(-40, 0, 40), glm::vec3(40, 5, 40.1));
-	//Cube* left = new Cube(glm::vec3(-40, 0, -40), glm::vec3(40, 5, -40.1));
-	
-	//cube testing stuff
-	//glm::mat4 cubeTransform(1.0f);
-	//cubeTransform = glm::translate(cubeTransform, glm::vec3(10.0f, 0.0f, 0.0f));
-	//cubeTransform = glm::scale(cubeTransform, glm::vec3(2.0f, 2.0f, 2.0f));
-	//cube = new Cube(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(6.0f, 1.0f, 1.0f));
-	//cube->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
-	////cube->setModel(cubeTransform);
-	//glm::mat4 cube2Transform(1.0f);
-	//glm::mat4 scaleTransform = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f, 2.0f, 2.0f));
-	//glm::mat4 translateTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f));
-	//glm::mat4 rotateTransform = glm::rotate(glm::mat4(1.0f), 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-	//glm::mat4 translateTransform2 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
-	//cube2 = new Cube(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(1.0f, 1.0f, 6.0f));
-	//cube2->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
-	//cube2->test();
-	//cube2->setModel(translateTransform2 * rotateTransform * translateTransform);
-	
-	//boundingBoxList.push_back(front->getBoundingBox());
-	//boundingBoxList.push_back(right->getBoundingBox());
-
-=======
->>>>>>> f356a9f5cae565f7fd2a736f964f6f5174d052f0
 	int size = 21;
 	int scale = 7;
 	maze = new Maze(size, scale);
@@ -141,26 +105,17 @@ bool Window::initializeObjects()
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
 	chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-	chest = new Model("C:/Users/Calpok/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
+	chest = new Model("C:/Users/Lucas/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
 	
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
-	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(20.0f, 2.0f, 4.0f));
-<<<<<<< HEAD
+	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
 	gun = new Model("C:/Users/Lucas/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
 
 	glm::mat4 characterRootTransform(1.0f);
 	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
 	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
 	character = new Model("C:/Users/Lucas/Desktop/CSE 125/character.gltf", characterRootTransform);
-=======
-	gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolFire.gltf", gunRootTransform);
-
-	glm::mat4 characterRootTransform(1.0f);
-	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
-	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(10.0f, 0.0f, 4.0f));
-	character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
->>>>>>> f356a9f5cae565f7fd2a736f964f6f5174d052f0
 	return true;
 }
 
@@ -327,9 +282,9 @@ void Window::idleCallback()
 	}
 	player->update(0.1f, boundingBoxList);
 
-	chest->animationPlayer->play(chest->animationPlayer->animationClipList.at(0), 0.01f, chest->rootModel);
-	gun->animationPlayer->play(gun->animationPlayer->animationClipList.at(0), 0.05f, gun->rootModel);
-	//character->animationPlayer->play(character->animationPlayer->animationClipList.at(0), 0.05f, character->rootModel);
+	chest->playAnimation(chest->animationClipList.at(0), 0.01f);
+	gun->playAnimation(gun->animationClipList.at(0), 0.05f);
+	character->playAnimation(character->animationClipList.at(0), 0.05f);
 }
 
 /*
