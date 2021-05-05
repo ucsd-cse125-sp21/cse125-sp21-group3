@@ -6,6 +6,7 @@
 #include "Weapon.h"
 #include <deque>
 #include "Maze.h"
+#include "Model.h"
 
 /*
  * File Name: Player.h
@@ -103,6 +104,9 @@ public:
 
 private:
 
+	Model* playerModel;
+	float playerModelScale = 0.31f;
+	glm::vec3 playerToModelDiff;
 	BoundingBox* boundingBox; // used to check collisions
 	
 	float mass;

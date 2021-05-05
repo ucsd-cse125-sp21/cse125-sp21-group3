@@ -105,17 +105,17 @@ bool Window::initializeObjects()
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
 	chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-	chest = new Model("C:/Users/Lucas/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
+	//chest = new Model("Assets/chestOpen.gltf", chestRootTransform);
 	
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
 	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
-	gun = new Model("C:/Users/Lucas/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
+	//gun = new Model("Assets/pistolReload.gltf", gunRootTransform);
 
 	glm::mat4 characterRootTransform(1.0f);
 	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
 	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
-	character = new Model("C:/Users/Lucas/Desktop/CSE 125/character.gltf", characterRootTransform);
+	//character = new Model("Assets/character.gltf", characterRootTransform);
 	return true;
 }
 
@@ -282,9 +282,9 @@ void Window::idleCallback()
 	}
 	player->update(0.1f, boundingBoxList);
 
-	chest->playAnimation(chest->animationClipList.at(0), 0.01f);
-	gun->playAnimation(gun->animationClipList.at(0), 0.05f);
-	character->playAnimation(character->animationClipList.at(0), 0.05f);
+	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
+	//gun->playAnimation(gun->animationClipList.at(0), 0.05f);
+	//character->playAnimation(character->animationClipList.at(0), 0.05f);
 }
 
 /*
@@ -359,15 +359,15 @@ void Window::displayCallback(GLFWwindow* window)
 		wall ->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 	
-	chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
 	for (Cube* abilityChests : maze->getChests())
 	{
 		abilityChests->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 
-	character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube2->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	drawCrosshair();
@@ -410,7 +410,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	 * TODO: Modify below to add your key callbacks.
 	 */
 	float speed = 0.25f;
-	glm::mat4 world = Cam->getWorld();
 	glm::vec3 forward = glm::normalize(Cam->getDirection()) * speed;
 	forward.y = 0.0f;
 	glm::vec3 backward = -forward;

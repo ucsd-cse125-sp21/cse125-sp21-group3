@@ -46,7 +46,11 @@ Player::Player(glm::vec3 _position, Maze* mz) {
     currentAbility = none;
 
     maze = mz;
-
+    glm::mat4 playerModelRootTransform(1.0f);
+    playerModelRootTransform = glm::scale(playerModelRootTransform, glm::vec3(playerModelScale));
+    playerModelRootTransform = glm::translate(playerModelRootTransform, glm::vec3(position.x, position.y - height * 0.5f, position.z));
+    playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
+    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.05f); //puts the character in the default pose
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -81,31 +85,6 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
             snd->setIsPaused(false); // unpause the sound
         }
     }
-}
-
-/*
- * Computes physical forces acting on player.
- *
- * @author Lucas Hwang
- */
-void Player::computeForces() {
-
-    forceNet = glm::vec3(0.0f, 0.0f, 0.0f);
-    applyForce(glm::vec3(0.0f, -9.8f * mass, 0.0f)); //applying gravity
-}
-
-/*
- * Moves time forward a tiny bit and updates player position and physical
- * properties
- *
- * @param deltaTime How much time has passed since last update
- * @author Lucas Hwang
- */
-void Player::integrate(float deltaTime) {
-
-    velocity = velocity + (forceNet / mass) * deltaTime;
-    prevPosition = position;
-    position = position + velocity * deltaTime;
 }
 
 /*
@@ -147,12 +126,6 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
  */
 void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) {
 
-    //computeForces();
-    //integrate(deltaTime);
-
-
-
-
     switch (state)
     {
         case crouch:
@@ -183,13 +156,10 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     if (glm::length(velocity) > 0.0f) {
 
         position = position + velocity * deltaTime;
-        //std::cout << "velocity: " << glm::to_string(velocity) << std::endl;
         
         //update player bounding box
         boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
             glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
-        //std::cout << "player bounding box min: " << glm::to_string(boundingBox->getMin()) << std::endl;
-        //std::cout << "player bounding box max: " << glm::to_string(boundingBox->getMax()) << std::endl;
     }
 
     if (boundingBox->getActive()) {
@@ -201,15 +171,27 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     }
     if (state != still)
     {
+        //update player model position
+        glm::vec3 diff = position - prevPosition;
+        playerModel->rootModel[3][0] += diff.x;
+        playerModel->rootModel[3][1] += diff.y;
+        playerModel->rootModel[3][2] += diff.z;
+
         prevPosition = position;
         oldPitch = playerCamera -> getPitch();
-    //camera and player position should always be the same, at least for now
+        //camera and player position should always be the same, at least for now
         playerCamera->setPosition(position);
+    }
+
+    if (glm::length(velocity) > 0.0f && state != dead) {
+        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.05f);
     }
 
     //update player camera
     playerCamera->Update();
 
+    //update player model
+    playerModel->update();
 }
 
 /*
@@ -225,6 +207,8 @@ void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     if (Window::debugMode) {
         boundingBox->draw(viewProjMtx, shader);
     }
+
+    playerModel->draw(viewProjMtx, shader);
 }
 
 /*

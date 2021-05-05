@@ -27,7 +27,8 @@ public:
     int meshCounter;
     string directory;
     bool gammaCorrection;
-    glm::mat4 rootModel;
+    glm::mat4 rootModel; //modify this to control position of model
+    glm::mat4 animationRootModel; //this should not be modified
 
     vector<AnimationClip*> animationClipList;
     map<string, glm::mat4> boneTransformMap;
@@ -39,6 +40,7 @@ public:
     // draws the model, and thus all its meshes
     void draw(const glm::mat4& viewProjMtx, GLuint shader);
     void update();
+    void updateNodes(Node* node, glm::mat4 parentTransform);
     void playAnimation(AnimationClip* animationClip, float time);
 
 private:
