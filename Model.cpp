@@ -1,6 +1,4 @@
 #include "Model.h"
-//#define STB_IMAGE_IMPLEMENTATION
-//#include "stb_image.h"
 #include <glm/gtx/string_cast.hpp>
 #include "AssimpToGlmHelper.h"
 #define AI_MATKEY_GLTF_MATNAME "?mat.name", 0, 0
@@ -10,7 +8,6 @@ Model::Model(string const& path, glm::mat4 _rootModel)
 {
     rootModel = _rootModel;
     gammaCorrection = false;
-    animationPlayer = new AnimationPlayer();
     meshCounter = 0;
     loadModel(path);
 }
@@ -28,7 +25,6 @@ void Model::loadModel(string const& path)
     Assimp::Importer importer;
 
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-    
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
@@ -39,95 +35,77 @@ void Model::loadModel(string const& path)
     directory = path.substr(0, path.find_last_of('/'));
 
     // process ASSIMP's root node recursively
-    processNode(scene->mRootNode, scene, rootModel);
-
+    
+    root = new Node(scene->mRootNode->mName.C_Str());
+    processNode(scene->mRootNode, root, scene, rootModel);
     processAnimations(scene);
+}
+
+void Model::processNode(aiNode* aiNode, Node* node, const aiScene* scene, glm::mat4 rootTransform)
+{
+    // process each mesh located at the current node
+    glm::mat4 localTransform = AssimpToGlmHelper::convertAiMat4ToGlmMat4(aiNode->mTransformation);
+    node->transform = localTransform;
+    glm::mat4 nodeModel = rootTransform * localTransform;
+
+    for (unsigned int i = 0; i < aiNode->mNumMeshes; i++)
+    {
+        // the node object only contains indices to index the actual objects in the scene. 
+        // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
+        aiMesh* mesh = scene->mMeshes[aiNode->mMeshes[i]];
+        meshes.push_back(processMesh(mesh, scene, nodeModel)); //adding meshes to mesh master list in model
+        node->meshList.push_back(meshes.at(meshes.size() - 1)); //adding node specific meshes to node
+    }
+    // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
+    for (unsigned int i = 0; i < aiNode->mNumChildren; i++)
+    {
+        Node* child = new Node(aiNode->mChildren[i]->mName.C_Str());
+        node->children.push_back(child);
+        processNode(aiNode->mChildren[i], child, scene, nodeModel);
+    }
+}
+
+Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 model)
+{
+    // return a mesh object created from the extracted mesh data
+    Mesh* m = new Mesh(mesh, scene, model);
+    m->id = meshCounter;
+    meshCounter++;
+    return m;
 }
 
 void Model::processAnimations(const aiScene* scene) {
 
     for (int i = 0; i < scene->mNumAnimations; i++) {
         aiAnimation* animation = scene->mAnimations[i];
-        cout << "animation: " << animation->mName.C_Str() << endl;
-        vector<AnimationNode*> animNodeList;
+        map<string, AnimationNode*> animationNodeMap;
         for (int j = 0; j < animation->mNumChannels; j++) {
             aiNodeAnim* aiNodeAnim = animation->mChannels[j];
-            animNodeList.push_back(new AnimationNode(aiNodeAnim, meshes, animation->mTicksPerSecond));
+            if (animationNodeMap.find(aiNodeAnim->mNodeName.C_Str()) != animationNodeMap.end()) {
+                cout << "error: duplicate animation node names" << endl;
+            }
+            //cout << "animationNode: " << aiNodeAnim->mNodeName.C_Str() << endl;
+            animationNodeMap.insert(pair<string, AnimationNode*>(aiNodeAnim->mNodeName.C_Str(), 
+                new AnimationNode(aiNodeAnim, meshes, animation->mTicksPerSecond)));
         }
-        animationPlayer->animationClipList.push_back(new AnimationClip(animNodeList));
+        animationClipList.push_back(new AnimationClip(animationNodeMap, meshes));
     }
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene, glm::mat4 rootTransform)
-{
-    //cout << "processing node: " << node->mName.C_Str() << endl;
-    //cout << "numMeshes: " << node->mNumMeshes << endl;
-    // process each mesh located at the current node
-    glm::mat4 model(1.0f);
-    for (unsigned int i = 0; i < node->mNumMeshes; i++)
-    {
-        // the node object only contains indices to index the actual objects in the scene. 
-        // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        glm::mat4 localTransform = AssimpToGlmHelper::convertAiMat4ToGlmMat4(node->mTransformation);
-        model = rootTransform * localTransform;
-        meshes.push_back(processMesh(mesh, scene, model));
-    }
-    // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
-    for (unsigned int i = 0; i < node->mNumChildren; i++)
-    {
-        processNode(node->mChildren[i], scene, rootTransform);  
-    }
+void Model::update() {
 
 }
 
+void Model::playAnimation(AnimationClip* animationClip, float speed) {
 
-Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 model)
-{
-    // data to fill
-    vector<glm::vec3> positions;
-    vector<glm::vec3> normals;
-    vector<unsigned int> indices;
     
-    // walk through each of the mesh's vertices
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
-    {
-        positions.push_back(glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z));
-        // normals
-        if (mesh->HasNormals())
-        {
-            normals.push_back(glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z));
-        }
+    float time = animationClip->prevTime + speed;
+    if (time > animationClip->duration) {
+        time = 0.0f;
     }
-    // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-    {
-        aiFace face = mesh->mFaces[i];
-        // retrieve all indices of the face and store them in the indices vector
-        for (unsigned int j = 0; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
-    }
-    // process materials
-    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-    // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-    // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-    // Same applies to other texture as the following list summarizes:
-    // diffuse: texture_diffuseN
-    // specular: texture_specularN
-    // normal: texture_normalN
-
-    // 1. diffuse maps
-
-    aiColor4D color(0.0f, 0.0f, 0.0f, 1.0f);
-    material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color);
-
-    // return a mesh object created from the extracted mesh data
-    Mesh* m = new Mesh(positions, normals, indices);
-    m->model = model;
-    m->baseColor = glm::vec4(color.r, color.g, color.b, color.a);
-    m->name = mesh->mName.C_Str();
-    m->id = meshCounter;
-    meshCounter++;
-    return m;
+    animationClip->calculateBoneTransforms(time, root, rootModel); 
+    animationClip->applyBoneTransforms();
+    animationClip->prevTime = time;
+   
 }

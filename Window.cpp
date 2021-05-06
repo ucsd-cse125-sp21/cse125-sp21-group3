@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <glm/gtx/string_cast.hpp>
 
+
 /*
  * File Name: Window.cpp
  *
@@ -109,12 +110,12 @@ bool Window::initializeObjects()
 	
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
-	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(20.0f, 2.0f, 4.0f));
-	gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolFire.gltf", gunRootTransform);
+	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
+	gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
 
 	glm::mat4 characterRootTransform(1.0f);
-	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
-	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(10.0f, 0.0f, 4.0f));
+	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
+	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
 	character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
 	return true;
 }
@@ -282,8 +283,9 @@ void Window::idleCallback()
 	}
 	player->update(0.1f, boundingBoxList);
 
-	chest->animationPlayer->play(chest->animationPlayer->animationClipList.at(0), 0.01f, chest->rootModel);
-	gun->animationPlayer->play(gun->animationPlayer->animationClipList.at(0), 0.05f, gun->rootModel);
+	chest->playAnimation(chest->animationClipList.at(0), 0.01f);
+	gun->playAnimation(gun->animationClipList.at(0), 0.05f);
+	character->playAnimation(character->animationClipList.at(0), 0.05f);
 }
 
 /*

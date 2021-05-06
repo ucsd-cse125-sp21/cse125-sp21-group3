@@ -13,11 +13,61 @@
 
  ////////////////////////////////////////////////////////////////////////////////
 
-Mesh::Mesh(vector<glm::vec3> _positions, vector<glm::vec3> _normals, vector<unsigned int> _indices)
+Mesh::Mesh(aiMesh* aiMesh, const aiScene* scene, glm::mat4 _model)
 {
-    positions = _positions;
-    normals = _normals;
-    indices = _indices;
+	// walk through each of the mesh's vertices
+	for (unsigned int i = 0; i < aiMesh->mNumVertices; i++)
+	{
+		positions.push_back(glm::vec3(aiMesh->mVertices[i].x, aiMesh->mVertices[i].y, aiMesh->mVertices[i].z));
+		// normals
+		if (aiMesh->HasNormals())
+		{
+			normals.push_back(glm::vec3(aiMesh->mNormals[i].x, aiMesh->mNormals[i].y, aiMesh->mNormals[i].z));
+		}
+	}
+
+	initialPositions = positions;
+	initialNormals = normals;
+
+	// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+	for (unsigned int i = 0; i < aiMesh->mNumFaces; i++)
+	{
+		aiFace face = aiMesh->mFaces[i];
+		// retrieve all indices of the face and store them in the indices vector
+		for (unsigned int j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
+	// process materials
+	aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
+
+	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named
+	// as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
+	// Same applies to other texture as the following list summarizes:
+	// diffuse: texture_diffuseN
+	// specular: texture_specularN
+	// normal: texture_normalN
+
+	// 1. diffuse maps
+
+	aiColor4D color(0.0f, 0.0f, 0.0f, 1.0f);
+	material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color);
+
+	//add bones to mesh
+	for (int i = 0; i < aiMesh->mNumBones; i++) {
+		aiBone* aiBone = aiMesh->mBones[i];
+		bones.push_back(new Bone(aiBone, positions, normals));
+	}
+
+
+	//initialize bone positions and bone normals
+	for (int i = 0; i < positions.size(); i++) {
+		bonePositions.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		boneNormals.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+	}
+
+	model = _model;
+	baseColor = glm::vec4(color.r, color.g, color.b, color.a);
+	name = aiMesh->mName.C_Str();
 	id = 0;
     // now that we have all the required data, set the vertex buffers and its attribute pointers.
     setupMesh();
@@ -76,5 +126,17 @@ void Mesh::setupMesh()
 	// Unbind the VBOs.
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+
+void Mesh::clearBoneData() {
+
+	bonePositions.clear();
+	boneNormals.clear();
+	for (int i = 0; i < positions.size(); i++) {
+		bonePositions.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+		boneNormals.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+	}
+
 }
 ////////////////////////////////////////////////////////////////////////////////

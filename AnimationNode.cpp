@@ -17,7 +17,7 @@ AnimationNode::AnimationNode(aiNodeAnim* aiNodeAnim, vector<Mesh*> masterMeshLis
 		positionKey->time /= ticksPerSecond;
 		scalingKey->time /= ticksPerSecond;
 		rotationKey->time /= ticksPerSecond;
-		
+	
 		positionKeys.push_back(positionKey);
 		scalingKeys.push_back(scalingKey);
 		rotationKeys.push_back(rotationKey);		
@@ -49,14 +49,28 @@ AnimationNode::AnimationNode(aiNodeAnim* aiNodeAnim, vector<Mesh*> masterMeshLis
 	
 	//finding subset of meshes from master mesh list that the animation applies to
 	string aiNodeAnimName = aiNodeAnim->mNodeName.C_Str();
+	//cout << "aiNodeAnimName: " << aiNodeAnimName << endl;
 	for (int i = 0; i < masterMeshList.size(); i++) {
 		string meshName = masterMeshList.at(i)->name;
+		//cout << "meshName: " << meshName << endl;
 		if (meshName.find("-") != string::npos) {
 			meshName = meshName.substr(0, meshName.find("-"));
 		}
 		if (meshName.compare(aiNodeAnimName) == 0) {
 			meshList.push_back(masterMeshList.at(i));
 		}
+
+		//as long as one bone matches the aiNodeAnimName, mesh needs to be added to mesh list
+		vector<Bone*> bones = masterMeshList.at(i)->bones;
+		for (int j = 0; j < bones.size(); j++) {
+			string boneName = bones.at(j)->name;
+			if (boneName.compare(aiNodeAnimName) == 0) {
+				meshList.push_back(masterMeshList.at(i));
+				break;
+			}
+		}
 	}
+
+
 	
 }

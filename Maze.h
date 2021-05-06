@@ -23,7 +23,10 @@ public:
 
 	Cube* createGround();
 
-	std::vector<Cube*>  createAbilityChests();
+	void  createAbilityChests(int numChests);
+
+	std::vector<Cube*> Maze::generateAbilityChests();
+
 
 	void printMaze();
 

@@ -1,5 +1,6 @@
 #include "Cube.h"
 #include "Window.h"
+#include <glm/gtx/string_cast.hpp>
 
 /*
  * File Name: Cube.cpp
@@ -276,6 +277,5 @@ void Cube::setColor(glm::vec3 c) {
 glm::vec3 Cube::getColor() {
 	return color;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
