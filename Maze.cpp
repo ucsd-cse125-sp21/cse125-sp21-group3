@@ -30,6 +30,7 @@ Maze::Maze(int size, int scale)
 }
 
 
+
 // Delete maze
 Maze::~Maze()
 {
@@ -40,7 +41,9 @@ Maze::~Maze()
 	delete[] mazeArray;
 }
 
-Cube * Maze::createGround()
+
+
+Cube * Maze::generateGround()
 {
 	//ground = new Cube(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), Cube::border);
 	ground = new Cube(glm::vec3(0, -1.0f, 0.0f), glm::vec3((mazeSize - 1) * mapScale, 0.0f, (mazeSize - 1) * mapScale), Cube::border);
@@ -55,6 +58,9 @@ Cube * Maze::createGround()
 	boundingBoxList.push_back(ground->getBoundingBox());
 	return ground;
 }
+
+
+
 
 void  Maze::createAbilityChests(int numChests)
 {
@@ -80,6 +86,9 @@ void  Maze::createAbilityChests(int numChests)
 	return;
 }
 
+
+
+
 std::vector<Cube*> Maze::generateAbilityChests()
 {
 	for (int r = 0; r < mazeSize; r++)
@@ -100,8 +109,11 @@ std::vector<Cube*> Maze::generateAbilityChests()
 	return abilityChests;
 }
 
+
+
+
 // Generate the maze and create wall objects
-std::vector<Cube*>  Maze::createWalls()
+void  Maze::createWalls()
 {
 	createAbilityChests(15);
 	generateAbilityChests();
@@ -116,7 +128,7 @@ std::vector<Cube*>  Maze::createWalls()
 	}
 
 	// Generate random walls
-	generateMaze(0, mazeSize - 1, 0, mazeSize - 1, rand() % 2);
+	createWallsRecursion(0, mazeSize - 1, 0, mazeSize - 1, rand() % 2);
 
 	if (Window::debugMode)
 	{
@@ -128,7 +140,13 @@ std::vector<Cube*>  Maze::createWalls()
 
 	// Add a beginning
 	mazeArray[0][0].right = false;
-	
+}
+
+
+
+
+std::vector<Cube*> Maze::generateWalls()
+{
 	// Create Unit walls
 	for (int r = 0; r < mazeSize; r++)
 	{
@@ -151,12 +169,16 @@ std::vector<Cube*>  Maze::createWalls()
 				{
 					canDelete = Cube::border;
 				}
-				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3((r+1) * mapScale, wallHeight, c * mapScale + wallWidth), canDelete);
+				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3((r + 1) * mapScale, wallHeight, c * mapScale + wallWidth), canDelete);
 				walls.push_back(newWall);
 				boundingBoxList.push_back(newWall->getBoundingBox());
 			}
 		}
 	}
+	return walls;
+}
+
+	
 
 	// Create connected walls as single object
 	// Create right walls (horizontal)
@@ -231,13 +253,11 @@ std::vector<Cube*>  Maze::createWalls()
 	//	}
 	//}
 	//
-	return walls;
-}
 
 
 
 // Generate maze structure
-void Maze::generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool direction)
+void Maze::createWallsRecursion(int r_begin, int r_end, int c_begin, int c_end, bool direction)
 {
 	if (r_begin >= r_end - 1 || c_begin >= c_end - 1)
 	{
@@ -264,8 +284,8 @@ void Maze::generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool dir
 				}
 			}
 			// Recursively call for the other two sides (created from the wall currently bisecting the area into two)
-			generateMaze(r_begin, randomRow, c_begin, c_end, chooseDirection1);
-			generateMaze(randomRow, r_end, c_begin, c_end, chooseDirection2);
+			createWallsRecursion(r_begin, randomRow, c_begin, c_end, chooseDirection1);
+			createWallsRecursion(randomRow, r_end, c_begin, c_end, chooseDirection2);
 
 		}
 		// Walls going right
@@ -284,13 +304,14 @@ void Maze::generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool dir
 			}
 
 			// Recursively call for the other two sides (created from the wall currently bisecting the area into two)
-			generateMaze(r_begin, r_end, c_begin, randomColumn, chooseDirection1);
-			generateMaze(r_begin, r_end, randomColumn, c_end, chooseDirection2);
+			createWallsRecursion(r_begin, r_end, c_begin, randomColumn, chooseDirection1);
+			createWallsRecursion(r_begin, r_end, randomColumn, c_end, chooseDirection2);
 		}
 		return;
 
 	}
 }
+
 
 
 int* Maze::getCoordinates(glm::vec3 position)
@@ -302,15 +323,21 @@ int* Maze::getCoordinates(glm::vec3 position)
 	return coordinates;
 }
 
+
+
 int Maze::getAbility(int* coordinate)
 {
 	return mazeArray[coordinate[0]][coordinate[1]].ability;
 }
 
+
+
 void Maze::removeAbility(int* coordinate)
 {
 	mazeArray[coordinate[0]][coordinate[1]].ability = Player::none;
 }
+
+
 
 
 // Print out maze to console

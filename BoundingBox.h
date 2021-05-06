@@ -65,6 +65,7 @@ private:
 	GLuint VAO;
 	GLuint VBO_positions, VBO_normals, EBO;
 
+
 	glm::mat4 model;
 	glm::vec3 color;
 

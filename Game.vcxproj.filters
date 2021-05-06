@@ -6,7 +6,6 @@
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="MatrixKeyframe.cpp" />
     <ClCompile Include="VectorKeyframe.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="Maze.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -17,9 +16,9 @@
     <ClCompile Include="AnimationClip.cpp" />
     <ClCompile Include="AnimationNode.cpp" />
     <ClCompile Include="parsing\clientParse.cpp" />
-    <ClCompile Include="echoNetwork\echoClient.cpp" />
     <ClCompile Include="Bone.cpp" />
     <ClCompile Include="Node.cpp" />
+    <ClCompile Include="echoNetwork\echoClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationClip.h" />

@@ -4,6 +4,8 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <../util/ts_queue.cpp>
 #include <../parsing/serverParse.h>
+#include "Maze.h"
+#include <../main.h>
 
 #define MAX_CONNECTIONS 4
 #define PERIOD 500 //server period in ms
@@ -28,6 +30,7 @@ private:
 public:
     int pid;
     string pid_str; //for parser
+
 
     typedef boost::shared_ptr<con_handler> pointer;
     con_handler(boost::asio::io_service& io_service, int pid, std::string pid_str) : sock(io_service), pid(pid), pid_str(pid_str) {
@@ -166,6 +169,8 @@ private:
     con_handler::pointer playerConnections[MAX_CONNECTIONS];
 
     serverParse* serverParser;
+
+    Maze* maze;
     
     void start_accept()
     {
@@ -179,13 +184,9 @@ private:
     }
 public:
     //constructor for accepting connection from client
-    Server(boost::asio::io_service& io_service) : io_service_(io_service),
-        acceptor_(io_service_, tcp::endpoint(tcp::v4(), 1234)) {
-        serverParser = new serverParse();
-        counter = 0;
-        start_accept();
+    Server(boost::asio::io_service& io_service); 
 
-    }
+
     void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
     {
         if (!err) {
@@ -215,6 +216,8 @@ public:
     void handle_timeout(){
         while(1){
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
+
+
             if(serverParser -> userIdCount > 0){
 
                 //first handle incoming messages, if there are any
@@ -241,8 +244,98 @@ public:
     
 };
 
+Server::Server(boost::asio::io_service& io_service) : io_service_(io_service),
+acceptor_(io_service_, tcp::endpoint(tcp::v4(), 1234)) {
+    Maze* maze = new Maze(21, 7);
+    maze->createWalls();
+    maze->generateGround();
+    serverParser = new serverParse();
+    counter = 0;
+    start_accept();
+
+}
+
+
+void error_callback(int error, const char* description)
+{
+    // Print error.
+    std::cerr << description << std::endl;
+}
+
+/*
+ * Helper method which sets callbacks related to the
+ * execution of the program. Most of these callbacks
+ * are methods which execute in response to user input.
+ *
+ * @param window Pointer to the window which the program executes in
+ * @author Part of 169 starter code
+ */
+void setup_callbacks(GLFWwindow* window)
+{
+    // Set the error callback.
+    glfwSetErrorCallback(error_callback);
+    // Set the window resize callback.
+    glfwSetWindowSizeCallback(window, Window::resizeCallback);
+
+    // Set the key callback.
+    glfwSetKeyCallback(window, Window::keyCallback);
+
+    // Set the mouse and cursor callbacks
+    glfwSetMouseButtonCallback(window, Window::mouse_callback);
+    glfwSetCursorPosCallback(window, Window::cursor_callback);
+}
+
+/*
+ * Helper method which sets up OpenGL settings related to the
+ * execution of the program.
+ *
+ * @author Part of 169 starter code
+ */
+void setup_opengl_settings()
+{
+    // Enable depth buffering.
+    glEnable(GL_DEPTH_TEST);
+    // Related to shaders and z value comparisons for the depth buffer.
+    glDepthFunc(GL_LEQUAL);
+    // Set polygon drawing mode to fill front and back of each polygon.
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    // Set clear color to black.
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+}
+
+
+/*
+ * Prints system specific information that the program is running on.
+ *
+ * @author Part of 169 starter code
+ */
+void print_versions()
+{
+    // Get info of GPU and supported OpenGL version.
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "OpenGL version supported: " << glGetString(GL_VERSION)
+        << std::endl;
+
+    //If the shading language symbol is defined.
+#ifdef GL_SHADING_LANGUAGE_VERSION
+    std::cout << "Supported GLSL version is: " <<
+        glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+#endif
+}
+
+
+
 int main(int argc, char* argv[])
 {
+
+    // Print OpenGL and GLSL versions.
+    print_versions();
+    // Setup callbacks.
+    //setup_callbacks(window);
+    // Setup OpenGL settings.
+    setup_opengl_settings();
+
+
     std::cout << "Starting server" << std::endl;
     try
     {

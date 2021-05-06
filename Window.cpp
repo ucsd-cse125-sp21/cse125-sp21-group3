@@ -88,9 +88,11 @@ bool Window::initializeObjects()
 	int scale = 7;
 	maze = new Maze(size, scale);
 
-	ground = maze->createGround();
+	ground = maze->generateGround();
 
-	walls = maze->createWalls();
+	maze->createWalls();
+
+	walls = maze->generateWalls();
 	
 
 	//player setup

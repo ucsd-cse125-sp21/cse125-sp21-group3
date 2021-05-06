@@ -45,6 +45,8 @@ Player::Player(glm::vec3 _position, Maze* mz) {
 
     currentAbility = none;
 
+    state = stand;
+
     maze = mz;
 
 }
@@ -156,7 +158,7 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     switch (state)
     {
         case crouch:
-            if (position.y >= 2.0f)
+            if (position.y >= 1.5f)
             {
                 glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
                 velocity += v;

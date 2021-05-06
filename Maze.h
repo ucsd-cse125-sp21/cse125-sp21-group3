@@ -18,19 +18,19 @@ public:
 	Maze(int size, int scale);
 	~Maze();
 
-
-	std::vector<Cube*> createWalls();
-
-	Cube* createGround();
+	Cube* generateGround();
 
 	void  createAbilityChests(int numChests);
 
-	std::vector<Cube*> Maze::generateAbilityChests();
+	std::vector<Cube*> generateAbilityChests();
 
 
 	void printMaze();
 
-	void generateMaze(int r_begin, int r_end, int c_begin, int c_end, bool direction);
+	void createWalls();
+	std::vector<Cube*> generateWalls();
+
+	void createWallsRecursion(int r_begin, int r_end, int c_begin, int c_end, bool direction);
 
 	std::vector<Cube*> getWalls() { return walls; }
 
@@ -45,6 +45,7 @@ public:
 
 	void removeAbility(int* coordinate);
 
+	void setWall(int r, int c, bool direction, bool exist);
 
 	int getMazeSize() { return mazeSize; }
 

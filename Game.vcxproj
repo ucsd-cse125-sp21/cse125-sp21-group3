@@ -137,7 +137,6 @@
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="parsing\clientParse.cpp" />
     <ClCompile Include="VectorKeyframe.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="Maze.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
