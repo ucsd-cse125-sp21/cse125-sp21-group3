@@ -369,6 +369,8 @@ void Window::displayCallback(GLFWwindow* window)
 	}
 
 	character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//cube2->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	drawCrosshair();
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
