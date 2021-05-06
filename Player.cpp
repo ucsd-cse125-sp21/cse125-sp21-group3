@@ -46,11 +46,13 @@ Player::Player(glm::vec3 _position, Maze* mz) {
     currentAbility = none;
 
     maze = mz;
-    glm::mat4 playerModelRootTransform(1.0f);
-    playerModelRootTransform = glm::scale(playerModelRootTransform, glm::vec3(playerModelScale));
-    playerModelRootTransform = glm::translate(playerModelRootTransform, glm::vec3(position.x, position.y - height * 0.5f, position.z));
+    
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, position.y - height * 0.82f, 2.25f));
+    glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
+    glm::mat4 playerModelRootTransform = translation  * rotation * scaling; 
     playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
-    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.05f); //puts the character in the default pose
+    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f); //puts the character in the default pose
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -176,7 +178,8 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
         playerModel->rootModel[3][0] += diff.x;
         playerModel->rootModel[3][1] += diff.y;
         playerModel->rootModel[3][2] += diff.z;
-
+        
+   
         prevPosition = position;
         oldPitch = playerCamera -> getPitch();
         //camera and player position should always be the same, at least for now
@@ -184,12 +187,13 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     }
 
     if (glm::length(velocity) > 0.0f && state != dead) {
+        //playerModel->rotate(0.1f);
         playerModel->playAnimation(playerModel->animationClipList.at(0), 0.05f);
     }
 
     //update player camera
     playerCamera->Update();
-
+   
     //update player model
     playerModel->update();
 }

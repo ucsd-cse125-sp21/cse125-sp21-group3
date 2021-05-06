@@ -45,6 +45,7 @@ public:
 	glm::vec3 getForceNet() { return forceNet; }
 	Camera* getPlayerCamera() { return playerCamera; }
 	BoundingBox* getBoundingBox() { return boundingBox; }
+	Model* getPlayerModel() { return playerModel; }
 	void createFootPrint(glm::vec3);
 	void moveDirection(int dir);
 	void updateBoundingBox();

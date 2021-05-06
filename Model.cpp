@@ -95,6 +95,7 @@ void Model::processAnimations(const aiScene* scene) {
 void Model::update() {
 
     updateNodes(root, rootModel);
+    
 }
 
 void Model::updateNodes(Node* node, glm::mat4 parentTransform)
@@ -126,4 +127,15 @@ void Model::playAnimation(AnimationClip* animationClip, float speed) {
     animationClip->applyBoneTransforms();
     animationClip->prevTime = time;
    
+}
+
+void Model::rotate(float amount) {
+
+    glm::vec3 animationRootModelPos(animationRootModel[3][0], animationRootModel[3][1], animationRootModel[3][2]);
+
+    glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -animationRootModelPos);
+    glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), animationRootModelPos);
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), amount, glm::vec3(0.0f, 1.0f, 0.0f));
+    animationRootModel = fromOrigin * rotation * toOrigin * animationRootModel;
+    
 }

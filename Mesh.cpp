@@ -49,7 +49,7 @@ Mesh::Mesh(aiMesh* aiMesh, const aiScene* scene, glm::mat4 _model)
 
 	// 1. diffuse maps
 
-	aiColor4D color(0.0f, 0.0f, 0.0f, 1.0f);
+	aiColor4D color(1.0f, 0.0f, 0.0f, 1.0f);
 	material->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_BASE_COLOR_FACTOR, color);
 
 	//add bones to mesh
