@@ -56,10 +56,10 @@ Cube * Maze::createGround()
 	return ground;
 }
 
-std::vector<Cube*>  Maze::createAbilityChests()
+void  Maze::createAbilityChests(int numChests)
 {
-	int numAbilities = 15;
-	for (int i = 0; i < numAbilities; i++)
+	int numAbilities = numChests;
+	for (int i = 0; i < numChests; i++)
 	{
 		int abilityType = rand() % 8;
 		while (abilityType == Player::none || abilityType == Player::trackPlayer)
@@ -77,6 +77,11 @@ std::vector<Cube*>  Maze::createAbilityChests()
 			numAbilities++;
 		}
 	}
+	return;
+}
+
+std::vector<Cube*> Maze::generateAbilityChests()
+{
 	for (int r = 0; r < mazeSize; r++)
 	{
 		for (int c = 0; c < mazeSize; c++)
@@ -98,7 +103,8 @@ std::vector<Cube*>  Maze::createAbilityChests()
 // Generate the maze and create wall objects
 std::vector<Cube*>  Maze::createWalls()
 {
-	createAbilityChests();
+	createAbilityChests(15);
+	generateAbilityChests();
 	// Set borders
 	// Row = X, column = Z
 	for (int i = 0; i < mazeSize - 1; i++)

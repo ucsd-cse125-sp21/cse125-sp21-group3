@@ -1,136 +1,16 @@
-#include <iostream>
-#include <cstdlib>
-#include <boost/asio.hpp>
-#include <boost/algorithm/string.hpp>
-#include <unordered_map>
-#include <queue>
-
-using namespace std;
-using namespace boost::asio;
-using ip::tcp;
-
-/*
- * Example messages for client parsing.  It assumes the MESSAGE_TAIL has already
- * been removed by a read_until method.
- */
-const string JOIN_RESPONSE = "joinResponse,0";
-const string START_MESSAGE = "start";
-const string PLAYER_MESSAGE_INITIAL = "player,1,0.0,0.0,100";
-const string PLAYER_MESSAGE_UPDATE = "player,1,555.5,444.4,33";
-const string MAZE_INITIAL = "mazeInitial,4,1,1,2,0,1,0,0,1,2,1,0,1,2,1,1,0";
-const string MAZE_UPDATE = "mazeUpdate,0,0,2,1,1,2";
-
-const int MAX_FOOTSTEPS = 10;
-
-/*
- * Store information about each player in the game.
- */
-class Player {
-
-    public:
-
-        class Footstep{
-            public:
-
-                double x;
-                double y;
-                
-                Footstep() {
-
-                }
-
-                Footstep(double x,double y) {
-                    this->x = x;
-                    this->y = y;
-                }
-        };
-
-        double positionX;
-        double positionY;
-        int health;
-
-        /*
-         * Stores all footsteps player has taken.  Most recent footsteps stored
-         * first.  Only the first certain number of foosteps should be rendered.
-         */
-        deque<Footstep> footstepQueue;
-
-        Player() {
-
-        }
-
-        Player(double positionX, double positionY, int health) {
-            this->positionX = positionX;
-            this->positionY = positionY;
-            this->health = health;
-        }
-
-        double getX() {
-            return positionX;
-        }
-
-        double getY() {
-            return positionY;
-        }
-
-        int getHealth() {
-            return health;
-        }
-
-        deque<Footstep> getFootsteps() {
-            return footstepQueue;
-        }
-
-        void setX(double positionX) {
-            this->positionX = positionX;
-        }
-
-        void setY(double positionY) {
-            this->positionY = positionY;
-        }
-
-        void setHealth(int health) {
-            this->health = health;
-        }
-
-        /*
-         * Add a footstep to the footstep queue.  Remove the oldest footstep
-         * if there are more than MAX_FOOTSTEPS footsteps stored.  The queue stores
-         * footsteps youngest to oldest from front to back.
-         */
-        void addFootstep(double x, double y) {
-            footstepQueue.push_front(Footstep(x,y));
-            if (footstepQueue.size() > MAX_FOOTSTEPS) {
-                footstepQueue.pop_back();
-            }
-        }
-};
-
-string selfId;  // This player's unique userId.
-unordered_map<string,Player> idPlayerMap;  // Map unique userId's with each player
-bool hasGameStarted = false;
-const string MESSAGE_TAIL = "\r\n";  //Attatched to the end of every message.
-
-/*
- * Mazes are represented by a 2D-Array.  A hidden wall is represented by 0.  A
- * east-west wall is represented by a 1.  A north-south wall is represented by
- * a 2.
- */
-const int MAZE_UPDATE_SIZE = 3;
-int mazeSize; // Height and width of maze.
-int **mazeArr; // 2D representation of maze.
+#include "clientParse.h"
 
 /*
  * Set selfId field to userId sent in Join Response message.
  */
-void joinResponseHandler(string userId) {
+void clientParse::joinResponseHandler(string userId) {
     selfId = userId;
 }
 
 /*
  * Record information about the player in Player Message in idPlayerMap.
  */
-void playerMessageHandler(vector<string> messageValues) {        
+void clientParse::playerMessageHandler(vector<string> messageValues) {
     string userId = messageValues.at(1);
     if (hasGameStarted) {
         idPlayerMap[userId].setX(stod(messageValues.at(2)));
@@ -139,14 +19,14 @@ void playerMessageHandler(vector<string> messageValues) {
     }
     else {
         // Creation of entry in idPlayerMap.
-        idPlayerMap[userId] = Player(stod(messageValues.at(2)),stod(messageValues.at(3)), stoi(messageValues.at(4)));
+        idPlayerMap[userId] = PlayerClient(stod(messageValues.at(2)),stod(messageValues.at(3)), stoi(messageValues.at(4)));
     }
 }
 
 /*
  * Store the 2D Array representation of the maze.
  */
-void mazeInitialMessageHandler(vector<string> messageValues) {
+void clientParse::mazeInitialMessageHandler(vector<string> messageValues) {
 
     //Initialize maze 2D-array
     mazeSize = stoi(messageValues.at(1));
@@ -171,7 +51,7 @@ void mazeInitialMessageHandler(vector<string> messageValues) {
  * Update the 2D Array representation of the maze.  There may be multiple
  * maze updates in a single message.
  */
-void mazeUpdateMessageHandler(vector<string> messageValues) {
+void clientParse::mazeUpdateMessageHandler(vector<string> messageValues) {
     for (int i = 1; i < messageValues.size(); i+=MAZE_UPDATE_SIZE) {
         int row = stoi(messageValues.at(i));
         int col = stoi(messageValues.at(i+1));
@@ -184,7 +64,7 @@ void mazeUpdateMessageHandler(vector<string> messageValues) {
  * Record the beginning of the game.  This is also where the client should start 
  * sending messages to the server every PERIOD.
  */
-void startMessageHandler() {
+void clientParse::startMessageHandler() {
     hasGameStarted = true;
 }
 
@@ -193,7 +73,7 @@ void startMessageHandler() {
  * relevant.  Assume the MESSAGE_TAIL has already been removed by a
  * read_until method.
  */
-void sortServerMessage(string serverMessage) {
+void clientParse::sortServerMessage(string serverMessage) {
     vector<string> messageValues;
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
     string header = messageValues.front();
@@ -220,14 +100,14 @@ void sortServerMessage(string serverMessage) {
 /*
  * Return the join message string.
  */
-string buildJoinMessage() {
+string clientParse::buildJoinMessage() {
     return "join" + MESSAGE_TAIL;
 }
 
 /*
  * Return the leave message string.
  */
-string buildLeaveMessage() {
+string clientParse::buildLeaveMessage() {
     return "leave," + selfId + MESSAGE_TAIL;
 }
 
@@ -235,7 +115,7 @@ string buildLeaveMessage() {
  * Return the input message string.  String inserted here is a sample.  Input
  * parameters will need to be added.
  */
-string buildInputMessage() {
+string clientParse::buildInputMessage() {
     return "input," + selfId + ",true,false,false,false,true,false,300.58,false" 
         + MESSAGE_TAIL;
 }
@@ -243,7 +123,7 @@ string buildInputMessage() {
 /*
  * Method to display 2D array in string form.  Only for verifying methods.
  */
-void printArray() {
+void clientParse::printArray() {
 
     for (int i = 0; i < mazeSize; i++) {
         string row = "";
@@ -257,8 +137,8 @@ void printArray() {
 /*
  * Method to display footsteps in string form.  Only for verifying methods.
  */
-void printFootsteps(string playerId) {
-    deque<Player::Footstep> footsteps = idPlayerMap[playerId].getFootsteps();
+void clientParse::printFootsteps(string playerId) {
+    deque<PlayerClient::Footstep> footsteps = idPlayerMap[playerId].getFootsteps();
     string footstepString = "";
     for (int i = 0; i < footsteps.size(); i++) {
         footstepString += "(" + to_string(footsteps[i].x) + "," 

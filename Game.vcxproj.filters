@@ -16,7 +16,10 @@
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="AnimationClip.cpp" />
     <ClCompile Include="AnimationNode.cpp" />
-    <ClCompile Include="AnimationPlayer.cpp" />
+    <ClCompile Include="parsing\clientParse.cpp" />
+    <ClCompile Include="echoNetwork\echoClient.cpp" />
+    <ClCompile Include="Bone.cpp" />
+    <ClCompile Include="Node.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationClip.h" />
@@ -37,6 +40,10 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="parsing\clientParse.h" />
+    <ClInclude Include="parsing\serverParse.h" />
+    <ClInclude Include="Bone.h" />
+    <ClInclude Include="Node.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
