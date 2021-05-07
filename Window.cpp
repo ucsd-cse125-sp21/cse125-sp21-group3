@@ -51,6 +51,17 @@ Model* character;
 
 Maze* maze;
 
+
+//Networking Stuff
+string Window::playerInputString;
+bool Window::isForwardPressed;
+bool Window::isRightPressed;
+bool Window::isLeftPressed;
+bool Window::isBackwardPressed;
+bool Window::isCrouched;
+bool Window::isSprinting;
+glm::vec3 Window::playerDirection;
+bool Window::hasFired;
 ////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -106,29 +117,30 @@ bool Window::initializeObjects()
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
 	chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-<<<<<<< HEAD
 	//chest = new Model("Assets/chestOpen.gltf", chestRootTransform);
-=======
-	chest = new Model("C:/Users/Calpok/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
->>>>>>> 36d550f9e694ca24b38c44304b1aae7c710519d5
 	
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
 	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
-<<<<<<< HEAD
 	//gun = new Model("Assets/pistolReload.gltf", gunRootTransform);
-=======
-	gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
->>>>>>> 36d550f9e694ca24b38c44304b1aae7c710519d5
 
 	glm::mat4 characterRootTransform(1.0f);
 	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
 	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
-<<<<<<< HEAD
 	//character = new Model("Assets/character.gltf", characterRootTransform);
-=======
-	character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
->>>>>>> 36d550f9e694ca24b38c44304b1aae7c710519d5
+
+
+	//Networking Stuff - initial setup
+	
+	Window::isForwardPressed = false;
+	Window::isRightPressed = false;
+	Window::isLeftPressed = false;
+	Window::isBackwardPressed = false;
+	Window::isCrouched = false;
+	Window::isSprinting = false;
+	Window::playerDirection = player->getPlayerCamera()->getDirection();
+	Window::hasFired = false;
+	constructPlayerInputString();
 	return true;
 }
 
@@ -257,6 +269,82 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+
+void Window::constructPlayerInputString() {
+
+	string tempPlayerInputString = "";
+
+	if (Window::isForwardPressed) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isRightPressed) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isLeftPressed) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isBackwardPressed) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isCrouched) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isSprinting) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	//TODO, update how input message is parsed so that it can handle vec3 for direction instead of float
+	tempPlayerInputString += to_string(playerDirection.x);
+	tempPlayerInputString += ",";
+
+
+	if (Window::hasFired) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+
+
+	//set playerInputString at the end so playerInputString always holds a constant value
+	Window::playerInputString = tempPlayerInputString;
+}
+
 /*
  * This method is called every frame and performs any operations needed to update
  * the game state before everything is drawn.
@@ -268,18 +356,29 @@ void Window::idleCallback()
 	// Perform any updates as necessary.
 	//Cam->Update();
 	player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+	string tempPlayerInputString = "";
+	Window::isForwardPressed = false;
+	Window::isRightPressed = false;
+	Window::isLeftPressed = false;
+	Window::isBackwardPressed = false;
+	
 	if (GetAsyncKeyState(GLFW_KEY_W)) {
 		player->moveDirection(player->forward);
-	}
-	if (GetAsyncKeyState(GLFW_KEY_A)) {
-		player->moveDirection(player->left);
-	}
-	if (GetAsyncKeyState(GLFW_KEY_S)) {
-		player->moveDirection(player->backward);
+		Window::isForwardPressed = true;
 	}
 	if (GetAsyncKeyState(GLFW_KEY_D)) {
 		player->moveDirection(player->right);
+		Window::isRightPressed = true;
 	}
+	if (GetAsyncKeyState(GLFW_KEY_A)) {
+		player->moveDirection(player->left);
+		Window::isLeftPressed = true;
+	}
+	if (GetAsyncKeyState(GLFW_KEY_S)) {
+		player->moveDirection(player->backward);
+		Window::isBackwardPressed = true;
+	}
+	
 	//if (GetAsyncKeyState(GLFW_KEY_E)) {
 	//	player->useAbility();
 	//}
@@ -287,17 +386,24 @@ void Window::idleCallback()
 	//	player->pickUpAbility();
 	//}
 	// Allow player to move up and down for debugging
-	if (GetAsyncKeyState(GLFW_KEY_Z)) {
-		player->moveDirection(player->up);
-	}
 	if (GetAsyncKeyState(GLFW_KEY_X)) {
 		player->moveDirection(player->down);
 	}
+	if (GetAsyncKeyState(GLFW_KEY_Z)) {
+		player->moveDirection(player->up);
+	}
+	
 	player->update(0.1f, boundingBoxList);
 
 	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
 	//gun->playAnimation(gun->animationClipList.at(0), 0.05f);
 	//character->playAnimation(character->animationClipList.at(0), 0.05f);
+
+
+	//Networking Stuff
+	//------------------------------------------------------------------------
+	constructPlayerInputString();
+	//------------------------------------------------------------------------
 }
 
 /*
@@ -441,9 +547,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_LEFT_CONTROL:
 			player->setState(player->crouch);
+			Window::isCrouched = true;
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
 			player->setState(player->sprint);
+			Window::isSprinting = true;
 			break;
 		case GLFW_KEY_F:
 			player->pickUpAbility();
@@ -461,14 +569,21 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		{
 		case GLFW_KEY_LEFT_CONTROL:
 			player->setState(player->stand);
+			Window::isCrouched = false;
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
 			player->setState(player->stand);
+			Window::isSprinting = false;
 			break;
 		default:
 			break;
 		}
 	}
+
+	//Networking Stuff
+	//------------------------------------------------------------------------
+	constructPlayerInputString();
+	//------------------------------------------------------------------------
 }
 
 /*
@@ -491,7 +606,13 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 
 	if (LeftDown) {
 		std::cerr << "Fired" << std::endl;
+		Window::hasFired = true;
 		player->shootWeapon(boundingBoxList);
+	}
+
+	//TODO update how hasFired is being set
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+		Window::hasFired = false;
 	}
 }
 

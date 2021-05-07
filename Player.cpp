@@ -119,7 +119,6 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
     }
 }
 
-
 /*
  * Called each frame to update player's position and other physical properties.
  *

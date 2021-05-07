@@ -56,6 +56,18 @@ public:
 
 	static void drawCrosshair();
 	static bool debugMode;
+
+	//Networking Stuff
+	static void constructPlayerInputString();
+	static std::string playerInputString;
+	static bool isForwardPressed;
+	static bool isRightPressed;
+	static bool isLeftPressed;
+	static bool isBackwardPressed;
+	static bool isCrouched;
+	static bool isSprinting;
+	static glm::vec3 playerDirection;
+	static bool hasFired;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

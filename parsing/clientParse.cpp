@@ -1,4 +1,5 @@
 #include "clientParse.h"
+#include "Window.h"
 
 /*
  * Set selfId field to userId sent in Join Response message.
@@ -116,8 +117,14 @@ string clientParse::buildLeaveMessage() {
  * parameters will need to be added.
  */
 string clientParse::buildInputMessage() {
-    return "input," + selfId + ",true,false,false,false,true,false,300.58,false" 
+    
+    string inputMessage = "input," + selfId + "," + Window::playerInputString
         + MESSAGE_TAIL;
+    cout << "inputMessage: " << inputMessage << endl;
+    /*string defaultMessage = "input," + selfId + ",true,false,false,false,true,false,300.58,false"
+        + MESSAGE_TAIL;
+    cout << "theirString: " << defaultMessage;*/
+    return inputMessage;
 }
 
 /*
