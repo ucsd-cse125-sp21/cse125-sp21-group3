@@ -4,7 +4,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <../util/ts_queue.cpp>
 #include <../parsing/serverParse.h>
-#include "Maze.h"
+#include <../Maze.h>
 #include <../main.h>
 
 #define MAX_CONNECTIONS 4
@@ -217,7 +217,7 @@ public:
         while(1){
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
 
-
+            cout << "lol" << endl;
             if(serverParser -> userIdCount > 0){
 
                 //first handle incoming messages, if there are any
@@ -246,9 +246,6 @@ public:
 
 Server::Server(boost::asio::io_service& io_service) : io_service_(io_service),
 acceptor_(io_service_, tcp::endpoint(tcp::v4(), 1234)) {
-    Maze* maze = new Maze(21, 7);
-    maze->createWalls();
-    maze->generateGround();
     serverParser = new serverParse();
     counter = 0;
     start_accept();
@@ -303,7 +300,6 @@ void setup_opengl_settings()
     glClearColor(0.0, 0.0, 0.0, 0.0);
 }
 
-
 /*
  * Prints system specific information that the program is running on.
  *
@@ -324,9 +320,15 @@ void print_versions()
 }
 
 
-
 int main(int argc, char* argv[])
 {
+
+
+    GLFWwindow* window = Window::createWindow(800, 600);
+    if (!window)
+    {
+        exit(EXIT_FAILURE);
+    }
 
     // Print OpenGL and GLSL versions.
     print_versions();
@@ -334,6 +336,22 @@ int main(int argc, char* argv[])
     //setup_callbacks(window);
     // Setup OpenGL settings.
     setup_opengl_settings();
+
+    // Initialize the shader program; exit if initialization fails.
+    if (!Window::initializeProgram()) exit(EXIT_FAILURE);
+
+    // Initialize objects/pointers for rendering; exit if initialization fails.
+    if (!Window::initializeObjects()) exit(EXIT_FAILURE);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+
+    Window::cleanUp();
+    // Destroy the window.
+    glfwDestroyWindow(window);
+    // Terminate GLFW.
+    glfwTerminate();
+
+    std::cout << "Beginning main thread" << std::endl;
 
 
     std::cout << "Starting server" << std::endl;
@@ -349,7 +367,9 @@ int main(int argc, char* argv[])
         std::thread timer_thread = std::thread([&]() {server.handle_timeout();});
 
         std::cout << "Starting loop" << std::endl;
-        while(1){
+
+
+        while (1) {
         }
     }
     catch (std::exception& e)

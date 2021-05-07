@@ -117,7 +117,6 @@ BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube * parentObj) {
 		20,21,22,	20,22,23,		// Right
 	};
 
-	std::cout << &VAO << std::endl;
 	// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO_positions);

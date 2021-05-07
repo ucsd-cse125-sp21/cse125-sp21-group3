@@ -37,7 +37,7 @@ float RayIntersectKensler(glm::vec3 origin, glm::vec3 direction, BoundingBox* bo
 
 BoundingBox* closestObject(std::vector<BoundingBox *> boundingBoxList, glm::vec3 origin, glm::vec3 direction) {
 	
-	BoundingBox* minBox;
+	BoundingBox* minBox = NULL;
 	std::cerr << "Considering " << boundingBoxList.size() << "Objects" << std::endl;
 	float mindist = -1;
 	for (int i = 0; i < boundingBoxList.size(); i++) {
