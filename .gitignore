@@ -1,0 +1,11 @@
+.vs/
+packages/
+packages.config
+Game/
+Game.*
+Game*
+Server/
+Server*
+x64/
+Release/
+Debug/

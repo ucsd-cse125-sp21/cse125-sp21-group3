@@ -1,4 +1,6 @@
 #include "Cube.h"
+#include "Window.h"
+#include <glm/gtx/string_cast.hpp>
 
 /*
  * File Name: Cube.cpp
@@ -18,16 +20,38 @@
  * @return new Cube object
  * @author Part of 169 starter code
  */
-Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax) 
+Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax, int deletable) 
 {
 	// Model matrix.
 	model = glm::mat4(1.0f);
-
+	
 	// The color of the cube. Try setting it to something else!
-	color = glm::vec3(1.0f, 0.95f, 0.1f); 
+	color = glm::vec3(1.0f, 0.56f, 0.0f); 
 
 	//bounding box setup
-	boundingBox = new BoundingBox(cubeMin, cubeMax);
+	boundingBox = new BoundingBox(cubeMin, cubeMax, this);
+
+	mazePosition = cubeMin;
+
+	if (cubeMax[0] - cubeMin[0] < 1.0f)
+	{
+		direction = true; // bottom
+	}
+	else
+	{
+		direction = false; // right
+	}
+
+	if (deletable == wall)
+	{
+		canDelete = true;
+	}
+	else
+	{
+		canDelete = false;
+	}
+
+	type = deletable;
 
 	// Specify vertex positions
 	positions = {
@@ -161,6 +185,9 @@ Cube::~Cube()
 	glDeleteBuffers(1, &VBO_normals);
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &VAO);
+
+	std::cout << "Deleting" << std::endl;
+	boundingBox->setActive(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -174,7 +201,7 @@ Cube::~Cube()
  */
 void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader)
 {
-	// actiavte the shader program 
+	// activate the shader program 
 	glUseProgram(shader);
 
 	// get the locations and send the uniforms to the shader 
@@ -191,6 +218,10 @@ void Cube::draw(const glm::mat4& viewProjMtx, GLuint shader)
 	// Unbind the VAO and shader program
 	glBindVertexArray(0);
 	glUseProgram(0);
+
+	if (Window::debugMode) {
+		boundingBox->draw(viewProjMtx, shader);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -224,6 +255,7 @@ glm::mat4 Cube::getModel() {
  */
 void Cube::setModel(glm::mat4 m) {
 	model = m;
+	boundingBox->setModel(m);
 }
 
 /*
@@ -245,6 +277,5 @@ void Cube::setColor(glm::vec3 c) {
 glm::vec3 Cube::getColor() {
 	return color;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////

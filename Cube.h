@@ -21,16 +21,23 @@ private:
 
 	glm::mat4 model;
 	glm::vec3 color;
-
+	float health = 100.0f;
 	// Cube Information
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
 	std::vector<unsigned int> indices;
 
+
+	glm::vec3 mazePosition;
 	BoundingBox* boundingBox;
 
+	bool direction; // 1 if bottom, 0 if right
+	int type;
+	bool canDelete;
+
+
 public:
-	Cube(glm::vec3 cubeMin = glm::vec3(-1, -1, -1), glm::vec3 cubeMax = glm::vec3(1, 1, 1));
+	Cube(glm::vec3 cubeMin = glm::vec3(-1, -1, -1), glm::vec3 cubeMax = glm::vec3(1, 1, 1), int deletable=border);
 	~Cube();
 
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);
@@ -40,6 +47,22 @@ public:
 	glm::vec3 getColor();
 	void setColor(glm::vec3 c);
 	BoundingBox* getBoundingBox() { return boundingBox; }
+
+	glm::vec3 getMazePosition() { return mazePosition; }
+
+	bool getDirection() { return direction; }
+	int getType() { return type; }
+
+	bool isDeletable() { return canDelete; }
+
+
+
+	enum cubeType
+	{
+		border,
+		wall,
+		abilityChest
+	};
 };
 
 ////////////////////////////////////////////////////////////////////////////////

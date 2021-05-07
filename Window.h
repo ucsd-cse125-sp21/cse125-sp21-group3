@@ -6,6 +6,8 @@
 #include "shader.h"
 #include "Camera.h"
 
+
+
 /*
  * File Name: Window.h
  *
@@ -53,6 +55,22 @@ public:
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
 
 	static void drawCrosshair();
+<<<<<<< HEAD
+=======
+	static bool debugMode;
+
+	//Networking Stuff
+	static void constructPlayerInputString();
+	static std::string playerInputString;
+	static bool isForwardPressed;
+	static bool isRightPressed;
+	static bool isLeftPressed;
+	static bool isBackwardPressed;
+	static bool isCrouched;
+	static bool isSprinting;
+	static glm::vec3 playerDirection;
+	static bool hasFired;
+>>>>>>> gameplay
 };
 
 ////////////////////////////////////////////////////////////////////////////////

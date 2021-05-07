@@ -22,7 +22,12 @@
 #include <memory>
 #include <string>
 
+#pragma once
+
 #include "Window.h"
+#include <irrKlang.h>
+
+#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
 
 #endif
 
@@ -33,3 +38,4 @@
  *
  * @author Part of 169 starter code
  */
+
