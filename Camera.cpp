@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "glm/gtx/euler_angles.hpp"
+#include <glm/gtx/string_cast.hpp>
 
 /*
  * File Name: Camera.cpp
@@ -19,11 +20,9 @@
  * @author Part of 169 starter code
  */
 
-Camera::Camera(glm::vec3 position) {
+Camera::Camera(glm::vec3 _position) {
     Reset();
-    world[3][0] = position[0];
-    world[3][1] = position[1];
-    world[3][2] = position[2];
+    position = _position;
 }
 
 /*
@@ -50,7 +49,6 @@ void Camera::Update() {
     cameraFront = glm::normalize(direction);
 
     // Compute view matrix (inverse of world matrix), used to transform model from world space to view space
-    glm::vec3 position(world[3][0], world[3][1], world[3][2]);
     glm::mat4 view = glm::lookAt(
         position,
         position + cameraFront,
@@ -60,7 +58,9 @@ void Camera::Update() {
     glm::mat4 project = glm::perspective(glm::radians(FOV), Aspect, NearClip, FarClip);
 
     // Compute final view-projection matrix, final positions which are used
+    glm::vec3 oldViewPos (ViewProjectMtx[3][0], ViewProjectMtx[3][1], ViewProjectMtx[3][2]);
     ViewProjectMtx = project * view;
+    glm::vec3 newViewPos(ViewProjectMtx[3][0], ViewProjectMtx[3][1], ViewProjectMtx[3][2]);
 }
 
 /*
@@ -76,13 +76,8 @@ void Camera::Reset() {
 
     yaw = -90.0f;
     pitch = 0.0f;
-    world = glm::mat4(1.0f);
-
-    world[3][0] = 3.0f;
-    world[3][1] = 3.5f;
-    world[3][2] = 3.0f;
-
-    cameraFront = glm::vec3(0.0f, 3.5, 0.0f - world[3][2]);
+    position = glm::vec3(3.0f, 3.5f, 3.0f);
+    cameraFront = glm::vec3(0.0f, 3.5, 0.0f - position.z);
 
 }
 
@@ -95,9 +90,7 @@ void Camera::Reset() {
  */
 void Camera::setPosition(glm::vec3 p) {
 
-    world[3][0] = p.x;
-    world[3][1] = p.y;
-    world[3][2] = p.z;
+    position = p;
 }
 
 /*
@@ -108,7 +101,7 @@ void Camera::setPosition(glm::vec3 p) {
  */
 glm::vec3 Camera::getPosition() {
 
-    return glm::vec3(world[3][0], world[3][1], world[3][2]);
+    return position;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 Model::Model(string const& path, glm::mat4 _rootModel) 
 {
     rootModel = _rootModel;
+    animationRootModel = rootModel;
     gammaCorrection = false;
     meshCounter = 0;
     loadModel(path);
@@ -41,13 +42,12 @@ void Model::loadModel(string const& path)
     processAnimations(scene);
 }
 
-void Model::processNode(aiNode* aiNode, Node* node, const aiScene* scene, glm::mat4 rootTransform)
+void Model::processNode(aiNode* aiNode, Node* node, const aiScene* scene, glm::mat4 parentTransform)
 {
     // process each mesh located at the current node
     glm::mat4 localTransform = AssimpToGlmHelper::convertAiMat4ToGlmMat4(aiNode->mTransformation);
     node->transform = localTransform;
-    glm::mat4 nodeModel = rootTransform * localTransform;
-
+    glm::mat4 nodeModel = parentTransform * localTransform;
     for (unsigned int i = 0; i < aiNode->mNumMeshes; i++)
     {
         // the node object only contains indices to index the actual objects in the scene. 
@@ -94,18 +94,48 @@ void Model::processAnimations(const aiScene* scene) {
 
 void Model::update() {
 
+    updateNodes(root, rootModel);
+    
+}
+
+void Model::updateNodes(Node* node, glm::mat4 parentTransform)
+{
+    // process each mesh located at the current node
+
+    glm::mat4 nodeModel = parentTransform * node->transform;
+    for (int i = 0; i < node->meshList.size(); i++)
+    {
+        Mesh* mesh = node->meshList.at(i);
+        mesh->model = nodeModel;
+    }
+    // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
+    for (int i = 0; i < node->children.size(); i++)
+    {
+        Node* child = node->children.at(i);
+        updateNodes(child, nodeModel);
+    }
 }
 
 void Model::playAnimation(AnimationClip* animationClip, float speed) {
 
-    
     float time = animationClip->prevTime + speed;
     if (time > animationClip->duration) {
         time = 0.0f;
     }
 
-    animationClip->calculateBoneTransforms(time, root, rootModel); 
+    animationClip->calculateBoneTransforms(time, root, animationRootModel);
     animationClip->applyBoneTransforms();
     animationClip->prevTime = time;
    
+}
+
+void Model::rotate(float amount) {
+
+    glm::vec3 animationRootModelPos(animationRootModel[3][0], animationRootModel[3][1], animationRootModel[3][2]);
+
+    glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -animationRootModelPos);
+    glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), animationRootModelPos);
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), amount, glm::vec3(0.0f, 1.0f, 0.0f));
+    animationRootModel = fromOrigin * rotation * toOrigin * animationRootModel;
+    
 }
