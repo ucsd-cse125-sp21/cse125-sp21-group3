@@ -240,11 +240,10 @@ GLFWwindow* Window::createWindow(int width, int height)
 
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resizeCallback(window, width, height);
-<<<<<<< HEAD
-
-=======
 	
->>>>>>> gameplay
+	//disable cursor
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
 	return window;
 }
 
@@ -396,9 +395,6 @@ void Window::idleCallback()
 	}
 	if (GetAsyncKeyState(GLFW_KEY_Z)) {
 		player->moveDirection(player->up);
-	}
-	
-	player->update(0.1f, boundingBoxList);
 
 	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
 	//gun->playAnimation(gun->animationClipList.at(0), 0.05f);
@@ -447,6 +443,9 @@ void Window::drawCrosshair() {
 			horizontalBar[y][x][2] = crosshairColor.z;
 		}
 	}
+	
+	//cube->update();
+}
 
 	glDrawPixels(crosshairLength, crosshairThickness, GL_RGB, GL_FLOAT, horizontalBar);
 }
@@ -462,11 +461,6 @@ void Window::displayCallback(GLFWwindow* window)
 	// Clear the color and depth buffers.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Render the object.
-	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-
-<<<<<<< HEAD
-=======
 	for (Cube* footprint : player->getFootprints()) {
 		//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
@@ -498,7 +492,9 @@ void Window::displayCallback(GLFWwindow* window)
 	//cube2->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	drawCrosshair();
 
->>>>>>> gameplay
+	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+
+
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
 	

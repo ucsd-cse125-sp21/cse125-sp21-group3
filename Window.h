@@ -55,8 +55,6 @@ public:
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
 
 	static void drawCrosshair();
-<<<<<<< HEAD
-=======
 	static bool debugMode;
 
 	//Networking Stuff
@@ -70,7 +68,6 @@ public:
 	static bool isSprinting;
 	static glm::vec3 playerDirection;
 	static bool hasFired;
->>>>>>> gameplay
 };
 
 ////////////////////////////////////////////////////////////////////////////////

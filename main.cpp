@@ -1,11 +1,6 @@
 #include "main.h"
 #include <iostream>
 #include <boost/asio.hpp>
-<<<<<<< HEAD
-using namespace std;
-using namespace boost::asio;
-using ip::tcp;
-=======
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include "../util/ts_queue.cpp"
@@ -19,7 +14,6 @@ using std::cout;
 using std::endl;
 using namespace std;
 
->>>>>>> gameplay
 /*
  * File Name: main.cpp
  *
@@ -204,17 +198,8 @@ void print_versions()
  */
 int main(void)
 {
-<<<<<<< HEAD
-    //clientTest();
-
-	// Create the GLFW window.
-    int windowWidth = 800;
-    int windowHeight = 600;
-	GLFWwindow* window = Window::createWindow(windowWidth, windowHeight);
-=======
 	//Create the GLFW window.
 	GLFWwindow* window = Window::createWindow(800, 600);
->>>>>>> gameplay
 	if (!window) exit(EXIT_FAILURE);
 
 	// Print OpenGL and GLSL versions.
@@ -229,14 +214,6 @@ int main(void)
 
 	// Initialize objects/pointers for rendering; exit if initialization fails.
 	if (!Window::initializeObjects()) exit(EXIT_FAILURE);
-<<<<<<< HEAD
-	
-    //hide cursor and move to middle
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    glfwSetCursorPos(window, windowWidth / 2, windowHeight / 2);
-	
-    // Loop while GLFW window should stay open.
-=======
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     //Networking Stuff
@@ -254,7 +231,6 @@ int main(void)
 
     
 	// Loop while GLFW window should stay open.
->>>>>>> gameplay
 	while (!glfwWindowShouldClose(window))
 	{
 		// Main render display callback. Rendering of objects is done here.
