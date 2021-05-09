@@ -74,7 +74,7 @@ public:
 	bool seeMapAbility();
 
 
-
+	bool walkingBackward;
 	enum movementDirection {
 		forward,
 		backward,

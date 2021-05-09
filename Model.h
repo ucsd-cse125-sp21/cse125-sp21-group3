@@ -41,7 +41,7 @@ public:
     void draw(const glm::mat4& viewProjMtx, GLuint shader);
     void update();
     void updateNodes(Node* node, glm::mat4 parentTransform);
-    void playAnimation(AnimationClip* animationClip, float time);
+    void playAnimation(AnimationClip* animationClip, float time, bool reverse);
     void rotate(float amount);
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

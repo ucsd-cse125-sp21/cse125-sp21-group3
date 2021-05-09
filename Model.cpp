@@ -116,13 +116,23 @@ void Model::updateNodes(Node* node, glm::mat4 parentTransform)
     }
 }
 
-void Model::playAnimation(AnimationClip* animationClip, float speed) {
+void Model::playAnimation(AnimationClip* animationClip, float speed, bool reverse) {
 
-    float time = animationClip->prevTime + speed;
+    float time;
+    if (reverse) { 
+        time = animationClip->prevTime - speed; 
+    }
+    else { 
+        time = animationClip->prevTime + speed; 
+    }
     if (time > animationClip->duration) {
         time = 0.0f;
     }
-
+    if (time < 0.0f) {
+        time = animationClip->duration;
+    }
+    
+    //cout << "before calculateBoneTransform time: " << time << endl;
     animationClip->calculateBoneTransforms(time, root, animationRootModel);
     animationClip->applyBoneTransforms();
     animationClip->prevTime = time;

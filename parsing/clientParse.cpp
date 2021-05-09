@@ -120,7 +120,7 @@ string clientParse::buildInputMessage() {
     
     string inputMessage = "input," + selfId + "," + Window::playerInputString
         + MESSAGE_TAIL;
-    cout << "inputMessage: " << inputMessage << endl;
+    //cout << "inputMessage: " << inputMessage << endl;
     /*string defaultMessage = "input," + selfId + ",true,false,false,false,true,false,300.58,false"
         + MESSAGE_TAIL;
     cout << "theirString: " << defaultMessage;*/
@@ -137,6 +137,7 @@ void clientParse::printArray() {
         for (int j = 0; j < mazeSize; j++) {
             row += to_string(mazeArr[i][j]) + " ";
         }
+        //cout << "here" << endl;
         cout << row << endl;
     }
 }

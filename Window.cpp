@@ -395,7 +395,8 @@ void Window::idleCallback()
 	}
 	if (GetAsyncKeyState(GLFW_KEY_Z)) {
 		player->moveDirection(player->up);
-
+	}
+	player->update(0.01f, boundingBoxList);
 	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
 	//gun->playAnimation(gun->animationClipList.at(0), 0.05f);
 	//character->playAnimation(character->animationClipList.at(0), 0.05f);
@@ -445,8 +446,6 @@ void Window::drawCrosshair() {
 	}
 	
 	//cube->update();
-}
-
 	glDrawPixels(crosshairLength, crosshairThickness, GL_RGB, GL_FLOAT, horizontalBar);
 }
 /*
@@ -490,7 +489,7 @@ void Window::displayCallback(GLFWwindow* window)
 	//character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube2->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	drawCrosshair();
+	//drawCrosshair();
 
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
@@ -647,7 +646,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	float pitch = Cam->getPitch();
 	yaw += dx * sensitivity;
 	player->getPlayerModel()->rotate(dx * sensitivity * -0.01745f);
-	player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f);
+	player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f, false);
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);
 	Cam->setPitch(pitch);
