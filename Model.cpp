@@ -1,4 +1,5 @@
 #include "Model.h"
+#include "Window.h"
 #include <glm/gtx/string_cast.hpp>
 #include "AssimpToGlmHelper.h"
 #define AI_MATKEY_GLTF_MATNAME "?mat.name", 0, 0
@@ -89,6 +90,8 @@ void Model::processAnimations(const aiScene* scene) {
                 new AnimationNode(aiNodeAnim, meshes, animation->mTicksPerSecond)));
         }
         animationClipList.push_back(new AnimationClip(animationNodeMap, meshes));
+        cout << "processAnimation: " << animation->mName.C_Str() << endl;
+        animationClipList.at(animationClipList.size() - 1)->name = animation->mName.C_Str();
     }
 }
 
@@ -126,6 +129,9 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
         time = animationClip->prevTime + speed; 
     }
     if (time > animationClip->duration) {
+        if (animationClip->name.compare("shooting") == 0) {
+            Window::hasFired = false;
+        }
         time = 0.0f;
     }
     if (time < 0.0f) {
@@ -139,15 +145,12 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
    
 }
 
-void Model::rotateAnimation(float amount) {
+void Model::rotateAnimation(float amount, glm::vec3 p) {
 
-    glm::vec3 animationRootModelPos(animationRootModel[3][0], animationRootModel[3][1], animationRootModel[3][2]);
-
-    glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -animationRootModelPos);
-    glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), animationRootModelPos);
+    glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -p);
+    glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), p);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), amount, glm::vec3(0.0f, 1.0f, 0.0f));
-    animationRootModel = fromOrigin * rotation * toOrigin * animationRootModel;
-    
+    animationRootModel = fromOrigin * rotation * toOrigin * animationRootModel;   
 }
 
 void Model::rotate(float amount, glm::vec3 p) {

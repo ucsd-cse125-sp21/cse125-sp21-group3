@@ -53,18 +53,17 @@ Player::Player(glm::vec3 _position, Maze* mz) {
     glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
     glm::mat4 playerModelRootTransform = translation  * rotation * scaling; 
     playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
+    playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
     walkingBackward = false;
-    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, false); //puts the character in the default pose
+    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
 
     //creating and initializing playerGunModel
     rotation = glm::rotate(glm::mat4(1.0f), 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
     translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.7f, 3.0f, 2.25f));
     scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerGunModelScale));
     glm::mat4 playerGunModelRootTransform = translation * rotation * scaling;
-    playerGunModel = new Model("Assets/shotgunStill.gltf", playerGunModelRootTransform);
+    playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform);
     playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0] - 0.45f, playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2] + 1.0f);
-    walkingBackward = false;
-    //playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.00f, false); //puts the character in the default pose
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -193,6 +192,9 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
         playerGunModel->rootModel[3][0] += diff.x;
         playerGunModel->rootModel[3][1] += diff.y;
         playerGunModel->rootModel[3][2] += diff.z;
+        playerGunModel->animationRootModel[3][0] += diff.x;
+        playerGunModel->animationRootModel[3][1] += diff.y;
+        playerGunModel->animationRootModel[3][2] += diff.z;
         playerGunModelCenter += diff;
     
         prevPosition = position;
@@ -210,9 +212,14 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     //update player camera
     playerCamera->Update();
    
-    //update player model
+    //update player and player gun model
     playerModel->update();
     playerGunModel->update();
+ 
+    //play gun animation if firing, this must occur after updating the playerGunModel
+    if (Window::hasFired) {
+        playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
+    }
 }
 
 /*

@@ -48,6 +48,7 @@ public:
 	BoundingBox* getBoundingBox() { return boundingBox; }
 	Model* getPlayerModel() { return playerModel; }
 	Model* getPlayerGunModel() { return playerGunModel; }
+	glm::vec3 getPlayerModelCenter() { return playerModelCenter; }
 	glm::vec3 getPlayerGunModelCenter() { return playerGunModelCenter; }
 	void createFootPrint(glm::vec3);
 	void moveDirection(int dir);
@@ -110,6 +111,7 @@ private:
 
 	Model* playerModel;
 	Model* playerGunModel;
+	glm::vec3 playerModelCenter;
 	glm::vec3 playerGunModelCenter;
 	float playerModelScale = 0.31f;
 	float playerGunModelScale = 0.4f;

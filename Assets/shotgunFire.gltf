@@ -291,7 +291,7 @@
                     }
                 }
             ],
-            "name" : "Animation",
+            "name" : "shooting",
             "samplers" : [
                 {
                     "input" : 55,

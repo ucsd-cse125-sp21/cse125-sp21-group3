@@ -122,7 +122,7 @@ bool Window::initializeObjects()
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
 	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
-	//gun = new Model("Assets/pistolReload.gltf", gunRootTransform);
+	//gun = new Model("Assets/shotgunFire.gltf", gunRootTransform);
 
 	glm::mat4 characterRootTransform(1.0f);
 	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
@@ -398,7 +398,7 @@ void Window::idleCallback()
 	}
 	player->update(0.01f, boundingBoxList);
 	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
-	//gun->playAnimation(gun->animationClipList.at(0), 0.05f);
+	//gun->playAnimation(gun->animationClipList.at(0), 0.05f, false);
 	//character->playAnimation(character->animationClipList.at(0), 0.05f);
 
 
@@ -610,16 +610,12 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 		RightDown = (action == GLFW_PRESS);
 	}
 
-	if (LeftDown) {
+	if (LeftDown && !Window::hasFired) {
 		std::cerr << "Fired" << std::endl;
 		Window::hasFired = true;
 		player->shootWeapon(boundingBoxList);
 	}
 
-	//TODO update how hasFired is being set
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-		Window::hasFired = false;
-	}
 }
 
 /*
@@ -645,9 +641,13 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	float yaw = Cam->getYaw();
 	float pitch = Cam->getPitch();
 	yaw += dx * sensitivity;
-	player->getPlayerModel()->rotateAnimation(dx * sensitivity * -0.01745f);
-	player->getPlayerGunModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
+	
+	//rotation animation stuff for player
+	player->getPlayerModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerModelCenter());
 	player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f, false);
+	player->getPlayerGunModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
+	player->getPlayerGunModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
+
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);
 	Cam->setPitch(pitch);
