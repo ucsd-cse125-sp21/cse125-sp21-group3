@@ -47,6 +47,7 @@ Player::Player(glm::vec3 _position, Maze* mz) {
 
     maze = mz;
     
+    //creating and initializing playerModel
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, position.y - height * 0.82f, 2.25f));
     glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
@@ -54,6 +55,16 @@ Player::Player(glm::vec3 _position, Maze* mz) {
     playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
     walkingBackward = false;
     playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, false); //puts the character in the default pose
+
+    //creating and initializing playerGunModel
+    rotation = glm::rotate(glm::mat4(1.0f), 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
+    translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.7f, 3.0f, 2.25f));
+    scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerGunModelScale));
+    glm::mat4 playerGunModelRootTransform = translation * rotation * scaling;
+    playerGunModel = new Model("Assets/shotgunStill.gltf", playerGunModelRootTransform);
+    playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0] - 0.45f, playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2] + 1.0f);
+    walkingBackward = false;
+    //playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.00f, false); //puts the character in the default pose
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -179,6 +190,10 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
         playerModel->rootModel[3][0] += diff.x;
         playerModel->rootModel[3][1] += diff.y;
         playerModel->rootModel[3][2] += diff.z;
+        playerGunModel->rootModel[3][0] += diff.x;
+        playerGunModel->rootModel[3][1] += diff.y;
+        playerGunModel->rootModel[3][2] += diff.z;
+        playerGunModelCenter += diff;
     
         prevPosition = position;
         oldPitch = playerCamera -> getPitch();
@@ -197,6 +212,7 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
    
     //update player model
     playerModel->update();
+    playerGunModel->update();
 }
 
 /*
@@ -214,6 +230,7 @@ void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     }
 
     playerModel->draw(viewProjMtx, shader);
+    playerGunModel->draw(viewProjMtx, shader);
 }
 
 /*

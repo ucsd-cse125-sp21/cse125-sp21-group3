@@ -12,6 +12,9 @@ void clientParse::joinResponseHandler(string userId) {
  * Record information about the player in Player Message in idPlayerMap.
  */
 void clientParse::playerMessageHandler(vector<string> messageValues) {
+    /*for (int i = 0; i < messageValues.size(); i++) {
+        cout << "messageValues[" << i << "]: " << messageValues.at(i) << endl;
+    }*/
     string userId = messageValues.at(1);
     if (hasGameStarted) {
         idPlayerMap[userId].setX(stod(messageValues.at(2)));
@@ -158,7 +161,7 @@ void clientParse::printFootsteps(string playerId) {
 // int main(int argc, char* argv[]) {
 
 //     // Client assigned userId of "0".
-//     sortServerMessage(JOIN_RESPONSE);
+//     sortServerMessage(JOIN_RESPONSE);    
 //     cout << "userId: " << selfId << endl;
 
 //     // Records position and health of player with userId "1".

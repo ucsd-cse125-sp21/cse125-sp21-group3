@@ -42,7 +42,8 @@ public:
     void update();
     void updateNodes(Node* node, glm::mat4 parentTransform);
     void playAnimation(AnimationClip* animationClip, float time, bool reverse);
-    void rotate(float amount);
+    void rotateAnimation(float amount);
+    void rotate(float amount, glm::vec3 p);
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const& path);

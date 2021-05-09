@@ -645,7 +645,8 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	float yaw = Cam->getYaw();
 	float pitch = Cam->getPitch();
 	yaw += dx * sensitivity;
-	player->getPlayerModel()->rotate(dx * sensitivity * -0.01745f);
+	player->getPlayerModel()->rotateAnimation(dx * sensitivity * -0.01745f);
+	player->getPlayerGunModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
 	player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f, false);
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);

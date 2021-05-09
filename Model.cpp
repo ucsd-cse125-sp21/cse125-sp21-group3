@@ -139,7 +139,7 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
    
 }
 
-void Model::rotate(float amount) {
+void Model::rotateAnimation(float amount) {
 
     glm::vec3 animationRootModelPos(animationRootModel[3][0], animationRootModel[3][1], animationRootModel[3][2]);
 
@@ -148,4 +148,13 @@ void Model::rotate(float amount) {
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), amount, glm::vec3(0.0f, 1.0f, 0.0f));
     animationRootModel = fromOrigin * rotation * toOrigin * animationRootModel;
     
+}
+
+void Model::rotate(float amount, glm::vec3 p) {
+
+    glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -p);
+    glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), p);
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), amount, glm::vec3(0.0f, 1.0f, 0.0f));
+    rootModel = fromOrigin * rotation* toOrigin * rootModel;
+
 }

@@ -38,6 +38,7 @@ public:
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
 	void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
 
+
 	BoundingBox* shootWeapon(std::vector<BoundingBox*>);
 
 	glm::vec3 getPosition() { return position; }
@@ -46,6 +47,8 @@ public:
 	Camera* getPlayerCamera() { return playerCamera; }
 	BoundingBox* getBoundingBox() { return boundingBox; }
 	Model* getPlayerModel() { return playerModel; }
+	Model* getPlayerGunModel() { return playerGunModel; }
+	glm::vec3 getPlayerGunModelCenter() { return playerGunModelCenter; }
 	void createFootPrint(glm::vec3);
 	void moveDirection(int dir);
 	void updateBoundingBox();
@@ -106,7 +109,10 @@ public:
 private:
 
 	Model* playerModel;
+	Model* playerGunModel;
+	glm::vec3 playerGunModelCenter;
 	float playerModelScale = 0.31f;
+	float playerGunModelScale = 0.4f;
 	glm::vec3 playerToModelDiff;
 	BoundingBox* boundingBox; // used to check collisions
 	
