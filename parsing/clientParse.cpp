@@ -1,5 +1,6 @@
 #include "clientParse.h"
 #include "Window.h"
+#include "Player.h"
 
 /*
  * Set selfId field to userId sent in Join Response message.
@@ -12,9 +13,15 @@ void clientParse::joinResponseHandler(string userId) {
  * Record information about the player in Player Message in idPlayerMap.
  */
 void clientParse::playerMessageHandler(vector<string> messageValues) {
-    /*for (int i = 0; i < messageValues.size(); i++) {
-        cout << "messageValues[" << i << "]: " << messageValues.at(i) << endl;
-    }*/
+    
+    //0th message values is just player
+    /*cout << "player: " << messageValues.at(0) << endl;
+    cout << "userId: " << messageValues.at(1) << endl;
+    cout << "positionX: " << messageValues.at(2) << endl;
+    cout << "positionY: " << messageValues.at(3) << endl;
+    cout << "health: " << messageValues.at(4) << endl;
+    cout << "moving: " << messageValues.at(5) << endl;*/
+    
     string userId = messageValues.at(1);
     if (hasGameStarted) {
         idPlayerMap[userId].setX(stod(messageValues.at(2)));
@@ -123,7 +130,6 @@ string clientParse::buildInputMessage() {
     
     string inputMessage = "input," + selfId + "," + Window::playerInputString
         + MESSAGE_TAIL;
-    //cout << "inputMessage: " << inputMessage << endl;
     /*string defaultMessage = "input," + selfId + ",true,false,false,false,true,false,300.58,false"
         + MESSAGE_TAIL;
     cout << "theirString: " << defaultMessage;*/

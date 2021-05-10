@@ -1,12 +1,15 @@
 #pragma once
 
-#include "main.h"
+#include "core.h"
 #include "Camera.h"
 #include "BoundingBox.h"
 #include "Weapon.h"
 #include <deque>
 #include "Maze.h"
 #include "Model.h"
+#include <irrKlang.h>
+
+#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
 
 /*
  * File Name: Player.h
@@ -18,7 +21,6 @@
  */
 
 class Maze;
-
 
 class Player {
 public:

@@ -4,9 +4,6 @@
 #include "main.h"
 #include "Cube.h"
 #include "shader.h"
-#include "Camera.h"
-
-
 
 /*
  * File Name: Window.h
@@ -68,6 +65,7 @@ public:
 	static bool isSprinting;
 	static glm::vec3 playerDirection;
 	static bool hasFired;
+	static void updatePlayer();
 };
 
 ////////////////////////////////////////////////////////////////////////////////

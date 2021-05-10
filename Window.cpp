@@ -1,11 +1,11 @@
 #include "Window.h"
-#include "Cube.h"
-#include "Player.h"
 #include "Maze.h"
 #include "Model.h"
 #include <windows.h>
 #include <glm/gtx/string_cast.hpp>
-
+#include "Player.h"
+#include "Camera.h"
+#include <set>
 
 /*
  * File Name: Window.cpp
@@ -62,6 +62,7 @@ bool Window::isCrouched;
 bool Window::isSprinting;
 glm::vec3 Window::playerDirection;
 bool Window::hasFired;
+//TODO create opponent list and class
 ////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -108,10 +109,9 @@ bool Window::initializeObjects()
 	player = new Player(Cam->getPosition(), maze);
 	player->setPlayerCamera(Cam);
 	player->setSoundEngine(soundEngine);
+
 	boundingBoxList = maze->getBoundingBox();
-
 	boundingBoxList.push_back(ground->getBoundingBox());
-
 	boundingBoxList.push_back(player->getBoundingBox());
 
 	glm::mat4 chestRootTransform(1.0f);
@@ -131,7 +131,6 @@ bool Window::initializeObjects()
 
 
 	//Networking Stuff - initial setup
-	
 	Window::isForwardPressed = false;
 	Window::isRightPressed = false;
 	Window::isLeftPressed = false;
@@ -658,4 +657,8 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseY = height / 2;
 }
 
+void Window::updatePlayer() {
+
+	
+}
 ////////////////////////////////////////////////////////////////////////////////
