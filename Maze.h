@@ -1,6 +1,6 @@
 #pragma once
 
-#include "main.h"
+#include "core.h"
 #include<vector>
 #include "Window.h"
 #include <glm/glm.hpp>

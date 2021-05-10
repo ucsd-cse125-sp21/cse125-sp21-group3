@@ -1,7 +1,7 @@
 #ifndef _WINDOW_H_
 #define _WINDOW_H_
 
-#include "main.h"
+#include "core.h"
 #include "Cube.h"
 #include "shader.h"
 
