@@ -5,7 +5,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include "Player.h"
 #include "Camera.h"
-#include <set>
 
 /*
  * File Name: Window.cpp
@@ -62,7 +61,12 @@ bool Window::isCrouched;
 bool Window::isSprinting;
 glm::vec3 Window::playerDirection;
 bool Window::hasFired;
-//TODO create opponent list and class
+map<int, Opponent*> Window::opponentMap;
+Cube* Window::cube;
+
+//temp opponent variables
+int createOpponent = -1;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -110,6 +114,7 @@ bool Window::initializeObjects()
 	player->setPlayerCamera(Cam);
 	player->setSoundEngine(soundEngine);
 
+
 	boundingBoxList = maze->getBoundingBox();
 	boundingBoxList.push_back(ground->getBoundingBox());
 	boundingBoxList.push_back(player->getBoundingBox());
@@ -140,6 +145,7 @@ bool Window::initializeObjects()
 	Window::playerDirection = player->getPlayerCamera()->getDirection();
 	Window::hasFired = false;
 	constructPlayerInputString();
+	//Window::updateOpponent(3, glm::vec3(3.0f, 3.5f, 3.0f), glm::vec3(0.0f, 3.5, 0.0f - 3.0f), 0);
 	return true;
 }
 
@@ -404,6 +410,13 @@ void Window::idleCallback()
 	//Networking Stuff
 	//------------------------------------------------------------------------
 	constructPlayerInputString();
+	if (createOpponent != -1) {
+		opponentMap.insert(pair<int, Opponent*>(createOpponent, new Opponent(createOpponent, glm::vec3(3.0f, 3.5f, 3.0f))));
+		createOpponent = -1;
+	}
+	for (pair<int, Opponent*> p : Window::opponentMap) {
+		p.second->update();
+	}
 	//------------------------------------------------------------------------
 }
 
@@ -464,6 +477,9 @@ void Window::displayCallback(GLFWwindow* window)
 	}
 
 	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	for(pair<int, Opponent*> p : Window::opponentMap) {
+		p.second->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	}
 	
 	Camera* playCam = player->getPlayerCamera();
 	irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
@@ -657,8 +673,17 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseY = height / 2;
 }
 
-void Window::updatePlayer() {
+void Window::updateOpponent(int id, glm::vec3 position, glm::vec3 direction, int moving) {
 
-	
+	if (Window::opponentMap.find(id) == Window::opponentMap.end()) {
+		createOpponent = id;
+	}
+	else {
+		Opponent* opponent = Window::opponentMap.find(id)->second;
+		opponent->setPosition(position);
+		opponent->setDirection(direction);
+		opponent->setMoving(moving);
+	}
+
 }
 ////////////////////////////////////////////////////////////////////////////////

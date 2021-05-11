@@ -4,6 +4,7 @@
 #include "core.h"
 #include "Cube.h"
 #include "shader.h"
+#include "Opponent.h"
 
 /*
  * File Name: Window.h
@@ -65,7 +66,8 @@ public:
 	static bool isSprinting;
 	static glm::vec3 playerDirection;
 	static bool hasFired;
-	static void updatePlayer();
+	static map<int, Opponent*> opponentMap;
+	static void updateOpponent(int id, glm::vec3 position, glm::vec3 direction, int moving);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

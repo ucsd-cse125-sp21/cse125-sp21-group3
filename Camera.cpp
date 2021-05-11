@@ -77,7 +77,6 @@ void Camera::Reset() {
     pitch = 0.0f;
     position = glm::vec3(3.0f, 3.5f, 3.0f);
     cameraFront = glm::vec3(0.0f, 3.5, 0.0f - position.z);
-
 }
 
 

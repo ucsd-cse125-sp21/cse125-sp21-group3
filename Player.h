@@ -117,6 +117,7 @@ private:
 	glm::vec3 playerGunModelCenter;
 	float playerModelScale = 0.31f;
 	float playerGunModelScale = 0.4f;
+	float playerWalkingSpeed = 0.3f;
 	glm::vec3 playerToModelDiff;
 	BoundingBox* boundingBox; // used to check collisions
 	

@@ -206,7 +206,7 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     }
 
     if (glm::length(velocity) > 0.0f && state != dead) {
-        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.3f, walkingBackward);
+        //playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, walkingBackward);
     }
 
     //update player camera
@@ -444,6 +444,7 @@ void Player::useAbility()
 
 
 BoundingBox* Player::shootWeapon(std::vector<BoundingBox *> objects) {
+   
     if (state != sprint && state != dead)
     {
         BoundingBox* shotObject = playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
