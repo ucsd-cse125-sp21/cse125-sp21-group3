@@ -136,6 +136,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="MatrixKeyframe.cpp" />
     <ClCompile Include="Node.cpp" />
+    <ClCompile Include="Opponent.cpp" />
     <ClCompile Include="parsing\clientParse.cpp" />
     <ClCompile Include="VectorKeyframe.cpp" />
     <ClCompile Include="Maze.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="MatrixKeyframe.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="Opponent.h" />
     <ClInclude Include="parsing\clientParse.h" />
     <ClInclude Include="parsing\serverParse.h" />
     <ClInclude Include="VectorKeyframe.h" />

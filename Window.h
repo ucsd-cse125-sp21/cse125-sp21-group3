@@ -1,11 +1,12 @@
 #ifndef _WINDOW_H_
 #define _WINDOW_H_
 
-#include "main.h"
+#include "core.h"
 #include "Cube.h"
 #include "shader.h"
 #include "Camera.h"
 #include "Game.h"
+#include "Opponent.h"
 
 class Game;
 
@@ -57,6 +58,20 @@ public:
 
 	static void drawCrosshair();
 	static bool debugMode;
+
+	//Networking Stuff
+	static void constructPlayerInputString();
+	static std::string playerInputString;
+	static bool isForwardPressed;
+	static bool isRightPressed;
+	static bool isLeftPressed;
+	static bool isBackwardPressed;
+	static bool isCrouched;
+	static bool isSprinting;
+	static glm::vec3 playerDirection;
+	static bool hasFired;
+	static map<int, Opponent*> opponentMap;
+	static void updateOpponent(int id, glm::vec3 position, glm::vec3 direction, int moving);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

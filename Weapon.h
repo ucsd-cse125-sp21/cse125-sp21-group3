@@ -4,6 +4,8 @@
 #define WEAPON_H
 
 #include "main.h"
+#include "core.h"
+#include "BoundingBox.h"
 #include<vector>
 #include <glm/glm.hpp>
 

@@ -20,6 +20,7 @@
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="echoNetwork\echoClient.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Opponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationClip.h" />
@@ -45,6 +46,7 @@
     <ClInclude Include="Bone.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Opponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

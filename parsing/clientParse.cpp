@@ -1,5 +1,6 @@
 #include "clientParse.h"
 
+
 /*
  * Set selfId field to userId sent in Join Response message.
  */
@@ -11,6 +12,15 @@ void clientParse::joinResponseHandler(string userId) {
  * Record information about the player in Player Message in idPlayerMap.
  */
 void clientParse::playerMessageHandler(vector<string> messageValues) {
+    
+    //0th message values is just player
+    /*cout << "player: " << messageValues.at(0) << endl;
+    cout << "userId: " << messageValues.at(1) << endl;
+    cout << "positionX: " << messageValues.at(2) << endl;
+    cout << "positionY: " << messageValues.at(3) << endl;
+    cout << "health: " << messageValues.at(4) << endl;
+    cout << "moving: " << messageValues.at(5) << endl;*/
+    
     //string userId = messageValues.at(1);
     //if (hasGameStarted) {
     //    idPlayerMap[userId].setX(stod(messageValues.at(2)));
@@ -20,6 +30,14 @@ void clientParse::playerMessageHandler(vector<string> messageValues) {
     //else {
     //    // Creation of entry in idPlayerMap.
     //    idPlayerMap[userId] = PlayerClient(stod(messageValues.at(2)),stod(messageValues.at(3)), stoi(messageValues.at(4)));
+    //}
+    //
+    //int clientId = stoi(selfId);
+    //int user = stoi(userId);
+    //if (user != clientId) { //if we are receiving a message about an opponent
+    //    int moving = stoi(messageValues.at(5));
+    //    //TODO update with position and direction instead of hardcoded values
+    //    Window::updateOpponent(user, glm::vec3(3.0f, 3.5f, 3.0f), glm::vec3(0.0f, 3.5, 0.0f - 3.0f), moving);
     //}
 }
 
@@ -150,9 +168,13 @@ string clientParse::buildLeaveMessage() {
  * parameters will need to be added.
  */
 string clientParse::buildInputMessage() {
-    //return "input," + selfId + ",true,false,false,false,true,false,300.58,false" 
+    
+    //string inputMessage = "input," + selfId + "," + Window::playerInputString
     //    + MESSAGE_TAIL;
-    return "";
+    /*string defaultMessage = "input," + selfId + ",true,false,false,false,true,false,300.58,false"
+        + MESSAGE_TAIL;
+    cout << "theirString: " << defaultMessage;*/
+    return "";// inputMessage;
 }
 
 /*
@@ -185,7 +207,7 @@ void clientParse::printFootsteps(string playerId) {
 // int main(int argc, char* argv[]) {
 
 //     // Client assigned userId of "0".
-//     sortServerMessage(JOIN_RESPONSE);
+//     sortServerMessage(JOIN_RESPONSE);    
 //     cout << "userId: " << selfId << endl;
 
 //     // Records position and health of player with userId "1".

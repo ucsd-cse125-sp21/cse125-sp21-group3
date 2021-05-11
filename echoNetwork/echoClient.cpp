@@ -24,7 +24,6 @@ public:
     tcp::socket sock;
     std::string input_buf;
 
-
     Game* game;
 
     Client(boost::asio::io_service& io_service) : io_service_(io_service), sock(io_service) {

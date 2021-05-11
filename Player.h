@@ -5,13 +5,16 @@
 #define PLAYER_H
 
 #include "main.h"
+#include "core.h"
 #include "Camera.h"
 #include "BoundingBox.h"
 #include "Weapon.h"
 #include <deque>
 #include "Maze.h"
 #include "Model.h"
-#include <irrklang.h>
+#include <irrKlang.h>
+
+#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
 
 /*
  * File Name: Player.h
@@ -44,6 +47,7 @@ public:
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
 	void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
 
+
 	BoundingBox* shootWeapon(std::vector<BoundingBox*>);
 
 	glm::vec3 getPosition() { return position; }
@@ -52,6 +56,9 @@ public:
 	Camera* getPlayerCamera() { return playerCamera; }
 	BoundingBox* getBoundingBox() { return boundingBox; }
 	Model* getPlayerModel() { return playerModel; }
+	Model* getPlayerGunModel() { return playerGunModel; }
+	glm::vec3 getPlayerModelCenter() { return playerModelCenter; }
+	glm::vec3 getPlayerGunModelCenter() { return playerGunModelCenter; }
 	void createFootPrint(glm::vec3);
 	void moveDirection(int dir);
 	void updateBoundingBox();
@@ -80,7 +87,7 @@ public:
 	bool seeMapAbility();
 
 
-
+	bool walkingBackward;
 	enum movementDirection {
 		forward,
 		backward,
@@ -112,7 +119,12 @@ public:
 private:
 
 	Model* playerModel;
+	Model* playerGunModel;
+	glm::vec3 playerModelCenter;
+	glm::vec3 playerGunModelCenter;
 	float playerModelScale = 0.31f;
+	float playerGunModelScale = 0.4f;
+	float playerWalkingSpeed = 0.3f;
 	glm::vec3 playerToModelDiff;
 	BoundingBox* boundingBox; // used to check collisions
 	

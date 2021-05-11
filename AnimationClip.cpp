@@ -46,6 +46,7 @@ int findKeyframe(float time, AnimationNode* animationNode) {
 void AnimationClip::calculateInterpolatedMatrices(float time, AnimationNode* animationNode,
 	glm::mat4 & positionTransform, glm::mat4 & rotationTransform, glm::mat4 & scalingTransform) {
 
+	//cout << "calculate interpolated matrices time: " << time << endl;
 	int keyframe = findKeyframe(time, animationNode);
 	if (keyframe == 0 || keyframe == animationNode->positionKeys.size() - 1) {
 		positionTransform = glm::translate(positionTransform, animationNode->positionKeys[keyframe]->value);
@@ -53,6 +54,7 @@ void AnimationClip::calculateInterpolatedMatrices(float time, AnimationNode* ani
 		scalingTransform = glm::scale(scalingTransform, animationNode->scalingKeys[keyframe]->value);
 	}
 	else {
+		//cout << "animationNode: " << animationNode->name << endl;
 		float timeA = animationNode->positionKeys[keyframe - 1]->time;
 		float timeB = animationNode->positionKeys[keyframe]->time;
 		float ratio = (time - timeA) / (timeB - timeA);
@@ -85,6 +87,7 @@ void AnimationClip::calculateInterpolatedMatrices(float time, AnimationNode* ani
 		positionTransform = glm::translate(positionTransform, position);
 		scalingTransform = glm::scale(scalingTransform, scaling);
 		rotationTransform = glm::toMat4(rotation);
+		
 	}
 
 	
@@ -94,6 +97,7 @@ void AnimationClip::calculateBoneTransforms(float time, Node* node, glm::mat4 pa
 
 	glm::mat4 nodeTransform;
 	if (animationNodeMap.find(node->name) != animationNodeMap.end()) {
+		
 		AnimationNode* animationNode = animationNodeMap.find(node->name)->second;
 		glm::mat4 positionTransform(1.0f);
 		glm::mat4 rotationTransform(1.0f);
@@ -134,6 +138,7 @@ void AnimationClip::applyBoneTransforms() {
 			if (boneTransformMap.find(bone->name) != boneTransformMap.end()) {
 				glm::mat4 nodeModel = boneTransformMap.find(bone->name)->second;
 				for (int k = 0; k < bone->vertexIds.size(); k++) {
+					
 					int vertexId = bone->vertexIds.at(k);
 					glm::vec4 v(mesh->initialPositions.at(vertexId).x, mesh->initialPositions.at(vertexId).y, mesh->initialPositions.at(vertexId).z, 1.0f);
 					glm::vec4 v_prime = nodeModel * bone->offsetMatrix * v;
@@ -141,6 +146,7 @@ void AnimationClip::applyBoneTransforms() {
 					glm::vec4 n(mesh->initialNormals.at(vertexId).x, mesh->initialNormals.at(vertexId).y, mesh->initialNormals.at(vertexId).z, 0.0f);
 					glm::vec4 n_prime = nodeModel * bone->offsetMatrix * n;
 					boneNormals.at(vertexId) += glm::vec3(n_prime.x, n_prime.y, n_prime.z) * bone->weights.at(k);
+					
 				}
 			}
 			else {
@@ -149,7 +155,6 @@ void AnimationClip::applyBoneTransforms() {
 		}
 
 		if (mesh->bones.size() > 0) {
-
 			mesh->positions = bonePositions;
 			mesh->normals = boneNormals;
 			//cout << "final value for vertex 828: " << glm::to_string(mesh->positions.at(828)) << endl;

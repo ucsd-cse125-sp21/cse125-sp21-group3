@@ -5,7 +5,7 @@
 #include <../util/ts_queue.cpp>
 #include <../parsing/serverParse.h>
 #include <../Game.h>
-#include <../main.h>
+#include <../core.h>
 
 #define MAX_CONNECTIONS 4
 #define PERIOD 500 //server period in ms
@@ -25,12 +25,11 @@ private:
     std::string input_str;
     ThreadSafeQueue<std::string> input_buffer;
 
-    serverParse* serverParser;
-
 public:
     int pid;
     string pid_str; //for parser
 
+    serverParse* serverParser;
 
     typedef boost::shared_ptr<con_handler> pointer;
     con_handler(boost::asio::io_service& io_service, int pid, std::string pid_str) : sock(io_service), pid(pid), pid_str(pid_str) {
@@ -139,7 +138,8 @@ public:
      */
 
     void send_join_message(){
-        std::string join_msg = serverParser -> buildJoinResponse(to_string(serverParser -> userIdCount));
+    
+        std::string join_msg = serverParser -> buildJoinResponse(to_string(serverParser -> userIdCount-1));
 
         sock.async_write_some(
                 boost::asio::buffer(join_msg, join_msg.size()),
@@ -168,7 +168,7 @@ private:
     int counter;
     con_handler::pointer playerConnections[MAX_CONNECTIONS];
 
-    serverParse* serverParser;
+    int userIdCount;
 
     Maze* maze;
 
@@ -177,7 +177,7 @@ private:
     void start_accept()
     {
         // socket
-        con_handler::pointer connection = con_handler::create(io_service_, serverParser -> userIdCount);
+        con_handler::pointer connection = con_handler::create(io_service_, userIdCount);
 
         // asynchronous accept operation and wait for a new connection.
         acceptor_.async_accept(connection->socket(),
@@ -216,11 +216,11 @@ public:
     void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
     {
         if (!err) {
-            playerConnections[serverParser -> userIdCount++] = connection;
+            playerConnections[userIdCount++] = connection;
             connection -> send_join_message();
         }
         start_accept();
-        if (serverParser->userIdCount == 1)
+        if (userIdCount >= 1)
         {
             begin_game();
         }
@@ -233,7 +233,7 @@ public:
     void broadcast(std::string msg)
     {
         int x;
-        for(x = 0; x < serverParser -> userIdCount; x++)
+        for(x = 0; x < userIdCount; x++)
             playerConnections[x] -> send_game_state(msg);
     }
 
@@ -243,31 +243,31 @@ public:
      *input queue and broadcast the player info to all connected clients
      */
 
-    void handle_timeout(){
-        while(1){
+    void handle_timeout() {
+        while (1) {
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
-
-            if(serverParser -> userIdCount > 0){
+            if (userIdCount > 0) {
 
                 //first handle incoming messages, if there are any
                 int bufIndex;
-                for(bufIndex = 0; bufIndex < serverParser -> userIdCount; bufIndex++){
-                    std::string nextMessage = playerConnections[bufIndex] -> dequeue();
-                    if(!nextMessage.empty())
-                        serverParser -> sortClientMessage(nextMessage);
+                for (bufIndex = 0; bufIndex < userIdCount; bufIndex++) {
+                    std::string nextMessage = playerConnections[bufIndex]->dequeue();
+                    //cout << "calling sort for playerConnection: " << bufIndex << endl;
+                    if (!nextMessage.empty())
+                        serverParse::sortClientMessage(nextMessage);
+
+                    //printMoving(playerConnections[0]->pid_str);
+                    //then broadcast the game_state
+                    for (int p = 0; p < userIdCount; p++) {
+                        cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
+                        std::string playerStateString = serverParse::buildPlayerMessage(playerConnections[p]->pid_str);
+                        broadcast(playerStateString);
+                    }
 
                 }
-                //then broadcast the game_state
-                for(int p = 0; p < serverParser -> userIdCount; p++){
-                    cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p] -> pid_str) + "\n";
-                    std::string playerStateString = serverParser -> buildPlayerMessage(playerConnections[p] -> pid_str);
-                    broadcast(playerStateString);
-
-                }
-
             }
+
         }
-        
     }
 
     
@@ -275,83 +275,16 @@ public:
 
 Server::Server(boost::asio::io_service& io_service) : io_service_(io_service),
 acceptor_(io_service_, tcp::endpoint(tcp::v4(), 1234)) {
-    serverParser = new serverParse();
     counter = 0;
+    userIdCount = 0;
     start_accept();
 
 }
 
 
-void error_callback(int error, const char* description)
-{
-    // Print error.
-    std::cerr << description << std::endl;
-}
-
-/*
- * Helper method which sets callbacks related to the
- * execution of the program. Most of these callbacks
- * are methods which execute in response to user input.
- *
- * @param window Pointer to the window which the program executes in
- * @author Part of 169 starter code
- */
-void setup_callbacks(GLFWwindow* window)
-{
-    // Set the error callback.
-    glfwSetErrorCallback(error_callback);
-    // Set the window resize callback.
-    glfwSetWindowSizeCallback(window, Window::resizeCallback);
-
-    // Set the key callback.
-    glfwSetKeyCallback(window, Window::keyCallback);
-
-    // Set the mouse and cursor callbacks
-    glfwSetMouseButtonCallback(window, Window::mouse_callback);
-    glfwSetCursorPosCallback(window, Window::cursor_callback);
-}
-
-/*
- * Helper method which sets up OpenGL settings related to the
- * execution of the program.
- *
- * @author Part of 169 starter code
- */
-void setup_opengl_settings()
-{
-    // Enable depth buffering.
-    glEnable(GL_DEPTH_TEST);
-    // Related to shaders and z value comparisons for the depth buffer.
-    glDepthFunc(GL_LEQUAL);
-    // Set polygon drawing mode to fill front and back of each polygon.
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    // Set clear color to black.
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-}
-
-/*
- * Prints system specific information that the program is running on.
- *
- * @author Part of 169 starter code
- */
-void print_versions()
-{
-    // Get info of GPU and supported OpenGL version.
-    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
-    std::cout << "OpenGL version supported: " << glGetString(GL_VERSION)
-        << std::endl;
-
-    //If the shading language symbol is defined.
-#ifdef GL_SHADING_LANGUAGE_VERSION
-    std::cout << "Supported GLSL version is: " <<
-        glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-#endif
-}
-
 
 int main(int argc, char* argv[])
 {
-    std::cout << "Starting server" << std::endl;
     try
     {
         

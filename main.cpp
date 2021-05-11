@@ -1,6 +1,19 @@
 #include "main.h"
 #include <iostream>
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include "../util/ts_queue.cpp"
+#include "../parsing/clientParse.cpp"
+
+#define PERIOD 500 //client period in ms
+
+using namespace boost::asio;
+using ip::tcp;
+using std::cout;
+using std::endl;
 using namespace std;
+
 /*
  * File Name: main.cpp
  *
@@ -9,7 +22,99 @@ using namespace std;
  *
  * @author Part of 169 starter code
  */
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+//-----------------------------------------------------------------------------
+//Networking Stuff 
+class Client
+{
+
+public:
+
+    boost::asio::io_service & io_service_;
+    tcp::socket sock;
+    std::string input_buf;
+
+    clientParse* clientParser;
+
+    Client(boost::asio::io_service& io_service) : io_service_(io_service), sock(io_service) {
+        clientParser = new clientParse();
+    }
+
+
+    /*
+     * Start will be called once when to program begins to being the async reading loop
+     */
+
+    void start(){
+        async_read_until(
+                sock,
+                boost::asio::dynamic_buffer(input_buf),
+                "\r\n",
+                boost::bind(&Client::client_handle_read,
+                    this,
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+    }
+
+    /*
+     * Async read handler which will recursively call itself to handle incoming messages
+     */
+
+    void client_handle_read(const boost::system::error_code& err, size_t bytes_transferred)
+    {
+        if (!err) {
+            clientParser -> sortServerMessage(input_buf);
+            input_buf = ""; //clear the input buffer
+            async_read_until(
+                sock,
+                boost::asio::dynamic_buffer(input_buf),
+                "\r\n",
+                boost::bind(&Client::client_handle_read,
+                    this,
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+
+        }
+        else {
+            std::cerr << "error: " << err.message() << std::endl;
+            sock.close();
+        }
+    }
+
+    /*
+     * Simple function to handle the sending of input, will err and close socket if an error occurs
+     */
+
+    void client_handle_send_input(const boost::system::error_code& err, size_t bytes_transferred)
+    {
+        if (err) {
+           std::cerr << "error: " << err.message() << endl;
+            sock.close();
+        }
+    }
+
+    /*
+     * Client timer. will poll the state of player inputs every PERIOD ms and send them to the server.
+     */
+
+    void client_handle_timeout(){
+        while(1){
+            std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
+            std::string input_string = clientParser -> buildInputMessage();
+
+            sock.async_write_some(
+                boost::asio::buffer(input_string, input_string.size()),
+                boost::bind(&Client::client_handle_send_input,
+                    this,
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+        }
+    }
+    
+};
+//-----------------------------------------------------------------------------
+
 /*
  * Called every time an error is encountered while the program is running.
  *
@@ -23,14 +128,14 @@ void error_callback(int error, const char* description)
 	std::cerr << description << std::endl;
 }
 
-/*
- * Helper method which sets callbacks related to the
- * execution of the program. Most of these callbacks
- * are methods which execute in response to user input.
- *
- * @param window Pointer to the window which the program executes in
- * @author Part of 169 starter code
- */
+///*
+// * Helper method which sets callbacks related to the
+// * execution of the program. Most of these callbacks
+// * are methods which execute in response to user input.
+// *
+// * @param window Pointer to the window which the program executes in
+// * @author Part of 169 starter code
+// */
 void setup_callbacks(GLFWwindow* window)
 {
 	// Set the error callback.
@@ -45,13 +150,13 @@ void setup_callbacks(GLFWwindow* window)
 	glfwSetMouseButtonCallback(window, Window::mouse_callback);
 	glfwSetCursorPosCallback(window, Window::cursor_callback);
 }
-
-/*
- * Helper method which sets up OpenGL settings related to the
- * execution of the program.
- *
- * @author Part of 169 starter code
- */
+//
+///*
+// * Helper method which sets up OpenGL settings related to the
+// * execution of the program.
+// *
+// * @author Part of 169 starter code
+// */
 void setup_opengl_settings()
 {
 	// Enable depth buffering.
@@ -63,12 +168,12 @@ void setup_opengl_settings()
 	// Set clear color to black.
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 }
-
-/*
- * Prints system specific information that the program is running on.
- *
- * @author Part of 169 starter code
- */
+//
+///*
+// * Prints system specific information that the program is running on.
+// *
+// * @author Part of 169 starter code
+// */
 void print_versions()
 {
 	// Get info of GPU and supported OpenGL version.
@@ -93,10 +198,7 @@ void print_versions()
  */
 int main(void)
 {
-	// Create the GLFW window.
-
-
-
+	//Create the GLFW window.
 	GLFWwindow* window = Window::createWindow(800, 600);
 	if (!window) exit(EXIT_FAILURE);
 
@@ -114,6 +216,20 @@ int main(void)
 	if (!Window::initializeObjects()) exit(EXIT_FAILURE);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
+    //Networking Stuff
+    //--------------------------------------------------------------------------
+    boost::asio::io_service io_service;
+    Client client(io_service);
+    client.sock.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
+    client.start();
+    //run the io_service in its own thread
+    std::thread io_thread = std::thread([&]() {client.io_service_.run(); });
+
+    //run timer in its own thread
+    std::thread timer_thread = std::thread([&]() {client.client_handle_timeout(); });
+    //--------------------------------------------------------------------------
+
+    
 	// Loop while GLFW window should stay open.
 	while (!glfwWindowShouldClose(window))
 	{

@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <queue>
 #include "../Game.h"
+#include "../Window.h"
+#include "../Player.h"
 
 using namespace std;
 using namespace boost::asio;

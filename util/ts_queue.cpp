@@ -1,4 +1,5 @@
 #include <queue>
+#include <mutex>
 
 template<class T>
 class ThreadSafeQueue {

@@ -5,7 +5,8 @@
 #include "Model.h"
 #include <windows.h>
 #include <glm/gtx/string_cast.hpp>
-
+#include "Player.h"
+#include "Camera.h"
 
 /*
  * File Name: Window.cpp
@@ -50,6 +51,23 @@ Model* gun;
 Model* character;
 
 Maze* maze;
+
+
+//Networking Stuff
+string Window::playerInputString;
+bool Window::isForwardPressed;
+bool Window::isRightPressed;
+bool Window::isLeftPressed;
+bool Window::isBackwardPressed;
+bool Window::isCrouched;
+bool Window::isSprinting;
+glm::vec3 Window::playerDirection;
+bool Window::hasFired;
+map<int, Opponent*> Window::opponentMap;
+Cube* Window::cube;
+
+//temp opponent variables
+int createOpponent = -1;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -100,8 +118,8 @@ bool Window::initializeObjects(Game* game)
 
 	boundingBoxList = maze->getBoundingBox();
 
-	boundingBoxList.push_back(ground->getBoundingBox());
 
+	boundingBoxList.push_back(ground->getBoundingBox());
 	boundingBoxList.push_back(player->getBoundingBox());
 
 	glm::mat4 chestRootTransform(1.0f);
@@ -121,6 +139,21 @@ bool Window::initializeObjects(Game* game)
 	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
 	//character = new Model("Assets/character.gltf", characterRootTransform);
 	character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
+
+
+
+
+	//Networking Stuff - initial setup
+	Window::isForwardPressed = false;
+	Window::isRightPressed = false;
+	Window::isLeftPressed = false;
+	Window::isBackwardPressed = false;
+	Window::isCrouched = false;
+	Window::isSprinting = false;
+	Window::playerDirection = player->getPlayerCamera()->getDirection();
+	Window::hasFired = false;
+	constructPlayerInputString();
+	//Window::updateOpponent(3, glm::vec3(3.0f, 3.5f, 3.0f), glm::vec3(0.0f, 3.5, 0.0f - 3.0f), 0);
 
 
 	return true;
@@ -223,6 +256,9 @@ GLFWwindow* Window::createWindow(int width, int height)
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resizeCallback(window, width, height);
 	
+	//disable cursor
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
 	return window;
 }
 
@@ -247,9 +283,86 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 
 	Cam->SetAspect(float(width) / float(height));
+	glfwSetCursorPos(window, width / 2, height / 2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
+void Window::constructPlayerInputString() {
+
+	string tempPlayerInputString = "";
+
+	if (Window::isForwardPressed) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isRightPressed) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isLeftPressed) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isBackwardPressed) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isCrouched) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	if (Window::isSprinting) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+	tempPlayerInputString += ",";
+
+
+	//TODO, update how input message is parsed so that it can handle vec3 for direction instead of float
+	tempPlayerInputString += to_string(playerDirection.x);
+	tempPlayerInputString += ",";
+
+
+	if (Window::hasFired) {
+		tempPlayerInputString += "true";
+	}
+	else {
+		tempPlayerInputString += "false";
+	}
+
+
+	//set playerInputString at the end so playerInputString always holds a constant value
+	Window::playerInputString = tempPlayerInputString;
+}
 
 /*
  * This method is called every frame and performs any operations needed to update
@@ -262,18 +375,29 @@ void Window::idleCallback()
 	// Perform any updates as necessary.
 	//Cam->Update();
 	player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+	string tempPlayerInputString = "";
+	Window::isForwardPressed = false;
+	Window::isRightPressed = false;
+	Window::isLeftPressed = false;
+	Window::isBackwardPressed = false;
+	
 	if (GetAsyncKeyState(GLFW_KEY_W)) {
 		player->moveDirection(player->forward);
-	}
-	if (GetAsyncKeyState(GLFW_KEY_A)) {
-		player->moveDirection(player->left);
-	}
-	if (GetAsyncKeyState(GLFW_KEY_S)) {
-		player->moveDirection(player->backward);
+		Window::isForwardPressed = true;
 	}
 	if (GetAsyncKeyState(GLFW_KEY_D)) {
 		player->moveDirection(player->right);
+		Window::isRightPressed = true;
 	}
+	if (GetAsyncKeyState(GLFW_KEY_A)) {
+		player->moveDirection(player->left);
+		Window::isLeftPressed = true;
+	}
+	if (GetAsyncKeyState(GLFW_KEY_S)) {
+		player->moveDirection(player->backward);
+		Window::isBackwardPressed = true;
+	}
+	
 	//if (GetAsyncKeyState(GLFW_KEY_E)) {
 	//	player->useAbility();
 	//}
@@ -281,17 +405,29 @@ void Window::idleCallback()
 	//	player->pickUpAbility();
 	//}
 	// Allow player to move up and down for debugging
-	if (GetAsyncKeyState(GLFW_KEY_Z)) {
-		player->moveDirection(player->up);
-	}
 	if (GetAsyncKeyState(GLFW_KEY_X)) {
 		player->moveDirection(player->down);
 	}
-	player->update(0.1f, boundingBoxList);
-
+	if (GetAsyncKeyState(GLFW_KEY_Z)) {
+		player->moveDirection(player->up);
+	}
+	player->update(0.01f, boundingBoxList);
 	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
-	//gun->playAnimation(gun->animationClipList.at(0), 0.05f);
+	//gun->playAnimation(gun->animationClipList.at(0), 0.05f, false);
 	//character->playAnimation(character->animationClipList.at(0), 0.05f);
+
+
+	//Networking Stuff
+	//------------------------------------------------------------------------
+	constructPlayerInputString();
+	if (createOpponent != -1) {
+		opponentMap.insert(pair<int, Opponent*>(createOpponent, new Opponent(createOpponent, glm::vec3(3.0f, 3.5f, 3.0f))));
+		createOpponent = -1;
+	}
+	for (pair<int, Opponent*> p : Window::opponentMap) {
+		p.second->update();
+	}
+	//------------------------------------------------------------------------
 }
 
 /*
@@ -330,7 +466,8 @@ void Window::drawCrosshair() {
 			horizontalBar[y][x][2] = crosshairColor.z;
 		}
 	}
-
+	
+	//cube->update();
 	glDrawPixels(crosshairLength, crosshairThickness, GL_RGB, GL_FLOAT, horizontalBar);
 }
 /*
@@ -341,18 +478,18 @@ void Window::drawCrosshair() {
  * @author Part of 169 starter code
  */
 void Window::displayCallback(GLFWwindow* window)
-{
+{	
 	// Clear the color and depth buffers.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Render the object.
-	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
 	for (Cube* footprint : player->getFootprints()) {
 		//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 
 	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	for(pair<int, Opponent*> p : Window::opponentMap) {
+		p.second->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	}
 	
 	Camera* playCam = player->getPlayerCamera();
 	irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
@@ -377,10 +514,16 @@ void Window::displayCallback(GLFWwindow* window)
 	//character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube2->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	drawCrosshair();
+	//drawCrosshair();
+
+	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
+	
+	drawCrosshair();
+	
 	// Swap buffers.
 	glfwSwapBuffers(window);
 }
@@ -435,9 +578,11 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_LEFT_CONTROL:
 			player->setState(player->crouch);
+			Window::isCrouched = true;
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
 			player->setState(player->sprint);
+			Window::isSprinting = true;
 			break;
 		case GLFW_KEY_F:
 			player->pickUpAbility();
@@ -455,14 +600,21 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		{
 		case GLFW_KEY_LEFT_CONTROL:
 			player->setState(player->stand);
+			Window::isCrouched = false;
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
 			player->setState(player->stand);
+			Window::isSprinting = false;
 			break;
 		default:
 			break;
 		}
 	}
+
+	//Networking Stuff
+	//------------------------------------------------------------------------
+	constructPlayerInputString();
+	//------------------------------------------------------------------------
 }
 
 /*
@@ -483,10 +635,12 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 		RightDown = (action == GLFW_PRESS);
 	}
 
-	if (LeftDown) {
+	if (LeftDown && !Window::hasFired) {
 		std::cerr << "Fired" << std::endl;
+		Window::hasFired = true;
 		player->shootWeapon(boundingBoxList);
 	}
+
 }
 
 /*
@@ -512,8 +666,13 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	float yaw = Cam->getYaw();
 	float pitch = Cam->getPitch();
 	yaw += dx * sensitivity;
-	player->getPlayerModel()->rotate(dx * sensitivity * -0.01745f);
-	player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f);
+	
+	//rotation animation stuff for player
+	player->getPlayerModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerModelCenter());
+	player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f, false);
+	player->getPlayerGunModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
+	player->getPlayerGunModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
+
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);
 	Cam->setPitch(pitch);
@@ -524,4 +683,17 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseY = height / 2;
 }
 
+void Window::updateOpponent(int id, glm::vec3 position, glm::vec3 direction, int moving) {
+
+	if (Window::opponentMap.find(id) == Window::opponentMap.end()) {
+		createOpponent = id;
+	}
+	else {
+		Opponent* opponent = Window::opponentMap.find(id)->second;
+		opponent->setPosition(position);
+		opponent->setDirection(direction);
+		opponent->setMoving(moving);
+	}
+
+}
 ////////////////////////////////////////////////////////////////////////////////

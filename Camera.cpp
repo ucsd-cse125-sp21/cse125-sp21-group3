@@ -35,6 +35,7 @@ Camera::Camera(glm::vec3 _position) {
  */
 void Camera::Update() {
   
+    //cout << "camera position: " << glm::to_string(position) << endl;
     //constraining pitch
     if (pitch > 89.9f) {
         pitch = 89.9f;
@@ -58,9 +59,7 @@ void Camera::Update() {
     glm::mat4 project = glm::perspective(glm::radians(FOV), Aspect, NearClip, FarClip);
 
     // Compute final view-projection matrix, final positions which are used
-    glm::vec3 oldViewPos (ViewProjectMtx[3][0], ViewProjectMtx[3][1], ViewProjectMtx[3][2]);
     ViewProjectMtx = project * view;
-    glm::vec3 newViewPos(ViewProjectMtx[3][0], ViewProjectMtx[3][1], ViewProjectMtx[3][2]);
 }
 
 /*
@@ -78,7 +77,6 @@ void Camera::Reset() {
     pitch = 0.0f;
     position = glm::vec3(3.0f, 3.5f, 3.0f);
     cameraFront = glm::vec3(0.0f, 3.5, 0.0f - position.z);
-
 }
 
 

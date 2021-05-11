@@ -34,7 +34,7 @@ Player::Player(glm::vec3 _position, Maze* mz) {
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.875f, position.z - width * 0.5f),
         glm::vec3(position.x + width * 0.5f, position.y + height * 0.125f, position.z + width * 0.5f), this);
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    speed = 0.35f;
+    speed = 3.5f;
     playerWeapon = new Weapon();
 
     maxHealth = 100.0f;
@@ -49,12 +49,23 @@ Player::Player(glm::vec3 _position, Maze* mz) {
 
     maze = mz;
     
+    //creating and initializing playerModel
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, position.y - height * 0.82f, 2.25f));
     glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
     glm::mat4 playerModelRootTransform = translation  * rotation * scaling; 
     playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
-    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f); //puts the character in the default pose
+    playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
+    walkingBackward = false;
+    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
+
+    //creating and initializing playerGunModel
+    rotation = glm::rotate(glm::mat4(1.0f), 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
+    translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.7f, 3.0f, 2.25f));
+    scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerGunModelScale));
+    glm::mat4 playerGunModelRootTransform = translation * rotation * scaling;
+    playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform);
+    playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0] - 0.45f, playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2] + 1.0f);
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -121,7 +132,6 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
     }
 }
 
-
 /*
  * Called each frame to update player's position and other physical properties.
  *
@@ -159,6 +169,7 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     }
     if (glm::length(velocity) > 0.0f) {
 
+       
         position = position + velocity * deltaTime;
         
         //update player bounding box
@@ -180,24 +191,37 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
         playerModel->rootModel[3][0] += diff.x;
         playerModel->rootModel[3][1] += diff.y;
         playerModel->rootModel[3][2] += diff.z;
-        
-   
+        playerGunModel->rootModel[3][0] += diff.x;
+        playerGunModel->rootModel[3][1] += diff.y;
+        playerGunModel->rootModel[3][2] += diff.z;
+        playerGunModel->animationRootModel[3][0] += diff.x;
+        playerGunModel->animationRootModel[3][1] += diff.y;
+        playerGunModel->animationRootModel[3][2] += diff.z;
+        playerGunModelCenter += diff;
+    
         prevPosition = position;
         oldPitch = playerCamera -> getPitch();
+
+       
         //camera and player position should always be the same, at least for now
         playerCamera->setPosition(position);
     }
 
     if (glm::length(velocity) > 0.0f && state != dead) {
-        //playerModel->rotate(0.1f);
-        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.05f);
+        //playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, walkingBackward);
     }
 
     //update player camera
     playerCamera->Update();
    
-    //update player model
+    //update player and player gun model
     playerModel->update();
+    playerGunModel->update();
+ 
+    //play gun animation if firing, this must occur after updating the playerGunModel
+    if (Window::hasFired) {
+        playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
+    }
 }
 
 /*
@@ -215,6 +239,7 @@ void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     }
 
     playerModel->draw(viewProjMtx, shader);
+    playerGunModel->draw(viewProjMtx, shader);
 }
 
 /*
@@ -228,18 +253,22 @@ void Player::moveDirection(int dir) {
     currentDirection.y = 0.0f;
 
     if (dir == forward) {
+        walkingBackward = false;
         glm::vec3 v = glm::normalize(currentDirection) * speed;
         velocity += v;
     }
     if (dir == backward) {
+        walkingBackward = true;
         glm::vec3 v = -glm::normalize(currentDirection) * speed;
         velocity += v;
     }
     if (dir == left) {
+        walkingBackward = false;
         glm::vec3 v = -glm::normalize(glm::cross(currentDirection, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
         velocity += v;
     }
     if (dir == right) {
+        walkingBackward = false;
         glm::vec3 v = glm::normalize(glm::cross(currentDirection, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
         velocity += v;
     }
@@ -417,6 +446,7 @@ void Player::useAbility()
 
 
 BoundingBox* Player::shootWeapon(std::vector<BoundingBox *> objects) {
+   
     if (state != sprint && state != dead)
     {
         BoundingBox* shotObject = playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
