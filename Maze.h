@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef MAZE_H
+#define MAZE_H
+
 #include "main.h"
 #include<vector>
 #include "Window.h"
@@ -51,6 +54,8 @@ public:
 
 	int getMapScale() { return mapScale; }
 
+	wallInfo** getMazeArray() { return mazeArray; }
+
 
 private:
 
@@ -73,3 +78,5 @@ private:
 	float wallHeight;
 
 };
+
+#endif

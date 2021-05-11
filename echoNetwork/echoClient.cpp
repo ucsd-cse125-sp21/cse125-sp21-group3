@@ -5,6 +5,7 @@
 #include <../util/ts_queue.cpp>
 #include <../parsing/clientParse.h>
 #include <../main.h>
+#include <../Game.h>
 
 #define PERIOD 500 //client period in ms
 
@@ -23,10 +24,12 @@ public:
     tcp::socket sock;
     std::string input_buf;
 
-    clientParse* clientParser;
+
+    Game* game;
 
     Client(boost::asio::io_service& io_service) : io_service_(io_service), sock(io_service) {
-        clientParser = new clientParse();
+        game = new Game();
+        game->beginGame();
     }
 
 
@@ -52,11 +55,12 @@ public:
     void client_handle_read(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (!err) {
-            clientParser -> sortServerMessage(input_buf);
+            cout << "Received:" << input_buf << endl;
+            clientParse::sortServerMessage(game, input_buf);
             input_buf = ""; //clear the input buffer
             async_read_until(
                 sock,
-                boost::asio::dynamic_buffer(input_buf),
+                boost::asio::dynamic_buffer(input_buf), 
                 "\r\n",
                 boost::bind(&Client::client_handle_read,
                     this,
@@ -89,7 +93,7 @@ public:
     void client_handle_timeout(){
         while(1){
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
-            std::string input_string = clientParser -> buildInputMessage();
+            std::string input_string =  clientParse::buildInputMessage();
 
             sock.async_write_some(
                 boost::asio::buffer(input_string, input_string.size()),
@@ -195,6 +199,7 @@ int main(int argc, char* argv[])
 
     // Print OpenGL and GLSL versions.
     print_versions();
+
     // Setup callbacks.
     setup_callbacks(window);
     // Setup OpenGL settings.
@@ -204,7 +209,9 @@ int main(int argc, char* argv[])
     if (!Window::initializeProgram()) exit(EXIT_FAILURE);
 
     // Initialize objects/pointers for rendering; exit if initialization fails.
-    if (!Window::initializeObjects()) exit(EXIT_FAILURE);
+    if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
+
+
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 
@@ -218,6 +225,7 @@ int main(int argc, char* argv[])
         // Idle callback. Updating objects, etc. can be done here.
         Window::idleCallback();
     }
+
 
     Window::cleanUp();
     // Destroy the window.

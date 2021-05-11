@@ -5,8 +5,9 @@
 #include "Cube.h"
 #include "shader.h"
 #include "Camera.h"
+#include "Game.h"
 
-
+class Game;
 
 /*
  * File Name: Window.h
@@ -35,7 +36,7 @@ public:
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();
-	static bool initializeObjects();
+	static bool initializeObjects(Game* game);
 	static void cleanUp();
 
 	// for the Window

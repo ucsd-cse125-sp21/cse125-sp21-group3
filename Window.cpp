@@ -82,15 +82,11 @@ bool Window::initializeProgram() {
  * @return true if initialization was successful, false if not
  * @author Part of 169 starter code
  */
-bool Window::initializeObjects()
+bool Window::initializeObjects(Game* game)
 {
-	int size = 21;
-	int scale = 7;
-	maze = new Maze(size, scale);
+	maze = game->maze;
 
 	ground = maze->generateGround();
-
-	maze->createWalls();
 
 	walls = maze->generateWalls();
 	
@@ -99,6 +95,9 @@ bool Window::initializeObjects()
 	player = new Player(Cam->getPosition(), maze);
 	player->setPlayerCamera(Cam);
 	player->setSoundEngine(soundEngine);
+
+	game->myPlayer = player;
+
 	boundingBoxList = maze->getBoundingBox();
 
 	boundingBoxList.push_back(ground->getBoundingBox());
@@ -108,29 +107,22 @@ bool Window::initializeObjects()
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
 	chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-<<<<<<< HEAD
 	//chest = new Model("Assets/chestOpen.gltf", chestRootTransform);
-=======
 	chest = new Model("C:/Users/Calpok/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
->>>>>>> 36d550f9e694ca24b38c44304b1aae7c710519d5
 	
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
 	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
-<<<<<<< HEAD
 	//gun = new Model("Assets/pistolReload.gltf", gunRootTransform);
-=======
 	gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
->>>>>>> 36d550f9e694ca24b38c44304b1aae7c710519d5
 
 	glm::mat4 characterRootTransform(1.0f);
 	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
 	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
-<<<<<<< HEAD
 	//character = new Model("Assets/character.gltf", characterRootTransform);
-=======
 	character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
->>>>>>> 36d550f9e694ca24b38c44304b1aae7c710519d5
+
+
 	return true;
 }
 

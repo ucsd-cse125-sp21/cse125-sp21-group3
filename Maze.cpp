@@ -115,8 +115,7 @@ std::vector<Cube*> Maze::generateAbilityChests()
 // Generate the maze and create wall objects
 void  Maze::createWalls()
 {
-	createAbilityChests(15);
-	generateAbilityChests();
+
 	// Set borders
 	// Row = X, column = Z
 	for (int i = 0; i < mazeSize - 1; i++)
@@ -130,10 +129,6 @@ void  Maze::createWalls()
 	// Generate random walls
 	createWallsRecursion(0, mazeSize - 1, 0, mazeSize - 1, rand() % 2);
 
-	if (Window::debugMode)
-	{
-		printMaze();
-	}
 
 	// Add an end
 	mazeArray[mazeSize - 2][mazeSize - 1].right = false;
@@ -337,6 +332,18 @@ void Maze::removeAbility(int* coordinate)
 	mazeArray[coordinate[0]][coordinate[1]].ability = Player::none;
 }
 
+
+void Maze::setWall(int r, int c, bool direction, bool exist)
+{
+	if (direction)
+	{
+		mazeArray[r][c].bottom = exist;
+	}
+	else
+	{
+		mazeArray[r][c].right = exist;
+	}
+}
 
 
 

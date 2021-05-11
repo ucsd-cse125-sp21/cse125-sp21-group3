@@ -4,7 +4,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <../util/ts_queue.cpp>
 #include <../parsing/serverParse.h>
-#include <../Maze.h>
+#include <../Game.h>
 #include <../main.h>
 
 #define MAX_CONNECTIONS 4
@@ -171,6 +171,8 @@ private:
     serverParse* serverParser;
 
     Maze* maze;
+
+    Game* game;
     
     void start_accept()
     {
@@ -186,6 +188,30 @@ public:
     //constructor for accepting connection from client
     Server(boost::asio::io_service& io_service); 
 
+    void begin_game()
+    {
+        game = new Game();
+        game->beginGame();
+
+        Maze* maze = game->maze;
+        string message = "";
+        wallInfo** mazeArray = maze->getMazeArray();
+        for (int r = 0; r <  maze -> getMazeSize(); r++)
+        {
+            for (int c = 0; c < maze -> getMazeSize(); c++)
+            {
+                if (mazeArray[r][c].right)
+                {
+                    message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",0,";
+                }
+                if (mazeArray[r][c].bottom)
+                {
+                    message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",1,";
+                }
+            }
+        }
+        broadcast(message);
+    }
 
     void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
     {
@@ -194,6 +220,10 @@ public:
             connection -> send_join_message();
         }
         start_accept();
+        if (serverParser->userIdCount == 1)
+        {
+            begin_game();
+        }
     }
 
     /*
@@ -217,7 +247,6 @@ public:
         while(1){
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
 
-            cout << "lol" << endl;
             if(serverParser -> userIdCount > 0){
 
                 //first handle incoming messages, if there are any
@@ -322,38 +351,6 @@ void print_versions()
 
 int main(int argc, char* argv[])
 {
-
-
-    GLFWwindow* window = Window::createWindow(800, 600);
-    if (!window)
-    {
-        exit(EXIT_FAILURE);
-    }
-
-    // Print OpenGL and GLSL versions.
-    print_versions();
-    // Setup callbacks.
-    //setup_callbacks(window);
-    // Setup OpenGL settings.
-    setup_opengl_settings();
-
-    // Initialize the shader program; exit if initialization fails.
-    if (!Window::initializeProgram()) exit(EXIT_FAILURE);
-
-    // Initialize objects/pointers for rendering; exit if initialization fails.
-    if (!Window::initializeObjects()) exit(EXIT_FAILURE);
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-
-    Window::cleanUp();
-    // Destroy the window.
-    glfwDestroyWindow(window);
-    // Terminate GLFW.
-    glfwTerminate();
-
-    std::cout << "Beginning main thread" << std::endl;
-
-
     std::cout << "Starting server" << std::endl;
     try
     {

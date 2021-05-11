@@ -4,23 +4,23 @@
  * Set selfId field to userId sent in Join Response message.
  */
 void clientParse::joinResponseHandler(string userId) {
-    selfId = userId;
+    //selfId = userId;
 }
 
 /*
  * Record information about the player in Player Message in idPlayerMap.
  */
 void clientParse::playerMessageHandler(vector<string> messageValues) {
-    string userId = messageValues.at(1);
-    if (hasGameStarted) {
-        idPlayerMap[userId].setX(stod(messageValues.at(2)));
-        idPlayerMap[userId].setY(stod(messageValues.at(3)));
-        idPlayerMap[userId].setHealth(stoi(messageValues.at(4)));
-    }
-    else {
-        // Creation of entry in idPlayerMap.
-        idPlayerMap[userId] = PlayerClient(stod(messageValues.at(2)),stod(messageValues.at(3)), stoi(messageValues.at(4)));
-    }
+    //string userId = messageValues.at(1);
+    //if (hasGameStarted) {
+    //    idPlayerMap[userId].setX(stod(messageValues.at(2)));
+    //    idPlayerMap[userId].setY(stod(messageValues.at(3)));
+    //    idPlayerMap[userId].setHealth(stoi(messageValues.at(4)));
+    //}
+    //else {
+    //    // Creation of entry in idPlayerMap.
+    //    idPlayerMap[userId] = PlayerClient(stod(messageValues.at(2)),stod(messageValues.at(3)), stoi(messageValues.at(4)));
+    //}
 }
 
 /*
@@ -28,23 +28,23 @@ void clientParse::playerMessageHandler(vector<string> messageValues) {
  */
 void clientParse::mazeInitialMessageHandler(vector<string> messageValues) {
 
-    //Initialize maze 2D-array
-    mazeSize = stoi(messageValues.at(1));
-    mazeArr = new int*[mazeSize];
-    for (int i = 0; i < mazeSize; ++i) {
-        mazeArr[i] = new int[mazeSize];
-    }
+    ////Initialize maze 2D-array
+    //mazeSize = stoi(messageValues.at(1));
+    //mazeArr = new int*[mazeSize];
+    //for (int i = 0; i < mazeSize; ++i) {
+    //    mazeArr[i] = new int[mazeSize];
+    //}
 
-    cout << "Maze initialized" << endl;
+    //cout << "Maze initialized" << endl;
 
-    //Populate 2D-Array
-    int valuesInd = 2;
-    for (int row = 0; row < mazeSize; row++) {
-        for (int col = 0; col < mazeSize; col++) {
-            mazeArr[row][col] = stoi(messageValues.at(valuesInd));
-            valuesInd++;
-        }
-    }
+    ////Populate 2D-Array
+    //int valuesInd = 2;
+    //for (int row = 0; row < mazeSize; row++) {
+    //    for (int col = 0; col < mazeSize; col++) {
+    //        mazeArr[row][col] = stoi(messageValues.at(valuesInd));
+    //        valuesInd++;
+    //    }
+    //}
 }
 
 /*
@@ -52,12 +52,12 @@ void clientParse::mazeInitialMessageHandler(vector<string> messageValues) {
  * maze updates in a single message.
  */
 void clientParse::mazeUpdateMessageHandler(vector<string> messageValues) {
-    for (int i = 1; i < messageValues.size(); i+=MAZE_UPDATE_SIZE) {
-        int row = stoi(messageValues.at(i));
-        int col = stoi(messageValues.at(i+1));
-        int wallState = stoi(messageValues.at(i+2));
-        mazeArr[row][col] = wallState;
-    }
+    //for (int i = 1; i < messageValues.size(); i+=MAZE_UPDATE_SIZE) {
+    //    int row = stoi(messageValues.at(i));
+    //    int col = stoi(messageValues.at(i+1));
+    //    int wallState = stoi(messageValues.at(i+2));
+    //    mazeArr[row][col] = wallState;
+    //}
 }
 
 /*
@@ -65,7 +65,7 @@ void clientParse::mazeUpdateMessageHandler(vector<string> messageValues) {
  * sending messages to the server every PERIOD.
  */
 void clientParse::startMessageHandler() {
-    hasGameStarted = true;
+    //hasGameStarted = true;
 }
 
 /*
@@ -73,42 +73,76 @@ void clientParse::startMessageHandler() {
  * relevant.  Assume the MESSAGE_TAIL has already been removed by a
  * read_until method.
  */
-void clientParse::sortServerMessage(string serverMessage) {
+void clientParse::sortServerMessage(Game* game, string serverMessage) {
     vector<string> messageValues;
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
-    string header = messageValues.front();
-    if (header=="joinResponse") {
-        joinResponseHandler(messageValues.at(1));
+    vector<string>::iterator it = messageValues.begin();
+    while (it != messageValues.end())
+    {
+
+        if (*it == "joinResponse")
+        {
+
+        }
+        else if (*it == "player")
+        {
+            string userid = *(it + 1);
+            int x = stoi(*(it + 2));
+            int y = stoi(*(it + 3));
+            int health = stoi(*(it + 4));
+            it = (it + 4);
+        }
+        else if (*it == "mazeInitial")
+        {
+        }
+        else if (*it == "mazeUpdate")
+        {
+            int row = stoi(*(it + 1));
+            int col = stoi(*(it + 2));
+            int wallDirection = stoi(*(it + 3));
+            game->maze->setWall(row, col, wallDirection, 1);
+            it = (it + 3);
+        }
+        else if (*it == "start")
+        {
+        }
+        it++;
     }
-    else if (header=="player") {
-        playerMessageHandler(messageValues);
-    }
-    else if (header=="mazeInitial"){
-        mazeInitialMessageHandler(messageValues);
-    }
-    else if (header=="mazeUpdate") {
-        mazeUpdateMessageHandler(messageValues);
-    }
-    else if (header=="start") {
-        startMessageHandler();
-    }
-    else {
-        cout<<"Unexpected message type from server"<<endl;
-    }
+    //string header = messageValues.front();
+    //if (header=="joinResponse") {
+    //    joinResponseHandler(messageValues.at(1));
+    //}
+    //else if (header=="player") {
+    //    playerMessageHandler(messageValues);
+    //}
+    //else if (header=="mazeInitial"){
+    //    mazeInitialMessageHandler(messageValues);
+    //}
+    //else if (header=="mazeUpdate") {
+    //    mazeUpdateMessageHandler(messageValues);
+    //}
+    //else if (header=="start") {
+    //    startMessageHandler();
+    //}
+    //else {
+    //    cout<<"Unexpected message type from server"<<endl;
+    //}
 }
 
 /*
  * Return the join message string.
  */
 string clientParse::buildJoinMessage() {
-    return "join" + MESSAGE_TAIL;
+    //return "join" + MESSAGE_TAIL;
+    return "";
 }
 
 /*
  * Return the leave message string.
  */
 string clientParse::buildLeaveMessage() {
-    return "leave," + selfId + MESSAGE_TAIL;
+    //return "leave," + selfId + MESSAGE_TAIL;
+    return "";
 }
 
 /*
@@ -116,8 +150,9 @@ string clientParse::buildLeaveMessage() {
  * parameters will need to be added.
  */
 string clientParse::buildInputMessage() {
-    return "input," + selfId + ",true,false,false,false,true,false,300.58,false" 
-        + MESSAGE_TAIL;
+    //return "input," + selfId + ",true,false,false,false,true,false,300.58,false" 
+    //    + MESSAGE_TAIL;
+    return "";
 }
 
 /*
@@ -125,26 +160,26 @@ string clientParse::buildInputMessage() {
  */
 void clientParse::printArray() {
 
-    for (int i = 0; i < mazeSize; i++) {
-        string row = "";
-        for (int j = 0; j < mazeSize; j++) {
-            row += to_string(mazeArr[i][j]) + " ";
-        }
-        cout << row << endl;
-    }
+    //for (int i = 0; i < mazeSize; i++) {
+    //    string row = "";
+    //    for (int j = 0; j < mazeSize; j++) {
+    //        row += to_string(mazeArr[i][j]) + " ";
+    //    }
+    //    cout << row << endl;
+    //}
 }
 
 /*
  * Method to display footsteps in string form.  Only for verifying methods.
  */
 void clientParse::printFootsteps(string playerId) {
-    deque<PlayerClient::Footstep> footsteps = idPlayerMap[playerId].getFootsteps();
-    string footstepString = "";
-    for (int i = 0; i < footsteps.size(); i++) {
-        footstepString += "(" + to_string(footsteps[i].x) + "," 
-            + to_string(footsteps[i].y) + ")";
-    }
-    cout << "Footsteps: " << footstepString << endl;
+    //deque<PlayerClient::Footstep> footsteps = idPlayerMap[playerId].getFootsteps();
+    //string footstepString = "";
+    //for (int i = 0; i < footsteps.size(); i++) {
+    //    footstepString += "(" + to_string(footsteps[i].x) + "," 
+    //        + to_string(footsteps[i].y) + ")";
+    //}
+    //cout << "Footsteps: " << footstepString << endl;
 }
 
 // int main(int argc, char* argv[]) {

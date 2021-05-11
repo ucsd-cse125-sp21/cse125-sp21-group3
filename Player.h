@@ -1,5 +1,9 @@
 #pragma once
 
+
+#ifndef PLAYER_H
+#define PLAYER_H
+
 #include "main.h"
 #include "Camera.h"
 #include "BoundingBox.h"
@@ -7,6 +11,7 @@
 #include <deque>
 #include "Maze.h"
 #include "Model.h"
+#include <irrklang.h>
 
 /*
  * File Name: Player.h
@@ -18,7 +23,8 @@
  */
 
 class Maze;
-
+class Camera;
+class Weapon;
 
 class Player {
 public:
@@ -141,3 +147,4 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+#endif

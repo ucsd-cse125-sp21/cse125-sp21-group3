@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef BOUNDINGBOX_H
+#define BOUNDINGBOX_H
+
 #include "core.h"
 
 class Cube;
@@ -76,3 +79,4 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+#endif

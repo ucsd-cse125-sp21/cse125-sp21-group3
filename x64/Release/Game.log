@@ -1,2 +1,0 @@
-﻿D:\Microsoft Visual Studio\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(519,5): warning MSB8028: The intermediate directory (x64\Release\) contains files shared from another project (Game2.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  Game.vcxproj -> C:\Programs\CSE 125\cse125-sp21-group3-Graphics\x64\Release\Game.exe

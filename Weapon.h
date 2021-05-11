@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef WEAPON_H
+#define WEAPON_H
+
 #include "main.h"
 #include<vector>
 #include <glm/glm.hpp>
@@ -20,3 +23,5 @@ class Weapon {
 
 		bool reloading = false;
 };
+
+#endif
