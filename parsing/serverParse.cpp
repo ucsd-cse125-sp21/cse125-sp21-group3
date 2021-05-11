@@ -1,4 +1,168 @@
-#include "serverParse.h"
+#include <iostream>
+#include <cstdlib>
+#include <boost/asio.hpp>
+#include <boost/algorithm/string.hpp>
+#include <unordered_map>
+#include <queue>
+
+using namespace std;
+using namespace boost::asio;
+using ip::tcp;
+
+/*
+ * Example messages for server parsing.  It assumes the MESSAGE_TAIL has already
+ * been removed by a read_until method.
+ */
+const string JOIN_MESSAGE = "join";
+const string LEAVE_MESSAGE = "leave,0";
+const string INPUT_MESSAGE = "input,1,true,false,false,false,true,false,300.58,false";
+
+/*
+ * Store information about the client including the most recent input message
+ * data.
+ */
+class Client{
+
+    public:
+        double positionX = 0;
+        double positionY = 0;
+        int health = 100;
+
+        int keyDirection;
+        int moving = 0;
+        bool isCrouching = false;
+        bool isSprinting = false;
+        double playerDirection;
+        bool isFiring = false;
+
+        string unsentMazeUpdates = "";
+
+        /*
+         * Must somehow maintain connection with client.  Server still needs to
+         * send player, maze, and start messages to client before regular
+         * messagin begins.
+         * 
+         * Socket might not be the right thing to store here, but whatever is
+         * needed to send the initial player and star messages should be.
+         */
+        //tcp::socket & clientSocket;
+
+        Client()
+        {
+        }
+
+        /*
+         * This constructor is to be used in joinMessageHandler.
+         */
+        /*
+        Client(tcp::socket & clientSocket)
+        {
+            this->clientSocket = clientSocket;
+        }
+        */
+
+        double getX()
+        {
+            return positionX;
+        }
+
+        double getY()
+        {
+            return positionY;
+        }
+
+        int getHealth()
+        {
+            return health;
+        }
+
+        /*
+         * Return the stringified payload for player_message.
+         */
+        string getPayloadString() {
+            return "," + to_string(positionX) + "," + to_string(positionY) 
+                + "," + to_string(health) + "," + to_string(this->moving);
+        }
+
+        /*
+         * Return maze updates for this Client.  Clear unsent maze update
+         * list.
+         */
+        string getMazeUpdates(){
+            string mazeUpdates = unsentMazeUpdates;
+            unsentMazeUpdates = "";
+            return mazeUpdates;
+        }
+
+        void setKeyDirection(vector<string> keyInputVector)
+        {
+            if (keyInputVector.at(3).compare("true") == 0) {
+                this->moving = -1;
+            }
+            else if (keyInputVector.at(0).compare("true") == 0 || keyInputVector.at(1).compare("true") == 0 || keyInputVector.at(2).compare("true") == 0) {
+                this->moving = 1;
+            }
+            else {
+                this->moving = 0;
+            }
+        
+            keyDirection = 0;
+        }
+
+        void setIsCrouching(bool isCrouching)
+        {
+            this->isCrouching = isCrouching;
+        }
+
+        void setIsSprinting(bool isSprinting)
+        {
+            this->isSprinting = isSprinting;
+        }
+
+        void setPlayerDirection(double playerDirection)
+        {
+            this->playerDirection = playerDirection;
+        }
+
+        void setIsFiring(bool isFiring) {
+            this->isFiring = isFiring;
+        }
+
+        void setX(double positionX)
+        {
+            this->positionX = positionX;
+        }
+
+        void setY(double positionY)
+        {
+            this->positionY = positionY;
+        }
+
+        void setHealth(int health)
+        {
+            this->health = health;
+        }
+
+        void addMazeUpdate(string mazeUpdate){
+            unsentMazeUpdates += mazeUpdate;
+        }
+};
+
+/*
+ * Field variables.
+ */
+const string MESSAGE_TAIL = "\r\n"; // Attatched to the end of every message.
+unordered_map<string,Client> idClientMap;  // Map unique userId's with each client.
+int userIdCount = 0; // Incrementing counter that assigns new userId's
+
+
+/*
+ * Mazes are represented by a 2D-Array.  A hidden wall is represented by 0.  A
+ * east-west wall is represented by a 1.  A north-south wall is represented by
+ * a 2.
+ */
+const int MAZE_SIZE = 4; // Height and width of maze.
+int mazeArr[MAZE_SIZE][MAZE_SIZE];
 
 /*
  * Update the 2D-Array representation of the array.  Once abilities are added,
@@ -6,7 +170,7 @@
  * 
  * Add update message
  */
-void serverParse::updateMaze(int row, int col, int wallState) {
+void updateMaze(int row, int col, int wallState) {
     mazeArr[row][col] = wallState;
     string mazeUpdate = "," + to_string(row) + "," + to_string(col) + "," + to_string(wallState);
     for (auto it = idClientMap.begin(); it != idClientMap.end(); ++it) {
@@ -17,16 +181,15 @@ void serverParse::updateMaze(int row, int col, int wallState) {
 /*
  * Create new entry in idClientMap
  */
-void serverParse::joinMessageHandler(){
-    idClientMap[to_string(userIdCount)] = Client();
-    cout << "New User Id:" << userIdCount << endl;
+void joinMessageHandler(){
+    idClientMap[to_string(userIdCount-1)] = Client();
     //userIdCount++;
 }
 
 /*
  * Remove entry from idClientMap
  */
-void serverParse::leaveMessageHandler(string clientId){
+void leaveMessageHandler(string clientId){
     idClientMap.erase(clientId);
     cout << "Removed User Id:" << clientId << endl;
 }
@@ -34,9 +197,19 @@ void serverParse::leaveMessageHandler(string clientId){
 /*
  * Store data from input message in the approriate idClientMap entry.
  */
-void serverParse::inputMessageHandler(vector<string> messageValues){
-    string clientId = messageValues.at(1);
-    vector<string> keyInputVector(&messageValues[2],&messageValues[6]);
+void inputMessageHandler(vector<string> messageValues){
+
+    string clientId;
+
+    //making sure clientId only contains valid char values
+    for (char c : messageValues.at(1)) {
+        int val = (int)c;
+        if (val >= 48 && val <= 57) {
+            clientId += c;
+        }
+    }
+
+    vector<string> keyInputVector = { messageValues[2], messageValues[3], messageValues[4], messageValues[5], messageValues[6], messageValues[7] };
     idClientMap[clientId].setKeyDirection(keyInputVector);
     idClientMap[clientId].setIsCrouching(messageValues.at(6)=="true");
     idClientMap[clientId].setIsSprinting(messageValues.at(7)=="true");
@@ -49,7 +222,7 @@ void serverParse::inputMessageHandler(vector<string> messageValues){
  * relevant.  Assume the MESSAGE_TAIL has already been removed by a
  * read_until method.
  */
-void serverParse::sortClientMessage(string clientMessage) {
+void sortClientMessage(string clientMessage) {
     vector<string> messageValues;
     boost::split(messageValues, clientMessage, boost::is_any_of(","));
     string header = messageValues.front();
@@ -71,14 +244,15 @@ void serverParse::sortClientMessage(string clientMessage) {
 /*
  * Return the join response string.
  */
-string serverParse::buildJoinResponse(string clientId) {
+string buildJoinResponse(string clientId) {
     return "joinResponse," + clientId + MESSAGE_TAIL;
 }
 
 /*
  * Return the player message string.
  */
-string serverParse::buildPlayerMessage(string clientId) {
+string buildPlayerMessage(string clientId) {
+
     return "player," + clientId + idClientMap[clientId].getPayloadString() 
         + MESSAGE_TAIL;
 }
@@ -86,14 +260,14 @@ string serverParse::buildPlayerMessage(string clientId) {
 /*
  * Return the build message string.
  */
-string serverParse::buildStartMessage() {
+string buildStartMessage() {
     return "start" + MESSAGE_TAIL;
 }
 
 /*
  * Return the initial maze message sent before the game.
  */
-string serverParse::buildMazeInitialMessage() {
+string buildMazeInitialMessage() {
     string message = "mazeInitial," + to_string(MAZE_SIZE);
     for (int i = 0; i < MAZE_SIZE; i++) {
         for (int j = 0; j < MAZE_SIZE; j++) {
@@ -107,14 +281,14 @@ string serverParse::buildMazeInitialMessage() {
  * Return the update maze message sent during the game after updates to the
  * maze for the passed client.
  */
-string serverParse::buildMazeUpdateMessage(string clientId) {
+string buildMazeUpdateMessage(string clientId) {
     return "mazeUpdate" + idClientMap[clientId].getMazeUpdates() + MESSAGE_TAIL;
 }
 
 /*
  * Method to display 2D array in string form.  Only for verifying methods.
  */
-void serverParse::printArray() {
+void printArray() {
 
     for (int i = 0; i < MAZE_SIZE; i++) {
         string row = "";
@@ -123,6 +297,11 @@ void serverParse::printArray() {
         }
         cout << row << endl;
     }
+}
+
+void printMoving(string id) {
+
+    cout << "printMoving: " << idClientMap[id].moving << endl;
 }
 
 // int main(int argc, char* argv[]) {

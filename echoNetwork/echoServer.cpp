@@ -2,8 +2,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <../util/ts_queue.cpp>
-#include <../parsing/serverParse.h>
+#include "../util/ts_queue.cpp"
+#include "../parsing/serverParse.cpp"
 
 #define MAX_CONNECTIONS 4
 #define PERIOD 500 //server period in ms
@@ -23,16 +23,12 @@ private:
     std::string input_str;
     ThreadSafeQueue<std::string> input_buffer;
 
-    serverParse* serverParser;
-
 public:
     int pid;
     string pid_str; //for parser
 
     typedef boost::shared_ptr<con_handler> pointer;
-    con_handler(boost::asio::io_service& io_service, int pid, std::string pid_str) : sock(io_service), pid(pid), pid_str(pid_str) {
-        serverParser = new serverParse();
-    }
+    con_handler(boost::asio::io_service& io_service, int pid, std::string pid_str) : sock(io_service), pid(pid), pid_str(pid_str) {}
     // creating the pointer
     static pointer create(boost::asio::io_service& io_service, int pid)
     {
@@ -108,7 +104,7 @@ public:
     void handle_send_join(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (!err) {
-           serverParser -> joinMessageHandler();
+           joinMessageHandler();
            start();
         } else {
             std::cerr << "error: " << err.message() << endl;
@@ -136,7 +132,8 @@ public:
      */
 
     void send_join_message(){
-        std::string join_msg = serverParser -> buildJoinResponse(to_string(serverParser -> userIdCount));
+    
+        std::string join_msg = buildJoinResponse(to_string(userIdCount-1));
 
         sock.async_write_some(
                 boost::asio::buffer(join_msg, join_msg.size()),
@@ -164,13 +161,11 @@ private:
     tcp::acceptor acceptor_;
     int counter;
     con_handler::pointer playerConnections[MAX_CONNECTIONS];
-
-    serverParse* serverParser;
     
     void start_accept()
     {
         // socket
-        con_handler::pointer connection = con_handler::create(io_service_, serverParser -> userIdCount);
+        con_handler::pointer connection = con_handler::create(io_service_, userIdCount);
 
         // asynchronous accept operation and wait for a new connection.
         acceptor_.async_accept(connection->socket(),
@@ -181,15 +176,13 @@ public:
     //constructor for accepting connection from client
     Server(boost::asio::io_service& io_service) : io_service_(io_service),
         acceptor_(io_service_, tcp::endpoint(tcp::v4(), 1234)) {
-        serverParser = new serverParse();
         counter = 0;
         start_accept();
-
     }
     void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
     {
         if (!err) {
-            playerConnections[serverParser -> userIdCount++] = connection;
+            playerConnections[userIdCount++] = connection;
             connection -> send_join_message();
         }
         start_accept();
@@ -202,7 +195,7 @@ public:
     void broadcast(std::string msg)
     {
         int x;
-        for(x = 0; x < serverParser -> userIdCount; x++)
+        for(x = 0; x < userIdCount; x++)
             playerConnections[x] -> send_game_state(msg);
     }
 
@@ -215,22 +208,23 @@ public:
     void handle_timeout(){
         while(1){
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
-            if(serverParser -> userIdCount > 0){
+            if(userIdCount > 0){
 
                 //first handle incoming messages, if there are any
                 int bufIndex;
-                for(bufIndex = 0; bufIndex < serverParser -> userIdCount; bufIndex++){
+                for(bufIndex = 0; bufIndex < userIdCount; bufIndex++){
                     std::string nextMessage = playerConnections[bufIndex] -> dequeue();
+                    //cout << "calling sort for playerConnection: " << bufIndex << endl;
                     if(!nextMessage.empty())
-                        serverParser -> sortClientMessage(nextMessage);
-
+                        sortClientMessage(nextMessage);
                 }
-                //then broadcast the game_state
-                for(int p = 0; p < serverParser -> userIdCount; p++){
-                    cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p] -> pid_str) + "\n";
-                    std::string playerStateString = serverParser -> buildPlayerMessage(playerConnections[p] -> pid_str);
-                    broadcast(playerStateString);
 
+                //printMoving(playerConnections[0]->pid_str);
+                //then broadcast the game_state
+                for(int p = 0; p < userIdCount; p++){
+                    cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p] -> pid_str) + "\n";
+                    std::string playerStateString = buildPlayerMessage(playerConnections[p] -> pid_str);
+                    broadcast(playerStateString);
                 }
 
             }
@@ -243,7 +237,6 @@ public:
 
 int main(int argc, char* argv[])
 {
-    std::cout << "Starting server" << std::endl;
     try
     {
         
@@ -254,9 +247,8 @@ int main(int argc, char* argv[])
         boost::asio::io_service::work idleWork(io_service);
         std::thread io_thread = std::thread([&]() {io_service.run();});
         std::thread timer_thread = std::thread([&]() {server.handle_timeout();});
-
-        std::cout << "Starting loop" << std::endl;
         while(1){
+            
         }
     }
     catch (std::exception& e)
