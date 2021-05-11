@@ -35,7 +35,7 @@ void clientParse::playerMessageHandler(vector<string> messageValues) {
     
     int clientId = stoi(selfId);
     int user = stoi(userId);
-    if (user != clientId && clientId == 0) { //if we are receiving a message about an opponent
+    if (user != clientId) { //if we are receiving a message about an opponent
         int moving = stoi(messageValues.at(5));
         //TODO update with position and direction instead of hardcoded values
         Window::updateOpponent(user, glm::vec3(3.0f, 3.5f, 3.0f), glm::vec3(0.0f, 3.5, 0.0f - 3.0f), moving);
