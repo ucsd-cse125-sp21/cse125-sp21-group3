@@ -20,11 +20,13 @@
  * @return Player object
  * @author Lucas Hwang
  */
-Player::Player(glm::vec3 _position, Maze* mz) {
+Player::Player(glm::vec3 _position, Maze* mz, bool client) {
     
     position = _position;
 
     lastFootPrintPos = _position;
+
+    isClient = client;
 
     prevPosition = position;
     height = 4.0f;
@@ -32,7 +34,7 @@ Player::Player(glm::vec3 _position, Maze* mz) {
     //std::cout << "position.y: " << position.y << std::endl;
     //std::cout << "player min at start: " << (position.y - height * 0.75f) << std::endl;
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.875f, position.z - width * 0.5f),
-        glm::vec3(position.x + width * 0.5f, position.y + height * 0.125f, position.z + width * 0.5f), this);
+        glm::vec3(position.x + width * 0.5f, position.y + height * 0.125f, position.z + width * 0.5f), this, isClient);
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     speed = 3.5f;
     playerWeapon = new Weapon();
@@ -72,7 +74,7 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
     if (glm::distance(lastFootPrintPos, footprintPos) > 5.0f) {
         irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
         irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
-        Cube* footprint = new Cube(footprintPos - glm::vec3(1.0f, footprintPos.y, 0.5f), footprintPos - glm::vec3(0.0f, footprintPos.y - 0.01f, 0.0f));
+        Cube* footprint = new Cube(footprintPos - glm::vec3(1.0f, footprintPos.y, 0.5f), footprintPos - glm::vec3(0.0f, footprintPos.y - 0.01f, 0.0f), Cube::border, isClient);
         footprint->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         if (this->footprints.size() > 10) {
             this->footprints.pop_front();
@@ -121,7 +123,7 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
                 
                 BoundingBox* prevBoundingBox = new BoundingBox(
                     glm::vec3(prevPosition.x - width * 0.5f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.5f),
-                    glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + height * 0.25f, prevPosition.z + width * 0.5f), this);
+                    glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + height * 0.25f, prevPosition.z + width * 0.5f), this, isClient);
                 handleCollision(prevBoundingBox, b);
                 boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
                     glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));

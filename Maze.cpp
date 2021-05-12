@@ -1,7 +1,7 @@
 #include "Maze.h"
 
 // Iniitalize maze
-Maze::Maze(int size, int scale)
+Maze::Maze(int size, int scale, bool client)
 {
 	mazeSize = size;
 	mazeArray = new wallInfo*[mazeSize];
@@ -23,6 +23,8 @@ Maze::Maze(int size, int scale)
 	mapScale = scale;
 	wallWidth = 0.1f;
 	wallHeight = 5.0f;
+
+	isClient = client;
 
 	// Set seed for random creation for testing purposes
 	//srand(0);
@@ -46,7 +48,7 @@ Maze::~Maze()
 Cube * Maze::generateGround()
 {
 	//ground = new Cube(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), Cube::border);
-	ground = new Cube(glm::vec3(0, -1.0f, 0.0f), glm::vec3((mazeSize - 1) * mapScale, 0.0f, (mazeSize - 1) * mapScale), Cube::border);
+	ground = new Cube(glm::vec3(0, -1.0f, 0.0f), glm::vec3((mazeSize - 1) * mapScale, 0.0f, (mazeSize - 1) * mapScale), Cube::border, isClient);
 	ground->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
 	glm::mat4 groundModel = ground->getModel();
 	//groundModel = glm::translate(groundModel, glm::vec3(0.0f, -1.0f, 0.0f));
@@ -97,7 +99,7 @@ std::vector<Cube*> Maze::generateAbilityChests()
 		{
 			if (mazeArray[r][c].ability != Player::none)
 			{
-				Cube* chest = new Cube(glm::vec3(r * mapScale + wallWidth, 0.0f, c * mapScale + wallWidth), glm::vec3((r + 0.5) * mapScale, wallHeight/2, (c + 0.5) * mapScale), Cube::abilityChest);
+				Cube* chest = new Cube(glm::vec3(r * mapScale + wallWidth, 0.0f, c * mapScale + wallWidth), glm::vec3((r + 0.5) * mapScale, wallHeight/2, (c + 0.5) * mapScale), Cube::abilityChest, isClient);
 				chest->setColor(glm::vec3(0.2f, 0.5f, 0.9f));
 				abilityChests.push_back(chest);
 				boundingBoxList.push_back(chest->getBoundingBox());
@@ -154,7 +156,7 @@ std::vector<Cube*> Maze::generateWalls()
 				{
 					canDelete = Cube::border;
 				}
-				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3(r * mapScale + wallWidth, wallHeight, (c + 1) * mapScale + wallWidth), canDelete);
+				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3(r * mapScale + wallWidth, wallHeight, (c + 1) * mapScale + wallWidth), canDelete, isClient);
 				walls.push_back(newWall);
 				boundingBoxList.push_back(newWall->getBoundingBox());
 			}
@@ -164,7 +166,7 @@ std::vector<Cube*> Maze::generateWalls()
 				{
 					canDelete = Cube::border;
 				}
-				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3((r + 1) * mapScale, wallHeight, c * mapScale + wallWidth), canDelete);
+				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3((r + 1) * mapScale, wallHeight, c * mapScale + wallWidth), canDelete, isClient);
 				walls.push_back(newWall);
 				boundingBoxList.push_back(newWall->getBoundingBox());
 			}

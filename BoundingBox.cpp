@@ -20,7 +20,7 @@
  * @return Player object
  * @author Lucas Hwang
  */
-BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube * parentObj) {
+BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube * parentObj, bool client) {
 
 	min = boxMin;
 	max = boxMax;
@@ -29,6 +29,8 @@ BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube * parentObj) {
 	color = glm::vec3(0.0f, 1.0f, 0.0f);
 	model = glm::mat4(1.0f);
 
+	isClient = client;
+
 	// Specify vertex positions
 	positions = {
 		// Front
@@ -117,37 +119,41 @@ BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube * parentObj) {
 		20,21,22,	20,22,23,		// Right
 	};
 
-	// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO_positions);
-	glGenBuffers(1, &VBO_normals);
+	if (isClient)
+	{
 
-	// Bind to the VAO.
-	glBindVertexArray(VAO);
+		// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO_positions);
+		glGenBuffers(1, &VBO_normals);
 
-	// Bind to the first VBO - We will use it to store the vertices
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * positions.size(), positions.data(), GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+		// Bind to the VAO.
+		glBindVertexArray(VAO);
 
-	// Bind to the second VBO - We will use it to store the normals
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_normals);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(), GL_STATIC_DRAW);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+		// Bind to the first VBO - We will use it to store the vertices
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * positions.size(), positions.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
 
-	// Generate EBO, bind the EBO to the bound VAO and send the data
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+		// Bind to the second VBO - We will use it to store the normals
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_normals);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
 
-	// Unbind the VBOs.
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+		// Generate EBO, bind the EBO to the bound VAO and send the data
+		glGenBuffers(1, &EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+
+		// Unbind the VBOs.
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
 }
 
-BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj) {
+BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj, bool client){
 
 	min = boxMin;
 	max = boxMax;
@@ -156,6 +162,8 @@ BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj) 
 	color = glm::vec3(0.0f, 1.0f, 0.0f);
 	model = glm::mat4(1.0f);
 
+	isClient = client;
+
 	// Specify vertex positions
 	positions = {
 		// Front
@@ -244,35 +252,37 @@ BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj) 
 		20,21,22,	20,22,23,		// Right
 	};
 
+	if (isClient)
+	{
+		// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO_positions);
+		glGenBuffers(1, &VBO_normals);
 
-	// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO_positions);
-	glGenBuffers(1, &VBO_normals);
+		// Bind to the VAO.
+		glBindVertexArray(VAO);
 
-	// Bind to the VAO.
-	glBindVertexArray(VAO);
+		// Bind to the first VBO - We will use it to store the vertices
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * positions.size(), positions.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
 
-	// Bind to the first VBO - We will use it to store the vertices
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * positions.size(), positions.data(), GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+		// Bind to the second VBO - We will use it to store the normals
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_normals);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
 
-	// Bind to the second VBO - We will use it to store the normals
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_normals);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * normals.size(), normals.data(), GL_STATIC_DRAW);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+		// Generate EBO, bind the EBO to the bound VAO and send the data
+		glGenBuffers(1, &EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
-	// Generate EBO, bind the EBO to the bound VAO and send the data
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
-
-	// Unbind the VBOs.
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+		// Unbind the VBOs.
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
 }
 
 
@@ -298,25 +308,29 @@ bool BoundingBox::checkCollision(BoundingBox* b) {
 
 void BoundingBox::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
-	// activate the shader program 
-	glUseProgram(shader);
+	if (isClient)
+	{
 
-	// get the locations and send the uniforms to the shader 
-	glUniformMatrix4fv(glGetUniformLocation(shader, "viewProj"), 1, false, (float*)&viewProjMtx);
-	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
-	glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
+		// activate the shader program 
+		glUseProgram(shader);
 
-	// Bind the VAO
-	glBindVertexArray(VAO);
+		// get the locations and send the uniforms to the shader 
+		glUniformMatrix4fv(glGetUniformLocation(shader, "viewProj"), 1, false, (float*)&viewProjMtx);
+		glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, (float*)&model);
+		glUniform3fv(glGetUniformLocation(shader, "DiffuseColor"), 1, &color[0]);
 
-	// draw the points using triangles, indexed with the EBO
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		// Bind the VAO
+		glBindVertexArray(VAO);
 
-	// Unbind the VAO and shader program
-	glBindVertexArray(0);
-	glUseProgram(0);
+		// draw the points using triangles, indexed with the EBO
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		// Unbind the VAO and shader program
+		glBindVertexArray(0);
+		glUseProgram(0);
+	}
 }
 
 void BoundingBox::update(glm::vec3 _min, glm::vec3 _max) {
@@ -363,8 +377,11 @@ void BoundingBox::update(glm::vec3 _min, glm::vec3 _max) {
 		glm::vec3(max.x,max.y,max.z)
 	};
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
-	glBufferSubData(GL_ARRAY_BUFFER, 0.0f, sizeof(glm::vec3) * positions.size(), positions.data());
+	if (isClient)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_positions);
+		glBufferSubData(GL_ARRAY_BUFFER, 0.0f, sizeof(glm::vec3) * positions.size(), positions.data());
+	}
 }
 
 

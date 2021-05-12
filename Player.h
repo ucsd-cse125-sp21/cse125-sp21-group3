@@ -31,7 +31,7 @@ class Weapon;
 
 class Player {
 public:
-	Player(glm::vec3 _position, Maze* mz);
+	Player(glm::vec3 _position, Maze* mz, bool isClient=true);
 
 	void applyForce(glm::vec3 f) { forceNet += f; }
 	void computeForces();
@@ -156,6 +156,8 @@ private:
 	int currentAbility;
 
 	Maze* maze;
+	
+	bool isClient;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

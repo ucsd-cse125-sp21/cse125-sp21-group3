@@ -20,8 +20,8 @@ class Player;
 class BoundingBox {
 public:
 	
-	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube* parentObj);
-	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj);
+	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube* parentObj, bool client = true);
+	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj, bool client = true);
 
 	glm::vec3 getMin() { return min; }
 	glm::vec3 getMax() { return max; }
@@ -76,6 +76,8 @@ private:
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
 	std::vector<unsigned int> indices;
+
+	bool isClient;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

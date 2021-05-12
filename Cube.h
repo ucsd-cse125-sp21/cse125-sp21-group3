@@ -32,12 +32,13 @@ private:
 	BoundingBox* boundingBox;
 
 	bool direction; // 1 if bottom, 0 if right
-	int type;
+	int cubeType;
 	bool canDelete;
+	bool isClient;
 
 
 public:
-	Cube(glm::vec3 cubeMin = glm::vec3(-1, -1, -1), glm::vec3 cubeMax = glm::vec3(1, 1, 1), int deletable=border);
+	Cube(glm::vec3 cubeMin = glm::vec3(-1, -1, -1), glm::vec3 cubeMax = glm::vec3(1, 1, 1), int type=border, bool client=true);
 	~Cube();
 
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);
@@ -51,7 +52,7 @@ public:
 	glm::vec3 getMazePosition() { return mazePosition; }
 
 	bool getDirection() { return direction; }
-	int getType() { return type; }
+	int getType() { return cubeType; }
 
 	bool isDeletable() { return canDelete; }
 

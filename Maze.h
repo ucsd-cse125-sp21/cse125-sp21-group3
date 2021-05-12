@@ -19,7 +19,7 @@ struct wallInfo {
 class Maze {
 public:
 
-	Maze(int size, int scale);
+	Maze(int size, int scale, bool client=true);
 	~Maze();
 
 	Cube* generateGround();
@@ -77,6 +77,8 @@ private:
 
 	float wallWidth;
 	float wallHeight;
+
+	bool isClient;
 
 };
 
