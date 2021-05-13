@@ -154,7 +154,7 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
 void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, Game* game) {
 
     //cout << "updating: " << id << endl;
-    if (!isClient) {
+    if (!isClient) { //update stuff for not client side player instances
         switch (state)
         {
         case crouch:
@@ -215,7 +215,7 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
             prevPosition = position;
         }
     }
-    else {
+    else { //update stuff for all client players including opponents
         if (moving == 1) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
         }
@@ -223,12 +223,13 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
         }
 
-        oldPitch = playerCamera->getPitch();
-        playerCamera->setPosition(position);
+        if (game->myPlayerId == id) { //only update camera for client
+            oldPitch = playerCamera->getPitch();
+            playerCamera->setPosition(position);
 
-        //update player camera
-        playerCamera->Update();
-
+            //update player camera
+            playerCamera->Update();
+        }
         //update player and player gun model
         playerModel->update();
         playerGunModel->update();

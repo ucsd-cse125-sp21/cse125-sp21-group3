@@ -318,8 +318,10 @@ void Window::idleCallback(Game* game)
 		player->moveDirection(player->up);
 	}
 
-	//only update client player all other player updates will be taken care of by server	
-	player->update(0.01f, boundingBoxList, game);
+	//update all players in the game	
+	for (int i = 0; i < game->allPlayers.size(); i++) {
+		game->allPlayers.at(i)->update(0.01f, boundingBoxList, game);
+	}
 
 	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
 	//gun->playAnimation(gun->animationClipList.at(0), 0.05f, false);
