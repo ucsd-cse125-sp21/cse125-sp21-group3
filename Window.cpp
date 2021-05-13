@@ -333,6 +333,12 @@ void Window::idleCallback(Game* game)
 	if (Window::createOpponent != -1) {
 		cout << "creating player: " << Window::createOpponent << endl;
 		Player* p = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, true);
+
+		//changing position for testing purposes
+		p->getPlayerModel()->rootModel[3][2] -= 5.0f;
+		p->getPlayerGunModel()->rootModel[3][2] -= 5.0f;
+		////////////////////////////////////////
+
 		p->setId(Window::createOpponent);
 		game->allPlayers.push_back(p);
 		cout << "added player successfully" << endl;

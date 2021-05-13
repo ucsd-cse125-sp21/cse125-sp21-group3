@@ -124,6 +124,11 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             if (createPlayer) {
                 Window::createOpponent = userId;
             }
+
+            if (game->myPlayerId != userId && userId < game->allPlayers.size() && game->allPlayers.at(userId) != NULL) {
+                game->allPlayers.at(userId)->setMoving(stoi(messageValues.at(2)));
+            }
+
             int x = stoi(*(it + 2));
             int y = stoi(*(it + 3));
             int health = stoi(*(it + 4));
