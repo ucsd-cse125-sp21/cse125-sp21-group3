@@ -122,9 +122,10 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                 }
             }            
             if (createPlayer) {
-                Window::createOpponent = userId;
+                Window::createOpponent = userId; //set flag to create new player (opponent)
             }
 
+            //must check that player has already been created before updating fields
             if (game->myPlayerId != userId && userId < game->allPlayers.size() && game->allPlayers.at(userId) != NULL) {
                 game->allPlayers.at(userId)->setMoving(stoi(messageValues.at(2)));
             }

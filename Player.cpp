@@ -234,7 +234,12 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
         playerModel->update();
         playerGunModel->update();
 
-        playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
+        if (hasFired) {
+            if (playerGunModel->animationClipList.at(0)->prevTime + 0.2f > playerGunModel->animationClipList.at(0)->duration) {
+                hasFired = false;
+            }
+            playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
+        }
     }
 }
 
