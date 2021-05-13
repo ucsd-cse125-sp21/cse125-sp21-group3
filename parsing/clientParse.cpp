@@ -128,10 +128,20 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             //since allPlayers[i] does not necessarily equal player i, we must search to find correct player
             for (int i = 0; i < game->allPlayers.size(); i++) {
                 if (userId == game->allPlayers.at(i)->getId()) {
-                    game->allPlayers.at(i)->setMoving(stoi(messageValues.at(2)));
-                    /*if (messageValues.at(6).compare("true") == 0) {
-                        game->allPlayers.at(i)->setIsFiring(true);
-                    }*/
+
+                    if (userId != game->myPlayerId) {
+                        game->allPlayers.at(i)->setMoving(stoi(messageValues.at(2)));
+                        string hasFired;
+                        for (int j = 0; j < messageValues.at(6).size(); j++) {
+                            int c = (int)messageValues.at(6).at(j);
+                            if (c >= (int)'a' && c <= (int)'z') {
+                                hasFired += messageValues.at(6).at(j);
+                            }
+                        }
+                        if (hasFired.compare("true") == 0) {
+                            game->allPlayers.at(i)->setIsFiring(true);
+                        }
+                    }
                     break;
                 }
             }

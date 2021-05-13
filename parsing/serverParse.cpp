@@ -58,7 +58,7 @@ void serverParse::inputMessageHandler(Game* game, vector<string> messageValues){
         cout << "invalid clientId in inputMessageHandler: " << clientId << endl;
         return;
     }
-    Player* player;
+    Player* player = NULL;
     for (int i = 0; i < game->allPlayers.size(); i++) {
         if (clientId == game->allPlayers.at(i)->getId()) {
             player = game->allPlayers.at(i);
@@ -70,9 +70,21 @@ void serverParse::inputMessageHandler(Game* game, vector<string> messageValues){
         return;
     }
 
+    
     player->setMoving(stoi(messageValues.at(2)));
     player->setLookingDirection(glm::vec3(stof(messageValues.at(3)), stof(messageValues.at(4)), stof(messageValues.at(5))));
-
+    string hasFired;
+    for (int i = 0; i < messageValues.at(6).size(); i++) {
+        int c = (int)messageValues.at(6).at(i);
+        if (c >= (int)'a' && c <= (int)'z') {
+            hasFired += messageValues.at(6).at(i);
+        }
+    }
+    if (hasFired.compare("true") == 0) {
+        cout << "setting hasFired to true for player " << clientId << endl;
+        player->setHasFired(true);
+    }
+ 
     //vector<string> keyInputVector = { messageValues[2], messageValues[3], messageValues[4], messageValues[5], messageValues[6], messageValues[7] };
     //idClientMap[clientId].setKeyDirection(keyInputVector);
     //idClientMap[clientId].setIsCrouching(messageValues.at(6)=="true");
@@ -87,6 +99,7 @@ void serverParse::inputMessageHandler(Game* game, vector<string> messageValues){
  * read_until method.
  */
 void serverParse::sortClientMessage(Game* game, string clientMessage) {
+    
     vector<string> messageValues;
     boost::split(messageValues, clientMessage, boost::is_any_of(","));
     string header = messageValues.front();
@@ -97,6 +110,7 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
         serverParse::leaveMessageHandler(messageValues.at(1));
     }
     else if (header=="input"){
+        cout << "received input message: " << clientMessage << endl;
         serverParse::inputMessageHandler(game, messageValues);
     }
     else {
@@ -129,6 +143,8 @@ string serverParse::buildPlayerMessage(Game* game, string clientId) {
     for (int i = 0; i < game->allPlayers.size(); i++) {
         if (game->allPlayers.at(i)->getId() == stoi(clientId)) {
             playerMessage = game->allPlayers.at(i)->getPlayerInfoString();
+            cout << "sending playerMessage: " << playerMessage << endl;
+            game->allPlayers.at(i)->setHasFired(false);
             break;
         }
     }

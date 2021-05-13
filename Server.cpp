@@ -252,8 +252,10 @@ public:
                 for (bufIndex = 0; bufIndex < serverParse::userIdCount; bufIndex++) {
                     std::string nextMessage = playerConnections[bufIndex]->dequeue();
                     //cout << "calling sort for playerConnection: " << bufIndex << endl;
-                    if (!nextMessage.empty())
+                    if (!nextMessage.empty()) {
+                        //cout << "enter sortClientMessage" << endl;
                         serverParse::sortClientMessage(game, nextMessage);
+                    }
 
                     //printMoving(playerConnections[0]->pid_str);
                     //then broadcast the game_state

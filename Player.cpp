@@ -511,8 +511,16 @@ string Player::getPlayerInputString() {
     string MESSAGE_TAIL = "\r\n";
     glm::vec3 direction = playerCamera->getCameraFront();
     playerInputString = "input," + to_string(id) + "," + to_string(moving) + "," +
-        to_string(direction.x) + "," + to_string(direction.y) + "," + 
-        to_string(direction.z) + MESSAGE_TAIL;
+        to_string(direction.x) + "," + to_string(direction.y) + "," +
+        to_string(direction.z) + ",";
+    if (hasFired) {
+        playerInputString += "true";
+    }
+    else {
+        playerInputString += "false";
+    }
+    hasFired = false;
+    playerInputString += MESSAGE_TAIL;
     //handle crouching
 
     //handle sprinting
@@ -528,8 +536,14 @@ string Player::getPlayerInfoString() {
 
     string MESSAGE_TAIL = "\r\n";
     playerInfoString = "player," + to_string(id) + "," + to_string(moving) + "," + to_string(lookingDirection.x) + "," +
-        to_string(lookingDirection.y) + "," + to_string(lookingDirection.z)
-        + MESSAGE_TAIL;
+        to_string(lookingDirection.y) + "," + to_string(lookingDirection.z) + ",";
+    if (hasFired) {
+        playerInfoString += "true";
+    }
+    else {
+        playerInfoString += "false";
+    }
+    playerInfoString += MESSAGE_TAIL;
 
     return playerInfoString;
 }
