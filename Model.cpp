@@ -140,7 +140,6 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
     animationClip->calculateBoneTransforms(time, root, animationRootModel);
     animationClip->applyBoneTransforms();
     animationClip->prevTime = time;
-   
 }
 
 void Model::rotateAnimation(float amount, glm::vec3 p) {

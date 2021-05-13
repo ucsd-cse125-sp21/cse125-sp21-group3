@@ -154,8 +154,9 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
 void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, Game* game) {
 
     //cout << "updating: " << id << endl;
-    switch (state)
-    {
+    if (!isClient) {
+        switch (state)
+        {
         case crouch:
             if (position.y >= 1.5f)
             {
@@ -180,61 +181,60 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
                 velocity *= 0.5f;
             }
             break;
-    }
-    if (glm::length(velocity) > 0.0f) {
-        position = position + velocity * deltaTime;
-        
-        //update player bounding box
-        boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-            glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
-    }
+        }
+        if (glm::length(velocity) > 0.0f) {
+            position = position + velocity * deltaTime;
 
-    if (boundingBox->getActive()) {
-        applyConstraints(maze -> getBoundingBox());
-    }
-    if (state != dead && state != still)
-    {
-        createFootPrint(position);
-    }
-    if (state != still)
-    {
-        //update player model position
-        glm::vec3 diff = position - prevPosition;
-        playerModel->rootModel[3][0] += diff.x;
-        playerModel->rootModel[3][1] += diff.y;
-        playerModel->rootModel[3][2] += diff.z;
-        playerGunModel->rootModel[3][0] += diff.x;
-        playerGunModel->rootModel[3][1] += diff.y;
-        playerGunModel->rootModel[3][2] += diff.z;
-        playerGunModel->animationRootModel[3][0] += diff.x;
-        playerGunModel->animationRootModel[3][1] += diff.y;
-        playerGunModel->animationRootModel[3][2] += diff.z;
-        playerGunModelCenter += diff;
-    
-        prevPosition = position;
-        if (game->myPlayerId == id) {
-            oldPitch = playerCamera->getPitch();
-            playerCamera->setPosition(position);
+            //update player bounding box
+            boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
+                glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+        }
+
+        if (boundingBox->getActive()) {
+            applyConstraints(maze->getBoundingBox());
+        }
+        if (state != dead && state != still)
+        {
+            createFootPrint(position);
+        }
+        if (state != still)
+        {
+            //update player model position
+            glm::vec3 diff = position - prevPosition;
+            playerModel->rootModel[3][0] += diff.x;
+            playerModel->rootModel[3][1] += diff.y;
+            playerModel->rootModel[3][2] += diff.z;
+            playerGunModel->rootModel[3][0] += diff.x;
+            playerGunModel->rootModel[3][1] += diff.y;
+            playerGunModel->rootModel[3][2] += diff.z;
+            playerGunModel->animationRootModel[3][0] += diff.x;
+            playerGunModel->animationRootModel[3][1] += diff.y;
+            playerGunModel->animationRootModel[3][2] += diff.z;
+            playerGunModelCenter += diff;
+
+            prevPosition = position;
         }
     }
+    else {
+        if (moving == 1) {
+            playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
+        }
+        if (moving == -1) {
+            playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
+        }
 
-    if (glm::length(velocity) > 0.0f && state != dead) {
-        playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, walkingBackward);
-    }
+        oldPitch = playerCamera->getPitch();
+        playerCamera->setPosition(position);
 
-    //update player camera
-    if (game->myPlayerId == id) {
+        //update player camera
         playerCamera->Update();
-    }
-   
-    //update player and player gun model
-    playerModel->update();
-    playerGunModel->update();
- 
-    //play gun animation if firing, this must occur after updating the playerGunModel
-    
+
+        //update player and player gun model
+        playerModel->update();
+        playerGunModel->update();
+
         playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
-    
+    }
 }
 
 /*
