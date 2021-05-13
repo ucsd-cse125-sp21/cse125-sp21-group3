@@ -120,7 +120,10 @@ public:
 	void setId(int i) { id = i; }
 	int getId() { return id; }
 	string getPlayerInputString();
+	string getPlayerInfoString();
 	void setMoving(int m) { moving = m; }
+	void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
+	glm::vec3 getLookingDirection() { return lookingDirection; }
 
 private:
 
@@ -168,6 +171,8 @@ private:
 	bool isClient;
 	int moving;
 	string playerInputString;
+	string playerInfoString;
+	glm::vec3 lookingDirection;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

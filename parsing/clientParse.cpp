@@ -97,14 +97,14 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     vector<string>::iterator it = messageValues.begin();
     while (it != messageValues.end())
     {
-
         if (*it == "joinResponse")
         {
             game->myPlayerId = stoi(messageValues.at(1));
         }
         else if (*it == "player")
         {
-            string userid = *(it + 1);
+            int userId = stoi(*(it + 1));
+            cout << "processing userId: " << userId << endl;
             int x = stoi(*(it + 2));
             int y = stoi(*(it + 3));
             int health = stoi(*(it + 4));

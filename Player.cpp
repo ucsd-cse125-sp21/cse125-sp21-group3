@@ -489,20 +489,33 @@ bool Player::seeMapAbility()
     return true;
 }
 
+//client side to pass to server
 string Player::getPlayerInputString() {
 
     string MESSAGE_TAIL = "\r\n";
-    playerInputString = "input," + to_string(id) + "," + to_string(moving) + MESSAGE_TAIL;
+    glm::vec3 direction = playerCamera->getCameraFront();
+    playerInputString = "input," + to_string(id) + "," + to_string(moving) + "," +
+        to_string(direction.x) + "," + to_string(direction.y) + "," + 
+        to_string(direction.z) + MESSAGE_TAIL;
     //handle crouching
 
     //handle sprinting
-
-    //handle direction
 
     //handle firing
 
         
     return playerInputString;
+}
+
+//server side to pass to client
+string Player::getPlayerInfoString() {
+
+    string MESSAGE_TAIL = "\r\n";
+    playerInfoString = "player," + to_string(id) + "," + to_string(lookingDirection.x) + "," +
+        to_string(lookingDirection.y) + "," + to_string(lookingDirection.z)
+        + MESSAGE_TAIL;
+
+    return playerInfoString;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

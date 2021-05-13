@@ -55,16 +55,17 @@ void serverParse::inputMessageHandler(Game* game, vector<string> messageValues){
     //}
     int clientId = stoi(messageValues.at(1));
     if (clientId >= game->allPlayers.size()) {
-        cout << "invalid clientId: " << clientId << endl;
+        cout << "invalid clientId in inputMessageHandler: " << clientId << endl;
         return;
     }
     Player* player = game->allPlayers.at(clientId);
     if (player == NULL) {
-        cout << "invalid player: " << clientId << endl;
+        cout << "invalid player in inputMessageHandler: " << clientId << endl;
         return;
     }
 
     player->setMoving(stoi(messageValues.at(2)));
+    player->setLookingDirection(glm::vec3(stof(messageValues.at(3)), stof(messageValues.at(4)), stof(messageValues.at(5))));
 
     //vector<string> keyInputVector = { messageValues[2], messageValues[3], messageValues[4], messageValues[5], messageValues[6], messageValues[7] };
     //idClientMap[clientId].setKeyDirection(keyInputVector);
@@ -108,11 +109,19 @@ string serverParse::buildJoinResponse(string clientId) {
 /*
  * Return the player message string.
  */
-string serverParse::buildPlayerMessage(string clientId) {
+string serverParse::buildPlayerMessage(Game* game, string clientId) {
 
-    //return "player," + clientId + idClientMap[clientId].getPayloadString() 
-    //    + MESSAGE_TAIL;
-    return "";
+    string playerMessage = "";
+    if (game == NULL) {
+        return playerMessage;
+    }
+    if (stoi(clientId) >= game->allPlayers.size()) {
+        cout << "invalid clientId in buildPlayerMessage: " << clientId << endl;
+        return playerMessage;
+    }
+    playerMessage = game->allPlayers.at(stoi(clientId))->getPlayerInfoString();
+    return playerMessage;
+    //return "";
 }
 
 /*

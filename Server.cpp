@@ -258,7 +258,7 @@ public:
                     //then broadcast the game_state
                     for (int p = 0; p < serverParse::userIdCount; p++) {
                         cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
-                        std::string playerStateString = serverParse::buildPlayerMessage(playerConnections[p]->pid_str);
+                        std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
                         broadcast(playerStateString);
                     }
 

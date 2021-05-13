@@ -176,7 +176,7 @@ public:
     static void inputMessageHandler(Game* game, vector<string> messageValues);
     static void sortClientMessage(Game* game, string clientMessage);
     static string buildJoinResponse(string clientId);
-    static string buildPlayerMessage(string clientId);
+    static string buildPlayerMessage(Game* game, string clientId);
     static string buildStartMessage();
     static string buildMazeInitialMessage();
     static string buildMazeUpdateMessage(string clientId);
