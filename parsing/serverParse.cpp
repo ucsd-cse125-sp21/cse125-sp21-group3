@@ -58,7 +58,13 @@ void serverParse::inputMessageHandler(Game* game, vector<string> messageValues){
         cout << "invalid clientId in inputMessageHandler: " << clientId << endl;
         return;
     }
-    Player* player = game->allPlayers.at(clientId);
+    Player* player;
+    for (int i = 0; i < game->allPlayers.size(); i++) {
+        if (clientId == game->allPlayers.at(i)->getId()) {
+            player = game->allPlayers.at(i);
+            break;
+        }
+    }
     if (player == NULL) {
         cout << "invalid player in inputMessageHandler: " << clientId << endl;
         return;
@@ -120,7 +126,13 @@ string serverParse::buildPlayerMessage(Game* game, string clientId) {
         return playerMessage;
     }
 
-    playerMessage = game->allPlayers.at(stoi(clientId))->getPlayerInfoString();
+    for (int i = 0; i < game->allPlayers.size(); i++) {
+        if (game->allPlayers.at(i)->getId() == stoi(clientId)) {
+            playerMessage = game->allPlayers.at(i)->getPlayerInfoString();
+            break;
+        }
+    }
+
     return playerMessage;
     //return "";
 }
