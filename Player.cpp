@@ -223,9 +223,9 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
     playerGunModel->update();
  
     //play gun animation if firing, this must occur after updating the playerGunModel
-    if (Window::hasFired) {
+    
         playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
-    }
+    
 }
 
 /*
