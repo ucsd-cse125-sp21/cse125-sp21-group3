@@ -42,7 +42,7 @@ void serverParse::leaveMessageHandler(string clientId){
 /*
  * Store data from input message in the approriate idClientMap entry.
  */
-void serverParse::inputMessageHandler(vector<string> messageValues){
+void serverParse::inputMessageHandler(Game* game, vector<string> messageValues){
 
     //string clientId;
 
@@ -53,6 +53,18 @@ void serverParse::inputMessageHandler(vector<string> messageValues){
     //        clientId += c;
     //    }
     //}
+    int clientId = stoi(messageValues.at(1));
+    if (clientId >= game->allPlayers.size()) {
+        cout << "invalid clientId: " << clientId << endl;
+        return;
+    }
+    Player* player = game->allPlayers.at(clientId);
+    if (player == NULL) {
+        cout << "invalid player: " << clientId << endl;
+        return;
+    }
+
+    player->setMoving(stoi(messageValues.at(2)));
 
     //vector<string> keyInputVector = { messageValues[2], messageValues[3], messageValues[4], messageValues[5], messageValues[6], messageValues[7] };
     //idClientMap[clientId].setKeyDirection(keyInputVector);
@@ -67,7 +79,7 @@ void serverParse::inputMessageHandler(vector<string> messageValues){
  * relevant.  Assume the MESSAGE_TAIL has already been removed by a
  * read_until method.
  */
-void serverParse::sortClientMessage(string clientMessage) {
+void serverParse::sortClientMessage(Game* game, string clientMessage) {
     vector<string> messageValues;
     boost::split(messageValues, clientMessage, boost::is_any_of(","));
     string header = messageValues.front();
@@ -78,7 +90,7 @@ void serverParse::sortClientMessage(string clientMessage) {
         serverParse::leaveMessageHandler(messageValues.at(1));
     }
     else if (header=="input"){
-        serverParse::inputMessageHandler(messageValues);
+        serverParse::inputMessageHandler(game, messageValues);
     }
     else {
         cout << clientMessage << endl;

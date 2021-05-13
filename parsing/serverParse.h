@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <unordered_map>
 #include <queue>
+#include "Game.h"
 
 using namespace std;
 using namespace boost::asio;
@@ -172,8 +173,8 @@ public:
     static void updateMaze(int row, int col, int wallState);
     static void joinMessageHandler();
     static void leaveMessageHandler(string clientId);
-    static void inputMessageHandler(vector<string> messageValues);
-    static void sortClientMessage(string clientMessage);
+    static void inputMessageHandler(Game* game, vector<string> messageValues);
+    static void sortClientMessage(Game* game, string clientMessage);
     static string buildJoinResponse(string clientId);
     static string buildPlayerMessage(string clientId);
     static string buildStartMessage();

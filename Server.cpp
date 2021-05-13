@@ -221,7 +221,7 @@ public:
         {
             begin_game();
         }
-        //game->allPlayers.push_back(new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, false));
+        game->allPlayers.push_back(new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, false));
     }
 
     /*
@@ -252,7 +252,7 @@ public:
                     std::string nextMessage = playerConnections[bufIndex]->dequeue();
                     //cout << "calling sort for playerConnection: " << bufIndex << endl;
                     if (!nextMessage.empty())
-                        serverParse::sortClientMessage(nextMessage);
+                        serverParse::sortClientMessage(game, nextMessage);
 
                     //printMoving(playerConnections[0]->pid_str);
                     //then broadcast the game_state
