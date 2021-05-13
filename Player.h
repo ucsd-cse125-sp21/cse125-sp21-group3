@@ -28,6 +28,7 @@
 class Maze;
 class Camera;
 class Weapon;
+class Game;
 
 class Player {
 public:
@@ -37,7 +38,7 @@ public:
 	void computeForces();
 	void integrate(float deltaTime);
 	void applyConstraints(std::vector<BoundingBox*> boundingBoxList);
-	void update(float deltaTime, std::vector<BoundingBox*> boundingBoxList);
+	void update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, Game* game);
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);
 	
 	// Access functions

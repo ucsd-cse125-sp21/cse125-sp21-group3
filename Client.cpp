@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
 
 
         // Idle callback. Updating objects, etc. can be done here.
-        Window::idleCallback();
+        Window::idleCallback(client.game);
     }
 
 

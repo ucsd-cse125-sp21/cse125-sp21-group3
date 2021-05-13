@@ -44,7 +44,7 @@ public:
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 
 	// update and draw functions
-	static void idleCallback();
+	static void idleCallback(Game* game);
 	static void displayCallback(GLFWwindow*);
 
 	// helper to reset the camera
@@ -59,6 +59,7 @@ public:
 	static bool debugMode;
 
 	//Networking Stuff
+	static int createOpponent;
 
 };
 

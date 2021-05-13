@@ -22,23 +22,26 @@
  */
 Player::Player(glm::vec3 _position, Maze* mz, bool client) {
     
+
     position = _position;
 
     lastFootPrintPos = _position;
 
     isClient = client;
-
+    
     prevPosition = position;
     height = 4.0f;
     width = 1.0f;
     //std::cout << "position.y: " << position.y << std::endl;
     //std::cout << "player min at start: " << (position.y - height * 0.75f) << std::endl;
+ 
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.875f, position.z - width * 0.5f),
         glm::vec3(position.x + width * 0.5f, position.y + height * 0.125f, position.z + width * 0.5f), this, isClient);
+    
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     speed = 3.5f;
     playerWeapon = new Weapon();
-
+  
     maxHealth = 100.0f;
     currentHealth = 100.0f;
 
@@ -57,7 +60,9 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, position.y - height * 0.82f, 2.25f));
         glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
         glm::mat4 playerModelRootTransform = translation * rotation * scaling;
+        cout << "before player model" << endl;
         playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
+        cout << "before player model" << endl;
         playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
         walkingBackward = false;
         playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
@@ -73,6 +78,7 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
 
     //networking stuff
     moving = 0;
+    cout << "exit player constructor" << endl;
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -145,8 +151,9 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
  * @param deltaTime How much time has passed since last update
  * @author Lucas Hwang
  */
-void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) {
+void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, Game* game) {
 
+    //cout << "updating: " << id << endl;
     switch (state)
     {
         case crouch:
@@ -205,19 +212,20 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
         playerGunModelCenter += diff;
     
         prevPosition = position;
-        oldPitch = playerCamera -> getPitch();
-
-       
-        //camera and player position should always be the same, at least for now
-        playerCamera->setPosition(position);
+        if (game->myPlayerId == id) {
+            oldPitch = playerCamera->getPitch();
+            playerCamera->setPosition(position);
+        }
     }
 
     if (glm::length(velocity) > 0.0f && state != dead) {
-        //playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, walkingBackward);
+        playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, walkingBackward);
     }
 
     //update player camera
-    playerCamera->Update();
+    if (game->myPlayerId == id) {
+        playerCamera->Update();
+    }
    
     //update player and player gun model
     playerModel->update();
@@ -511,7 +519,7 @@ string Player::getPlayerInputString() {
 string Player::getPlayerInfoString() {
 
     string MESSAGE_TAIL = "\r\n";
-    playerInfoString = "player," + to_string(id) + "," + to_string(lookingDirection.x) + "," +
+    playerInfoString = "player," + to_string(id) + "," + to_string(moving) + "," + to_string(lookingDirection.x) + "," +
         to_string(lookingDirection.y) + "," + to_string(lookingDirection.z)
         + MESSAGE_TAIL;
 

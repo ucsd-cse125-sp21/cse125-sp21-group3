@@ -4,7 +4,7 @@
 #define GAME_H
 
 #include "main.h"
-#include<vector>
+#include <vector>
 #include <glm/glm.hpp>
 #include "Maze.h"
 #include "Player.h"

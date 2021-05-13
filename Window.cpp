@@ -54,11 +54,8 @@ Maze* maze;
 
 
 //Networking Stuff
-
-
 Cube* Window::cube;
-
-//temp opponent variables
+int Window::createOpponent;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -106,6 +103,7 @@ bool Window::initializeObjects(Game* game)
 	player->setSoundEngine(soundEngine);
 
 	game->myPlayer = player;
+	game->allPlayers.push_back(player);
 	cout << "setting player id to in window: " << game->myPlayerId << endl;
 	player->setId(game->myPlayerId);
 
@@ -178,7 +176,7 @@ void Window::cleanUp()
  */
 GLFWwindow* Window::createWindow(int width, int height)
 {
-
+	Window::createOpponent = -1;
 	// Initialize GLFW.
 	if (!glfwInit())
 	{
@@ -282,7 +280,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
  *
  * @author Part of 169 starter code
  */
-void Window::idleCallback()
+void Window::idleCallback(Game* game)
 {
 	// Perform any updates as necessary.
 	//Cam->Update();
@@ -319,7 +317,11 @@ void Window::idleCallback()
 	if (GetAsyncKeyState(GLFW_KEY_Z)) {
 		player->moveDirection(player->up);
 	}
-	player->update(0.01f, boundingBoxList);
+
+	player->update(0.01f, boundingBoxList, game);
+	/*for (int i = 0; i < game->allPlayers.size(); i++) {
+		game->allPlayers.at(i)->update(0.01f, boundingBoxList, game);
+	}*/
 	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
 	//gun->playAnimation(gun->animationClipList.at(0), 0.05f, false);
 	//character->playAnimation(character->animationClipList.at(0), 0.05f);
@@ -327,7 +329,14 @@ void Window::idleCallback()
 
 	//Networking Stuff
 	//------------------------------------------------------------------------
-
+	if (Window::createOpponent != -1) {
+		cout << "creating player: " << Window::createOpponent << endl;
+		Player* p = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, true);
+		p->setId(Window::createOpponent);
+		game->allPlayers.push_back(p);
+		cout << "added player successfully" << endl;
+		Window::createOpponent = -1;
+	}
 	//------------------------------------------------------------------------
 }
 

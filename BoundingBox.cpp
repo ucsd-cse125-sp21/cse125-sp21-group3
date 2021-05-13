@@ -2,6 +2,7 @@
 #include "glm/gtx/euler_angles.hpp"
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
+#include "Window.h"
 
 /*
  * File Name: BoundingBox.cpp
@@ -119,7 +120,7 @@ BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube * parentObj, b
 		20,21,22,	20,22,23,		// Right
 	};
 
-	if (isClient)
+	if (Window::debugMode)
 	{
 
 		// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
@@ -252,7 +253,7 @@ BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj, 
 		20,21,22,	20,22,23,		// Right
 	};
 
-	if (isClient)
+	if (Window::debugMode)
 	{
 		// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
 		glGenVertexArrays(1, &VAO);
@@ -283,6 +284,7 @@ BoundingBox::BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj, 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
+	
 }
 
 

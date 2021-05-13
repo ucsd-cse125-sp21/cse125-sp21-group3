@@ -1,5 +1,5 @@
 #include "clientParse.h"
-
+#include "../Window.h"
 
 /*
  * Set selfId field to userId sent in Join Response message.
@@ -104,7 +104,26 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         }
         else if (*it == "player")
         {
-            int userId = stoi(*(it + 1));
+            if (game == NULL || game->maze == NULL) {
+                return;
+            }
+            int userId = stoi(messageValues.at(1));
+            bool createPlayer = true;
+            if (userId == game->myPlayerId) {
+                createPlayer = false;
+            }
+            else {
+                for (int i = 0; i < game->allPlayers.size(); i++) {
+                    int id = game->allPlayers.at(i)->getId();
+                    if (userId == id) {
+                        createPlayer = false;
+                        break;
+                    }
+                }
+            }            
+            if (createPlayer) {
+                Window::createOpponent = userId;
+            }
             int x = stoi(*(it + 2));
             int y = stoi(*(it + 3));
             int health = stoi(*(it + 4));
