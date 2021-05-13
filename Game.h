@@ -18,6 +18,7 @@ public:
 
 	Maze* maze;
 	Player* myPlayer;
+	int myPlayerId;
 	vector<Player*> allPlayers;
 
 	bool isClient;

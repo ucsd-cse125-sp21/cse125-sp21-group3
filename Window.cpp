@@ -106,6 +106,7 @@ bool Window::initializeObjects(Game* game)
 	player->setSoundEngine(soundEngine);
 
 	game->myPlayer = player;
+	player->setId(game->myPlayerId);
 
 	boundingBoxList = maze->getBoundingBox();
 

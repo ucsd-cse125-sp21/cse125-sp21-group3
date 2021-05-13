@@ -100,7 +100,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
 
         if (*it == "joinResponse")
         {
-
+            game->myPlayerId = stoi(messageValues.at(1));
         }
         else if (*it == "player")
         {

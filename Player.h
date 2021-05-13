@@ -116,6 +116,10 @@ public:
 		damageBoost
 	};
 
+	//networking stuff
+	void setId(int i) { id = i; }
+	int getId() { return id; }
+
 private:
 
 	Model* playerModel;
@@ -157,6 +161,8 @@ private:
 
 	Maze* maze;
 	
+	//networking stuff
+	int id;
 	bool isClient;
 };
 
