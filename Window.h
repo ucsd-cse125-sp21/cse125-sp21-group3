@@ -45,7 +45,7 @@ public:
 
 	// update and draw functions
 	static void idleCallback(Game* game);
-	static void displayCallback(GLFWwindow*);
+	static void displayCallback(Game* game, GLFWwindow*);
 
 	// helper to reset the camera
 	static void resetCamera();

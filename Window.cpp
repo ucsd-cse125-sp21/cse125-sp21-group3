@@ -318,6 +318,7 @@ void Window::idleCallback(Game* game)
 		player->moveDirection(player->up);
 	}
 
+	
 	player->update(0.01f, boundingBoxList, game);
 	/*for (int i = 0; i < game->allPlayers.size(); i++) {
 		game->allPlayers.at(i)->update(0.01f, boundingBoxList, game);
@@ -387,7 +388,7 @@ void Window::drawCrosshair() {
  * @param window Pointer to the window object
  * @author Part of 169 starter code
  */
-void Window::displayCallback(GLFWwindow* window)
+void Window::displayCallback(Game* game, GLFWwindow* window)
 {	
 	// Clear the color and depth buffers.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -396,7 +397,10 @@ void Window::displayCallback(GLFWwindow* window)
 		//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 
-	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	for (int i = 0; i < game->allPlayers.size(); i++) {
+		game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	}
 	
 	Camera* playCam = player->getPlayerCamera();
 	irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener

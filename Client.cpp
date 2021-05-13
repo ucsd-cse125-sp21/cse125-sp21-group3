@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
     while (!glfwWindowShouldClose(window))
     {
         // Main render display callback. Rendering of objects is done here.
-        Window::displayCallback(window);
+        Window::displayCallback(client.game, window);
 
 
         // Idle callback. Updating objects, etc. can be done here.
