@@ -92,8 +92,8 @@ public:
     void client_handle_timeout(){
         while(1){
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
-           // std::string input_string =  clientParse::buildInputMessage(game);
-            std::string input_string = "";
+            std::string input_string =  clientParse::buildInputMessage(game);
+            //std::string input_string = "";
             sock.async_write_some(
                 boost::asio::buffer(input_string, input_string.size()),
                 boost::bind(&Client::client_handle_send_input,

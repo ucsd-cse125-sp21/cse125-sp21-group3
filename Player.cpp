@@ -70,6 +70,9 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform);
         playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0] - 0.45f, playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2] + 1.0f);
     }
+
+    //networking stuff
+    moving = 0;
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -172,8 +175,6 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList) 
             break;
     }
     if (glm::length(velocity) > 0.0f) {
-
-       
         position = position + velocity * deltaTime;
         
         //update player bounding box
@@ -486,6 +487,22 @@ bool Player::seeMapAbility()
     setState(still);
     playerCamera->setFarClip(350.0f);
     return true;
+}
+
+string Player::getPlayerInputString() {
+
+    string MESSAGE_TAIL = "\r\n";
+    playerInputString = "input," + to_string(id) + "," + to_string(moving) + MESSAGE_TAIL;
+    //handle crouching
+
+    //handle sprinting
+
+    //handle direction
+
+    //handle firing
+
+        
+    return playerInputString;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

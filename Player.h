@@ -119,6 +119,8 @@ public:
 	//networking stuff
 	void setId(int i) { id = i; }
 	int getId() { return id; }
+	string getPlayerInputString();
+	void setMoving(int m) { moving = m; }
 
 private:
 
@@ -164,6 +166,8 @@ private:
 	//networking stuff
 	int id;
 	bool isClient;
+	int moving;
+	string playerInputString;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -67,7 +67,7 @@ class clientParse
 
         static string buildLeaveMessage();
 
-        static string buildInputMessage();
+        static string buildInputMessage(Game* game);
 
         void printArray();
 

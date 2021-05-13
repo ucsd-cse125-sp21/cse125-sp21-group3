@@ -286,24 +286,23 @@ void Window::idleCallback()
 	// Perform any updates as necessary.
 	//Cam->Update();
 	player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+	player->setMoving(0);
 
-
-	
 	if (GetAsyncKeyState(GLFW_KEY_W)) {
 		player->moveDirection(player->forward);
-
+		player->setMoving(1);
 	}
 	if (GetAsyncKeyState(GLFW_KEY_D)) {
 		player->moveDirection(player->right);
-
+		player->setMoving(1);
 	}
 	if (GetAsyncKeyState(GLFW_KEY_A)) {
 		player->moveDirection(player->left);
-
+		player->setMoving(1);
 	}
 	if (GetAsyncKeyState(GLFW_KEY_S)) {
 		player->moveDirection(player->backward);
-
+		player->setMoving(-1);
 	}
 	
 	//if (GetAsyncKeyState(GLFW_KEY_E)) {

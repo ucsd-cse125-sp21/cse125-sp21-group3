@@ -167,14 +167,20 @@ string clientParse::buildLeaveMessage() {
  * Return the input message string.  String inserted here is a sample.  Input
  * parameters will need to be added.
  */
-string clientParse::buildInputMessage() {
+string clientParse::buildInputMessage(Game* game) {
     
     //string inputMessage = "input," + selfId + "," + Window::playerInputString
     //    + MESSAGE_TAIL;
     /*string defaultMessage = "input," + selfId + ",true,false,false,false,true,false,300.58,false"
         + MESSAGE_TAIL;
     cout << "theirString: " << defaultMessage;*/
-    return "";// inputMessage;
+    string inputMessage = "";
+    if(game->myPlayer) {
+        inputMessage = game->myPlayer->getPlayerInputString();
+    }
+    
+    //cout << "inputMessage: " << inputMessage << endl;
+    return inputMessage;// inputMessage;
 }
 
 /*
