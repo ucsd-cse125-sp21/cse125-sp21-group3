@@ -99,12 +99,12 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     {
         if (*it == "joinResponse")
         {
+            cout << "joinResponse assigning id: " << messageValues.at(1) << endl;
             game->myPlayerId = stoi(messageValues.at(1));
         }
         else if (*it == "player")
         {
             int userId = stoi(*(it + 1));
-            cout << "processing userId: " << userId << endl;
             int x = stoi(*(it + 2));
             int y = stoi(*(it + 3));
             int health = stoi(*(it + 4));

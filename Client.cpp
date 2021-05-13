@@ -54,7 +54,7 @@ public:
     void client_handle_read(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (!err) {
-            cout << "Received:" << input_buf << endl;
+            //cout << "Received:" << input_buf << endl;
             clientParse::sortServerMessage(game, input_buf);
             input_buf = ""; //clear the input buffer
             async_read_until(

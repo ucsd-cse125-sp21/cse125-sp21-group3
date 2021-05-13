@@ -119,6 +119,7 @@ string serverParse::buildPlayerMessage(Game* game, string clientId) {
         cout << "invalid clientId in buildPlayerMessage: " << clientId << endl;
         return playerMessage;
     }
+
     playerMessage = game->allPlayers.at(stoi(clientId))->getPlayerInfoString();
     return playerMessage;
     //return "";
