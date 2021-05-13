@@ -554,6 +554,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 
 	if (LeftDown) {
 		player->setHasFired(true);
+		player->setIsFiring(true);
 		std::cerr << "Fired" << std::endl;
 		player->shootWeapon(boundingBoxList);
 	}

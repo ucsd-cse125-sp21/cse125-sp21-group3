@@ -129,6 +129,9 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             for (int i = 0; i < game->allPlayers.size(); i++) {
                 if (userId == game->allPlayers.at(i)->getId()) {
                     game->allPlayers.at(i)->setMoving(stoi(messageValues.at(2)));
+                    /*if (messageValues.at(6).compare("true") == 0) {
+                        game->allPlayers.at(i)->setIsFiring(true);
+                    }*/
                     break;
                 }
             }

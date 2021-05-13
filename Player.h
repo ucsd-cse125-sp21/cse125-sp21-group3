@@ -125,6 +125,7 @@ public:
 	void setMoving(int m) { moving = m; }
 	void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
 	void setHasFired(bool val) { hasFired = val; }
+	void setIsFiring(bool val) { isFiring = val; }
 	glm::vec3 getLookingDirection() { return lookingDirection; }
 
 private:
@@ -173,6 +174,7 @@ private:
 	bool isClient;
 	int moving;
 	bool hasFired;
+	bool isFiring;
 	string playerInputString;
 	string playerInfoString;
 	glm::vec3 lookingDirection;

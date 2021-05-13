@@ -78,6 +78,8 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
 
     //networking stuff
     moving = 0;
+    hasFired = false;
+    isFiring = false;
     cout << "exit player constructor" << endl;
 }
 
@@ -234,9 +236,9 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
         playerModel->update();
         playerGunModel->update();
 
-        if (hasFired) {
+        if (isFiring) {
             if (playerGunModel->animationClipList.at(0)->prevTime + 0.2f > playerGunModel->animationClipList.at(0)->duration) {
-                hasFired = false;
+                isFiring = false;
             }
             playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
         }
