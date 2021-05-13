@@ -126,19 +126,19 @@ bool Window::initializeObjects(Game* game)
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
 	chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
 	//chest = new Model("Assets/chestOpen.gltf", chestRootTransform);
-	chest = new Model("C:/Users/Calpok/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
+	//chest = new Model("C:/Users/Calpok/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
 	
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
 	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
 	//gun = new Model("Assets/pistolReload.gltf", gunRootTransform);
-	gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
+	//gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
 
 	glm::mat4 characterRootTransform(1.0f);
 	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
 	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
 	//character = new Model("Assets/character.gltf", characterRootTransform);
-	character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
+	//character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
 
 
 

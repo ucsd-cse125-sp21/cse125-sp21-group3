@@ -51,23 +51,25 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
 
     maze = mz;
     
-    //creating and initializing playerModel
-    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, position.y - height * 0.82f, 2.25f));
-    glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
-    glm::mat4 playerModelRootTransform = translation  * rotation * scaling; 
-    playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
-    playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
-    walkingBackward = false;
-    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
+    if (client) {
+        //creating and initializing playerModel
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, position.y - height * 0.82f, 2.25f));
+        glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
+        glm::mat4 playerModelRootTransform = translation * rotation * scaling;
+        playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
+        playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
+        walkingBackward = false;
+        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
 
-    //creating and initializing playerGunModel
-    rotation = glm::rotate(glm::mat4(1.0f), 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
-    translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.7f, 3.0f, 2.25f));
-    scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerGunModelScale));
-    glm::mat4 playerGunModelRootTransform = translation * rotation * scaling;
-    playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform);
-    playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0] - 0.45f, playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2] + 1.0f);
+        //creating and initializing playerGunModel
+        rotation = glm::rotate(glm::mat4(1.0f), 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
+        translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.7f, 3.0f, 2.25f));
+        scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerGunModelScale));
+        glm::mat4 playerGunModelRootTransform = translation * rotation * scaling;
+        playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform);
+        playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0] - 0.45f, playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2] + 1.0f);
+    }
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
