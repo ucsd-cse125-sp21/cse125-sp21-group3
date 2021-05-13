@@ -63,11 +63,10 @@ bool Window::isCrouched;
 bool Window::isSprinting;
 glm::vec3 Window::playerDirection;
 bool Window::hasFired;
-map<int, Opponent*> Window::opponentMap;
+
 Cube* Window::cube;
 
 //temp opponent variables
-int createOpponent = -1;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -420,13 +419,6 @@ void Window::idleCallback()
 	//Networking Stuff
 	//------------------------------------------------------------------------
 	constructPlayerInputString();
-	if (createOpponent != -1) {
-		opponentMap.insert(pair<int, Opponent*>(createOpponent, new Opponent(createOpponent, glm::vec3(3.0f, 3.5f, 3.0f))));
-		createOpponent = -1;
-	}
-	for (pair<int, Opponent*> p : Window::opponentMap) {
-		p.second->update();
-	}
 	//------------------------------------------------------------------------
 }
 
@@ -487,9 +479,6 @@ void Window::displayCallback(GLFWwindow* window)
 	}
 
 	player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	for(pair<int, Opponent*> p : Window::opponentMap) {
-		p.second->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	}
 	
 	Camera* playCam = player->getPlayerCamera();
 	irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
@@ -683,17 +672,4 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	MouseY = height / 2;
 }
 
-void Window::updateOpponent(int id, glm::vec3 position, glm::vec3 direction, int moving) {
-
-	if (Window::opponentMap.find(id) == Window::opponentMap.end()) {
-		createOpponent = id;
-	}
-	else {
-		Opponent* opponent = Window::opponentMap.find(id)->second;
-		opponent->setPosition(position);
-		opponent->setDirection(direction);
-		opponent->setMoving(moving);
-	}
-
-}
 ////////////////////////////////////////////////////////////////////////////////

@@ -129,9 +129,6 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
         time = animationClip->prevTime + speed; 
     }
     if (time > animationClip->duration) {
-        if (animationClip->name.compare("shooting") == 0) {
-            Window::hasFired = false;
-        }
         time = 0.0f;
     }
     if (time < 0.0f) {

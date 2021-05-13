@@ -6,7 +6,6 @@
 #include "shader.h"
 #include "Camera.h"
 #include "Game.h"
-#include "Opponent.h"
 
 class Game;
 
@@ -70,8 +69,6 @@ public:
 	static bool isSprinting;
 	static glm::vec3 playerDirection;
 	static bool hasFired;
-	static map<int, Opponent*> opponentMap;
-	static void updateOpponent(int id, glm::vec3 position, glm::vec3 direction, int moving);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
