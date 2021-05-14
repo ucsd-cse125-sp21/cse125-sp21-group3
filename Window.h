@@ -56,6 +56,8 @@ public:
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
 
 	static void drawCrosshair();
+	static void drawHealth();
+	static void drawDigit(int startingX, int startingY, vector<bool> segmentsUsed);
 	static bool debugMode;
 
 	//Networking Stuff

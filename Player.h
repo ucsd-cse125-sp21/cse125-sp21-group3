@@ -126,6 +126,7 @@ public:
 	void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
 	void setHasFired(bool val) { hasFired = val; }
 	void setIsFiring(bool val) { isFiring = val; }
+	bool getHasFired() { return hasFired; }
 	glm::vec3 getLookingDirection() { return lookingDirection; }
 
 private:

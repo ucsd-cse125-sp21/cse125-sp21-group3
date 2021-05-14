@@ -139,6 +139,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                             }
                         }
                         if (hasFired.compare("true") == 0) {
+                            //cout << "set isFiring for opponent" << endl;
                             game->allPlayers.at(i)->setIsFiring(true);
                         }
                     }
@@ -218,6 +219,9 @@ string clientParse::buildInputMessage(Game* game) {
     string inputMessage = "";
     if(game->myPlayer) {
         inputMessage = game->myPlayer->getPlayerInputString();
+        if (game->myPlayer->getHasFired()) {
+            cout << "build input hasFired" << endl;
+        }
     }
     
     //cout << "inputMessage: " << inputMessage << endl;

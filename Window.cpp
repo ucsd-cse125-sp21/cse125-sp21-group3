@@ -23,8 +23,10 @@
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "Game";
-
-
+const int digitSegmentLength = 20;
+const int digitSegmentThickness = 3;
+float verticalDigitSegment[digitSegmentLength][digitSegmentThickness][3];
+float horizontalDigitSegment[digitSegmentThickness][digitSegmentLength][3];
 
 std::vector<Cube*> walls;
 
@@ -134,7 +136,27 @@ bool Window::initializeObjects(Game* game)
 
 
 
-	//Networking Stuff - initial setup
+	//initializing digit segments to represent health
+
+	for (int y = 0; y < 20; y++)
+	{
+		for (int x = 0; x < 3; x++)
+		{
+			verticalDigitSegment[y][x][0] = 1.0f;
+			verticalDigitSegment[y][x][1] = 0.0f;
+			verticalDigitSegment[y][x][2] = 0.0f;
+		}
+	}
+
+	for (int y = 0; y < 3; y++)
+	{
+		for (int x = 0; x < 20; x++)
+		{
+			horizontalDigitSegment[y][x][0] = 1.0f;
+			horizontalDigitSegment[y][x][1] = 0.0f;
+			horizontalDigitSegment[y][x][2] = 0.0f;
+		}
+	}
 
 
 
@@ -387,6 +409,99 @@ void Window::drawCrosshair() {
 	//cube->update();
 	glDrawPixels(crosshairLength, crosshairThickness, GL_RGB, GL_FLOAT, horizontalBar);
 }
+
+/*
+ * Draws health in the form of digits
+ *
+ * @author Lucas Hwang
+ */
+
+void Window::drawDigit(int startingX, int startingY, vector<bool> segmentsUsed) {
+
+	
+	glWindowPos2i(startingX, startingY);
+	if (segmentsUsed.at(0)) {
+		glDrawPixels(digitSegmentLength, digitSegmentThickness, GL_RGB, GL_FLOAT, horizontalDigitSegment);
+	}
+	if (segmentsUsed.at(1)) {
+		glDrawPixels(digitSegmentThickness, digitSegmentLength, GL_RGB, GL_FLOAT, verticalDigitSegment);
+	}
+	glWindowPos2i(startingX + digitSegmentLength - digitSegmentThickness, startingY);
+	if (segmentsUsed.at(2)) {
+		glDrawPixels(digitSegmentThickness, digitSegmentLength, GL_RGB, GL_FLOAT, verticalDigitSegment);
+	}
+	glWindowPos2i(startingX, startingY + digitSegmentLength - digitSegmentThickness);
+	if (segmentsUsed.at(3)) {
+		glDrawPixels(digitSegmentLength, digitSegmentThickness, GL_RGB, GL_FLOAT, horizontalDigitSegment);
+	}
+	if (segmentsUsed.at(4)) {
+		glDrawPixels(digitSegmentThickness, digitSegmentLength, GL_RGB, GL_FLOAT, verticalDigitSegment);
+	}
+	glWindowPos2i(startingX + digitSegmentLength - digitSegmentThickness, startingY + digitSegmentLength - digitSegmentThickness);
+	if (segmentsUsed.at(5)) {
+		glDrawPixels(digitSegmentThickness, digitSegmentLength, GL_RGB, GL_FLOAT, verticalDigitSegment);
+	}
+	glWindowPos2i(startingX, startingY + 2 * (digitSegmentLength - digitSegmentThickness));
+	if (segmentsUsed.at(6)) {
+		glDrawPixels(digitSegmentLength, digitSegmentThickness, GL_RGB, GL_FLOAT, horizontalDigitSegment);
+	}
+}
+
+void Window::drawHealth() {
+
+	vector<int> digits;
+	int temp = player->getHealth();
+	while (temp > 0) {
+		digits.push_back(temp % 10);
+		temp = temp / 10;
+	}
+
+	int startingX = 10;
+	for (int i = digits.size() - 1; i >= 0; i--) {
+		int digit = digits.at(i);
+		vector<bool> segmentsUsed;
+		switch(digit){
+		case 0:
+			segmentsUsed = { true, true, true, false, true, true, true };
+			break;
+		case 1:
+			segmentsUsed = { false, false, true, false, false, true, false };
+			break;
+		case 2:
+			segmentsUsed = { true, true, false, true, false, true, true };
+			break;
+		case 3:
+			segmentsUsed = { true, false, true, true, false, true, true };
+			break;
+		case 4:
+			segmentsUsed = { false, false, true, true, true, true, false };
+			break;
+		case 5:
+			segmentsUsed = { true, false, true, true, true, false, true };
+			break;
+		case 6:
+			segmentsUsed = { true, true, true, true, true, false, true };
+			break;
+		case 7:
+			segmentsUsed = { false, false, true, false, false, true, true };
+			break;
+		case 8:
+			segmentsUsed = { true, true, true, true, true, true, true };
+			break;
+		case 9:
+			segmentsUsed = { true, false, true, true, true, true, true };
+			break;
+		default:
+			segmentsUsed = { false, false, false, false, false, false, false };
+			break;
+		}
+
+		drawDigit(startingX, height - 50, segmentsUsed);
+		startingX += 30;
+	}
+	
+}
+
 /*
  * This method is called every frame and renders all objects based on their current
  * game state.
@@ -431,7 +546,6 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 	//character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube2->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	//drawCrosshair();
 
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
@@ -440,6 +554,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 	glfwPollEvents();
 	
 	drawCrosshair();
+	drawHealth();
 	
 	// Swap buffers.
 	glfwSwapBuffers(window);
@@ -506,6 +621,12 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_E:
 			player->useAbility();
+			break;
+		case GLFW_KEY_UP:
+			player->setHealth(player->getHealth() + 1);
+			break;
+		case GLFW_KEY_DOWN:
+			player->setHealth(player->getHealth() - 1);
 			break;
 		default:
 			break;

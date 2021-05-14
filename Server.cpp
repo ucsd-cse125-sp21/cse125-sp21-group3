@@ -260,7 +260,7 @@ public:
                     //printMoving(playerConnections[0]->pid_str);
                     //then broadcast the game_state
                     for (int p = 0; p < serverParse::userIdCount; p++) {
-                        cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
+                        //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
                         std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
                         broadcast(playerStateString);
                     }

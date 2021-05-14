@@ -81,7 +81,7 @@ void serverParse::inputMessageHandler(Game* game, vector<string> messageValues){
         }
     }
     if (hasFired.compare("true") == 0) {
-        cout << "setting hasFired to true for player " << clientId << endl;
+        cout << "received hasFired to true for player " << clientId << endl;
         player->setHasFired(true);
     }
  
@@ -110,7 +110,7 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
         serverParse::leaveMessageHandler(messageValues.at(1));
     }
     else if (header=="input"){
-        cout << "received input message: " << clientMessage << endl;
+        //cout << "received input message: " << clientMessage << endl;
         serverParse::inputMessageHandler(game, messageValues);
     }
     else {
@@ -143,7 +143,7 @@ string serverParse::buildPlayerMessage(Game* game, string clientId) {
     for (int i = 0; i < game->allPlayers.size(); i++) {
         if (game->allPlayers.at(i)->getId() == stoi(clientId)) {
             playerMessage = game->allPlayers.at(i)->getPlayerInfoString();
-            cout << "sending playerMessage: " << playerMessage << endl;
+            //cout << "sending playerMessage: " << playerMessage << endl;
             game->allPlayers.at(i)->setHasFired(false);
             break;
         }
