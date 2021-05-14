@@ -192,25 +192,12 @@ public:
     {
         game = new Game(false);
         game->beginGame();
+        game->initiateGame();
 
-        Maze* maze = game->maze;
-        string message = "";
-        wallInfo** mazeArray = maze->getMazeArray();
-        for (int r = 0; r <  maze -> getMazeSize(); r++)
-        {
-            for (int c = 0; c < maze -> getMazeSize(); c++)
-            {
-                if (mazeArray[r][c].right)
-                {
-                    message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",0,";
-                }
-                if (mazeArray[r][c].bottom)
-                {
-                    message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",1,";
-                }
-            }
-        }
+        string message = serverParse::createMazeString(game->maze);
         broadcast(message);
+
+        message = serverParse::createAbilityString(game->maze);
     }
 
     void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)

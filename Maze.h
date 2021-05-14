@@ -50,12 +50,15 @@ public:
 	void removeAbility(int* coordinate);
 
 	void setWall(int r, int c, bool direction, bool exist);
+	void setAbility(int r, int c, int ab);
 
 	int getMazeSize() { return mazeSize; }
 
 	int getMapScale() { return mapScale; }
 
 	wallInfo** getMazeArray() { return mazeArray; }
+
+	Cube* getGround() { return ground; }
 
 
 private:

@@ -9,6 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <unordered_map>
 #include <queue>
+#include "Maze.h"
 
 using namespace std;
 using namespace boost::asio;
@@ -168,6 +169,9 @@ public:
  //*/
 
  //   int mazeArr[MAZE_SIZE][MAZE_SIZE];
+    static string createMazeString(Maze* maze);
+    static string createAbilityString(Maze* maze);
+
 
     static void updateMaze(int row, int col, int wallState);
     static void joinMessageHandler();

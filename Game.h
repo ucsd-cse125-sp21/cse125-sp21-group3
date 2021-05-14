@@ -15,6 +15,7 @@ public:
 	~Game();
 
 	void beginGame();
+	void initiateGame();
 
 	Maze* maze;
 	Player* myPlayer;

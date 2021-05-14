@@ -121,6 +121,14 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             game->maze->setWall(row, col, wallDirection, 1);
             it = (it + 3);
         }
+        else if (*it == "mazeAbility")
+        {
+            int row = stoi(*(it + 1));
+            int col = stoi(*(it + 2));
+            int ability = stoi(*(it + 3));
+            game->maze->setAbility(row, col, ability);
+            it = (it + 3);
+        }
         else if (*it == "start")
         {
         }

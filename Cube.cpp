@@ -28,8 +28,11 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax, int type, bool client)
 	// The color of the cube. Try setting it to something else!
 	color = glm::vec3(1.0f, 0.56f, 0.0f); 
 
+	isClient = client;
+
+
 	//bounding box setup
-	boundingBox = new BoundingBox(cubeMin, cubeMax, this);
+	boundingBox = new BoundingBox(cubeMin, cubeMax, this, isClient);
 
 	mazePosition = cubeMin;
 
@@ -50,8 +53,6 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax, int type, bool client)
 	{
 		canDelete = false;
 	}
-
-	isClient = client;
 
 	cubeType = type;
 

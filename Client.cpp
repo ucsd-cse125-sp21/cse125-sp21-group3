@@ -59,7 +59,7 @@ public:
             input_buf = ""; //clear the input buffer
             async_read_until(
                 sock,
-                boost::asio::dynamic_buffer(input_buf), 
+                boost::asio::dynamic_buffer(input_buf),  
                 "\r\n",
                 boost::bind(&Client::client_handle_read,
                     this,
@@ -209,6 +209,7 @@ int main(int argc, char* argv[])
 
     // Initialize objects/pointers for rendering; exit if initialization fails.
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
+
 
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);

@@ -348,6 +348,11 @@ void Maze::setWall(int r, int c, bool direction, bool exist)
 }
 
 
+void Maze::setAbility(int r, int c, int ab)
+{
+	mazeArray[r][c].ability = ab;
+}
+
 
 // Print out maze to console
 void Maze::printMaze()

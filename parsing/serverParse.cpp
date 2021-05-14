@@ -9,6 +9,46 @@ int serverParse::userIdCount = 0;
 const string serverParse::MESSAGE_TAIL = "\r\n";
 
 
+string serverParse::createMazeString(Maze* maze)
+{
+    string message = "";
+    wallInfo** mazeArray = maze->getMazeArray();
+    for (int r = 0; r < maze->getMazeSize(); r++)
+    {
+        for (int c = 0; c < maze->getMazeSize(); c++)
+        {
+            if (mazeArray[r][c].right)
+            {
+                message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",0,";
+            }
+            if (mazeArray[r][c].bottom)
+            {
+                message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",1,";
+            }
+        }
+    }
+    return message;
+}
+
+string serverParse::createAbilityString(Maze* maze)
+{
+    string message = "";
+    wallInfo** mazeArray = maze->getMazeArray();
+    for (int r = 0; r < maze->getMazeSize(); r++)
+    {
+        for (int c = 0; c < maze->getMazeSize(); c++)
+        {
+            if (mazeArray[r][c].ability != Player::none)
+            {
+                message += "mazeAbility," + to_string(r) + "," + to_string(c) + "," + to_string(mazeArray[r][c].ability) + ",";
+            }
+
+        }
+    }
+    return message;
+}
+
+
 /*
  * Update the 2D-Array representation of the array.  Once abilities are added,
  * inputMessageHandler will call this method to update the map.

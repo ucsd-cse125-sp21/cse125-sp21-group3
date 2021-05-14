@@ -104,10 +104,10 @@ bool Window::initializeObjects(Game* game)
 {
 	maze = game->maze;
 
-	ground = maze->generateGround();
-
-	walls = maze->generateWalls();
+	game->initiateGame();
 	
+	ground = maze->getGround();
+	walls = maze->getWalls();
 
 	//player setup
 	player = new Player(Cam->getPosition(), maze);
@@ -116,11 +116,13 @@ bool Window::initializeObjects(Game* game)
 
 	game->myPlayer = player;
 
+
 	boundingBoxList = maze->getBoundingBox();
 
 
 	boundingBoxList.push_back(ground->getBoundingBox());
 	boundingBoxList.push_back(player->getBoundingBox());
+
 
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
@@ -128,6 +130,7 @@ bool Window::initializeObjects(Game* game)
 	//chest = new Model("Assets/chestOpen.gltf", chestRootTransform);
 	chest = new Model("C:/Users/Calpok/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
 	
+
 	glm::mat4 gunRootTransform(1.0f);
 	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
 	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
@@ -139,7 +142,6 @@ bool Window::initializeObjects(Game* game)
 	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
 	//character = new Model("Assets/character.gltf", characterRootTransform);
 	character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
-
 
 
 
@@ -167,16 +169,15 @@ bool Window::initializeObjects(Game* game)
 void Window::cleanUp()
 {
 	// Deallcoate the objects.
-	for (BoundingBox* bound : maze->getBoundingBox())
-	{
-		delete bound;
-	}
+	//for (BoundingBox* bound : maze->getBoundingBox())
+	//{
+	//	delete bound;
+	//}
 
-	delete maze;
-	delete chest;
-	delete gun;
-	delete player;
-	delete Cam;
+	//delete chest;
+	//delete gun;
+	//delete player;
+	//delete Cam;
 
 	// Delete the shader program.
 	glDeleteProgram(shaderProgram);
@@ -566,7 +567,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	glm::vec3 right = glm::normalize(glm::cross(Cam->getDirection(), glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
 	right.y = 0.0f;
 	glm::vec3 left = -right;
-
+	
 	// Check for a key press.
 	if (action == GLFW_PRESS)
 	{
