@@ -100,13 +100,14 @@ std::vector<Model*> Maze::generateAbilityChests()
 		{
 			if (mazeArray[r][c].ability != Player::none)
 			{
-				glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3((r + 0.5) * mapScale, 0.0f, (c + 0.5) * mapScale));
+				glm::vec3 chestPosition((r + 0.5) * mapScale, 0.0f, (c + 0.5) * mapScale);
+				glm::mat4 translation = glm::translate(glm::mat4(1.0f), chestPosition);
 				Model* chest = new Model("Assets/chestOpen.gltf", translation);
+				chest->boundingBox = new BoundingBox(glm::vec3(chestPosition.x - 0.5f, 0.0f, chestPosition.z - 1.0f),
+					glm::vec3(chestPosition.x + 0.5f, 1.5f, chestPosition.z + 1.0f), chest, true);
 				abilityChests.push_back(chest);
-				//chest->boundingBox = new BoundingBox();
-				//boundingBoxList.push_back(chest->getBoundingBox());
-				//chestBoundingBoxList.push_back(chest->getBoundingBox());
-
+				boundingBoxList.push_back(chest->boundingBox);
+				chestBoundingBoxList.push_back(chest->boundingBox);
 			}
 		}
 	}

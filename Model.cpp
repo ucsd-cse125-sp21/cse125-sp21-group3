@@ -8,6 +8,7 @@
 Model::Model(string const& path, glm::mat4 _rootModel) 
 {
     rootModel = _rootModel;
+    boundingBox == NULL;
     animationRootModel = rootModel;
     gammaCorrection = false;
     meshCounter = 0;
@@ -17,8 +18,15 @@ Model::Model(string const& path, glm::mat4 _rootModel)
 // draws the model, and thus all its meshes
 void Model::draw(const glm::mat4& viewProjMtx, GLuint shader)
 {
+
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i]->draw(viewProjMtx, shader);
+
+    if (Window::debugMode) {
+        if (boundingBox != NULL) {
+            boundingBox->draw(viewProjMtx, shader);
+        }
+    }
 }
 
 void Model::loadModel(string const& path)

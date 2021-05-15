@@ -93,7 +93,6 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
         this->footprints.push_back(footprint);
         lastFootPrintPos = footprintPos;
         
-        
         if (snd)
         {
             if (state == sprint) {
@@ -455,12 +454,13 @@ void Player::pickUpAbility()
     {
         return;
     }
-    Cube* parentCube = shotObject -> getParentCube();
-    std::cout << "LMAO" << parentCube->getType() << std::endl;
-    if (parentCube->getType() == Cube::abilityChest || true)
-    {
+    Model* chest = shotObject -> getParentModel();
+    //std::cout << "LMAO" << parentCube->getType() << std::endl;
+    //if (parentCube->getType() == Cube::abilityChest || true)
+    //{
         int* playerPos = maze -> getCoordinates(getPosition());
-        int* chestPos = maze -> getCoordinates(parentCube->getMazePosition());
+        glm::vec3 chestLocation(chest->rootModel[3][0], chest->rootModel[3][1], chest->rootModel[3][2]);
+        int* chestPos = maze -> getCoordinates(chestLocation);
         if ((playerPos[0] == chestPos[0] && playerPos[1] == chestPos[1]) || 
             (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) || 
             (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
@@ -470,11 +470,11 @@ void Player::pickUpAbility()
 
             std::cout << "Picked up ability:" << currentAbility << std::endl;
 
-            delete parentCube;
+            //delete parentCube;
             delete playerPos;
             delete chestPos;
         }
-    }
+    //}
 }
 
 void Player::useAbility()

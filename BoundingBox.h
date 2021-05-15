@@ -7,6 +7,7 @@
 
 class Cube;
 class Player;
+class Model;
 
 /*
  * File Name: BoundingBox.h
@@ -19,7 +20,7 @@ class Player;
 
 class BoundingBox {
 public:
-	
+	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Model* parentObj, bool client);
 	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Cube* parentObj, bool client = true);
 	BoundingBox(glm::vec3 boxMin, glm::vec3 boxMax, Player* parentObj, bool client = true);
 
@@ -29,6 +30,7 @@ public:
 
 	Player* getParentPlayer() { return parentPlayer; }
 	Cube* getParentCube() { return parentCube; }
+	Model* getParentModel() { return parentModel; }
 
 	void setMin(glm::vec3 p) { min = p; }
 	void setMax(glm::vec3 p) { max = p; }
@@ -59,6 +61,7 @@ private:
 	glm::vec3 max;
 	Cube* parentCube;
 	Player* parentPlayer;
+	Model* parentModel;
 	//used to toggle collisions
 	bool active;
 	
