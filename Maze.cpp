@@ -29,7 +29,9 @@ Maze::Maze(int size, int scale, bool client)
 	// Set seed for random creation for testing purposes
 	//srand(0);
 	srand(time(NULL));
-	createAbilityChests(25);
+	if (!client) {
+		createAbilityChests(25);
+	}
 }
 
 
@@ -338,7 +340,7 @@ void Maze::removeAbility(int* coordinate)
 }
 
 
-void Maze::setWall(int r, int c, bool direction, bool exist)
+void Maze::setWall(int r, int c, bool direction, bool exist, int ability)
 {
 	if (direction)
 	{
@@ -348,6 +350,9 @@ void Maze::setWall(int r, int c, bool direction, bool exist)
 	{
 		mazeArray[r][c].right = exist;
 	}
+
+	//mazeArray[r][c].ability = ability;
+	//cout << "setWall ability: " << ability << endl;
 }
 
 

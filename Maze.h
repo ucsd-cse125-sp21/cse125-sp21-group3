@@ -50,7 +50,7 @@ public:
 
 	void removeAbility(int* coordinate);
 
-	void setWall(int r, int c, bool direction, bool exist);
+	void setWall(int r, int c, bool direction, bool exist, int ability);
 
 	int getMazeSize() { return mazeSize; }
 

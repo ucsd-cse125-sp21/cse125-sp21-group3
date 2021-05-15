@@ -94,12 +94,19 @@ void clientParse::startMessageHandler() {
 void clientParse::sortServerMessage(Game* game, string serverMessage) {
     vector<string> messageValues;
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
+    cout << "received message: " << endl;
+    cout << serverMessage << endl;
     vector<string>::iterator it = messageValues.begin();
+    /*vector<string>::iterator it2 = messageValues.begin();
+    while (it2 != messageValues.end()) {
+        cout << *it2 << endl;
+        it2++;
+    }*/
     while (it != messageValues.end())
     {
         if (*it == "joinResponse")
         {
-            cout << "joinResponse assigning id: " << messageValues.at(1) << endl;
+            //cout << "joinResponse assigning id: " << messageValues.at(1) << endl;
             game->myPlayerId = stoi(messageValues.at(1));
         }
         else if (*it == "player")
@@ -157,16 +164,32 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         }
         else if (*it == "mazeUpdate")
         {
+            /*vector<string>::iterator it2 = messageValues.begin();
+            while (it2 != messageValues.end()) {
+                cout << *it << endl;
+                it++;
+            }*/
+            //cout << "enter mazeUpdate parse: " << endl;
             int row = stoi(*(it + 1));
+            //cout << "set row" << endl;
             int col = stoi(*(it + 2));
+            //cout << "set col" << endl;
             int wallDirection = stoi(*(it + 3));
-            game->maze->setWall(row, col, wallDirection, 1);
-            it = (it + 3);
+            //cout << "set wall direction" << endl;
+            int ability = stoi(*(it + 4));
+            //cout << "set ability" << endl;
+            //int ability = 0;
+            //cout << "updating maze: " << row << " " << col << " " << wallDirection << " " << ability << endl;
+            game->maze->setWall(row, col, wallDirection, 1, ability);
+            //cout << "before incrementing iterator" << endl;
+            it = (it + 4);
+            //cout << "after incrementing iterator" << endl;
         }
         else if (*it == "start")
         {
         }
         it++;
+        //cout << "while loop iterator increment" << endl;
     }
     //string header = messageValues.front();
     //if (header=="joinResponse") {
