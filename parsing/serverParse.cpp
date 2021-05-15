@@ -113,6 +113,9 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
         //cout << "received input message: " << clientMessage << endl;
         serverParse::inputMessageHandler(game, messageValues);
     }
+    else if (header == "chestOpen") {
+        cout << "chest opened!" << endl;
+    }
     else {
         cout << clientMessage << endl;
         cout<<"Unexpected message type from client"<<endl;
@@ -143,7 +146,7 @@ string serverParse::buildPlayerMessage(Game* game, string clientId) {
     for (int i = 0; i < game->allPlayers.size(); i++) {
         if (game->allPlayers.at(i)->getId() == stoi(clientId)) {
             playerMessage = game->allPlayers.at(i)->getPlayerInfoString();
-            cout << "sending playerMessage: " << playerMessage << endl;
+            //cout << "sending playerMessage: " << playerMessage << endl;
             game->allPlayers.at(i)->setHasFired(false);
             break;
         }

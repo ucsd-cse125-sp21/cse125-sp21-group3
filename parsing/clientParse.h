@@ -69,9 +69,6 @@ class clientParse
 
         static string buildInputMessage(Game* game);
 
-        static string buildChestOpenMessage(Game* game);
-        static void chestOpenMessageHandler(Game* game);
-
         void printArray();
 
         void printFootsteps(string playerId);

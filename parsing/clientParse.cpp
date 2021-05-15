@@ -230,26 +230,6 @@ string clientParse::buildInputMessage(Game* game) {
 
 
 /*
- * Return the chest open message string. Tells the server that a chest
- * has been opened and is no longer usable.
- */
-void clientParse::chestOpenMessageHandler(Game* game) {
-
-    
-    return;
-}
-
-/*
- * Return the chest open message string. Tells the server that a chest
- * has been opened and is no longer usable.
- */
-string clientParse::buildChestOpenMessage(Game* game) {
-
-    string message = "chestOpen,";
-    return message;
-}
-
-/*
  * Method to display 2D array in string form.  Only for verifying methods.
  */
 void clientParse::printArray() {

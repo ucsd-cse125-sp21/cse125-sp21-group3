@@ -58,6 +58,7 @@ Maze* maze;
 //Networking Stuff
 Cube* Window::cube;
 int Window::createOpponent;
+vector<string> Window::messagesToServer;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -195,6 +196,8 @@ void Window::cleanUp()
 GLFWwindow* Window::createWindow(int width, int height)
 {
 	Window::createOpponent = -1;
+	Window::messagesToServer = {};
+
 	// Initialize GLFW.
 	if (!glfwInit())
 	{
