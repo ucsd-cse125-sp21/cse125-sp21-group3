@@ -264,6 +264,15 @@ public:
                     if (!nextMessage.empty()) {
                         //cout << "enter sortClientMessage" << endl;
                         serverParse::sortClientMessage(game, nextMessage);
+                        vector<string> messageValues;
+                        boost::split(messageValues, nextMessage, boost::is_any_of(","));
+                        if (messageValues.front() == "chestOpen") {
+                            for (int p = 0; p < serverParse::userIdCount; p++) {
+                                cout << "sending chest open to all players" << endl;
+                                //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
+                                broadcast(nextMessage);
+                            }
+                        }
                     }
 
                     //printMoving(playerConnections[0]->pid_str);

@@ -114,7 +114,10 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
         serverParse::inputMessageHandler(game, messageValues);
     }
     else if (header == "chestOpen") {
-        cout << "chest opened!" << endl;
+        wallInfo** mazeArray = game->maze->getMazeArray();
+        int r = stoi(messageValues.at(1));
+        int c = stoi(messageValues.at(2));
+        mazeArray[r][c].ability = Player::opened;
     }
     else {
         cout << clientMessage << endl;
