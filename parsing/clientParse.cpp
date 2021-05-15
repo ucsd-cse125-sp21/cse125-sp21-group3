@@ -94,8 +94,6 @@ void clientParse::startMessageHandler() {
 void clientParse::sortServerMessage(Game* game, string serverMessage) {
     vector<string> messageValues;
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
-    cout << "received message: " << endl;
-    cout << serverMessage << endl;
     vector<string>::iterator it = messageValues.begin();
     /*vector<string>::iterator it2 = messageValues.begin();
     while (it2 != messageValues.end()) {
@@ -106,7 +104,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     {
         if (*it == "joinResponse")
         {
-            //cout << "joinResponse assigning id: " << messageValues.at(1) << endl;
+            cout << "joinResponse assigning id: " << messageValues.at(1) << endl;
             game->myPlayerId = stoi(messageValues.at(1));
         }
         else if (*it == "player")

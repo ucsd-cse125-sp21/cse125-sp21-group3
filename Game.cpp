@@ -12,7 +12,7 @@ Game::~Game()
 
 void Game::beginGame()
 {
-	maze = new Maze(21, 7);
+	maze = new Maze(21, 7, isClient);
 	if (!isClient) {
 		maze->createWalls();
 	}

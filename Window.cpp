@@ -98,6 +98,7 @@ bool Window::initializeObjects(Game* game)
 
 	walls = maze->generateWalls();
 
+	//cout << "generate chests for client" << endl;
 	maze->generateAbilityChests();
 	
 

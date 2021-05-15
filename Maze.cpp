@@ -30,6 +30,7 @@ Maze::Maze(int size, int scale, bool client)
 	//srand(0);
 	srand(time(NULL));
 	if (!client) {
+		cout << "create ability chests for server" << endl;
 		createAbilityChests(25);
 	}
 }
@@ -351,8 +352,7 @@ void Maze::setWall(int r, int c, bool direction, bool exist, int ability)
 		mazeArray[r][c].right = exist;
 	}
 
-	//mazeArray[r][c].ability = ability;
-	//cout << "setWall ability: " << ability << endl;
+	mazeArray[r][c].ability = ability;
 }
 
 

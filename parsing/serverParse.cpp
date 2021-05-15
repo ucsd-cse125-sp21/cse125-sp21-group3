@@ -189,12 +189,12 @@ string serverParse::buildMazeUpdateMessage(Game* game) {
             if (mazeArray[r][c].right)
             {
                 message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",0,";
-                message += to_string(0) + ",";
+                message += to_string(mazeArray[r][c].ability) + ",";                
             }
             if (mazeArray[r][c].bottom)
             {
                 message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",1,";
-                message += to_string(0) + ",";
+                message += to_string(mazeArray[r][c].ability) + ",";
             }
 
             //message += to_string(0) + ",";
