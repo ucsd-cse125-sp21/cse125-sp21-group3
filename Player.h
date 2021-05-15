@@ -114,7 +114,8 @@ public:
 		healPlayer,
 		increasePlayerHealth,
 		armorPlayer,
-		damageBoost
+		damageBoost,
+		opened //to represent opened chests, not actual ability
 	};
 
 	//networking stuff

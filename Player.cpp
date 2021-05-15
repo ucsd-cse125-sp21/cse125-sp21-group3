@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "glm/gtx/euler_angles.hpp"
 #include <glm\gtx\string_cast.hpp>
+#include "parsing/clientParse.h"
 
 
 /*
@@ -154,127 +155,127 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
 
     //cout << "updating: " << id << endl;
     if (!isClient) { //update stuff for not client side player instances
-        switch (state)
-        {
-        case crouch:
-            if (position.y >= 1.5f)
-            {
-                glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
-                velocity += v;
-            }
-            velocity *= 0.5f;
-        case sprint:
-            velocity *= 1.40f;
-            break;
-        case dead:
-            velocity *= 3;
-            break;
-        case still:
-            velocity *= 0;
-            break;
-        default:
-            if (position.y <= 3.5f)
-            {
-                glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
-                velocity += v;
-                velocity *= 0.5f;
-            }
-            break;
-        }
-        if (glm::length(velocity) > 0.0f) {
-            position = position + velocity * deltaTime;
+        //switch (state)
+        //{
+        //case crouch:
+        //    if (position.y >= 1.5f)
+        //    {
+        //        glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
+        //        velocity += v;
+        //    }
+        //    velocity *= 0.5f;
+        //case sprint:
+        //    velocity *= 1.40f;
+        //    break;
+        //case dead:
+        //    velocity *= 3;
+        //    break;
+        //case still:
+        //    velocity *= 0;
+        //    break;
+        //default:
+        //    if (position.y <= 3.5f)
+        //    {
+        //        glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
+        //        velocity += v;
+        //        velocity *= 0.5f;
+        //    }
+        //    break;
+        //}
+        //if (glm::length(velocity) > 0.0f) {
+        //    position = position + velocity * deltaTime;
 
-            //update player bounding box
-            boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-                glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
-        }
+        //    //update player bounding box
+        //    boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
+        //        glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+        //}
 
-        if (boundingBox->getActive()) {
-            applyConstraints(maze->getBoundingBox());
-        }
-        if (state != dead && state != still)
-        {
-            createFootPrint(position);
-        }
-        if (state != still)
-        {
-            //update player model position
-            glm::vec3 diff = position - prevPosition;
-            playerModel->rootModel[3][0] += diff.x;
-            playerModel->rootModel[3][1] += diff.y;
-            playerModel->rootModel[3][2] += diff.z;
-            playerGunModel->rootModel[3][0] += diff.x;
-            playerGunModel->rootModel[3][1] += diff.y;
-            playerGunModel->rootModel[3][2] += diff.z;
-            playerGunModel->animationRootModel[3][0] += diff.x;
-            playerGunModel->animationRootModel[3][1] += diff.y;
-            playerGunModel->animationRootModel[3][2] += diff.z;
-            playerGunModelCenter += diff;
-            prevPosition = position;
-        }
+        //if (boundingBox->getActive()) {
+        //    applyConstraints(maze->getBoundingBox());
+        //}
+        //if (state != dead && state != still)
+        //{
+        //    createFootPrint(position);
+        //}
+        //if (state != still)
+        //{
+        //    //update player model position
+        //    glm::vec3 diff = position - prevPosition;
+        //    playerModel->rootModel[3][0] += diff.x;
+        //    playerModel->rootModel[3][1] += diff.y;
+        //    playerModel->rootModel[3][2] += diff.z;
+        //    playerGunModel->rootModel[3][0] += diff.x;
+        //    playerGunModel->rootModel[3][1] += diff.y;
+        //    playerGunModel->rootModel[3][2] += diff.z;
+        //    playerGunModel->animationRootModel[3][0] += diff.x;
+        //    playerGunModel->animationRootModel[3][1] += diff.y;
+        //    playerGunModel->animationRootModel[3][2] += diff.z;
+        //    playerGunModelCenter += diff;
+        //    prevPosition = position;
+        //}
     }
     else { //update stuff for all client players including opponents
         
-        //if (game->myPlayerId == id) {
-        //    switch (state)
-        //    {
-        //    case crouch:
-        //        if (position.y >= 1.5f)
-        //        {
-        //            glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
-        //            velocity += v;
-        //        }
-        //        velocity *= 0.5f;
-        //    case sprint:
-        //        velocity *= 1.40f;
-        //        break;
-        //    case dead:
-        //        velocity *= 3;
-        //        break;
-        //    case still:
-        //        velocity *= 0;
-        //        break;
-        //    default:
-        //        if (position.y <= 3.5f)
-        //        {
-        //            glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
-        //            velocity += v;
-        //            velocity *= 0.5f;
-        //        }
-        //        break;
-        //    }
-        //    if (glm::length(velocity) > 0.0f) {
-        //        position = position + velocity * deltaTime;
+        if (game->myPlayerId == id) {
+            switch (state)
+            {
+            case crouch:
+                if (position.y >= 1.5f)
+                {
+                    glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
+                    velocity += v;
+                }
+                velocity *= 0.5f;
+            case sprint:
+                velocity *= 1.40f;
+                break;
+            case dead:
+                velocity *= 3;
+                break;
+            case still:
+                velocity *= 0;
+                break;
+            default:
+                if (position.y <= 3.5f)
+                {
+                    glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
+                    velocity += v;
+                    velocity *= 0.5f;
+                }
+                break;
+            }
+            if (glm::length(velocity) > 0.0f) {
+                position = position + velocity * deltaTime;
 
-        //        //update player bounding box
-        //        boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-        //            glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
-        //    }
+                //update player bounding box
+                boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
+                    glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+            }
 
-        //    if (boundingBox->getActive()) {
-        //        applyConstraints(maze->getBoundingBox());
-        //    }
-        //    if (state != dead && state != still)
-        //    {
-        //        createFootPrint(position);
-        //    }
-        //    if (state != still)
-        //    {
-        //        //update player model position
-        //        glm::vec3 diff = position - prevPosition;
-        //        playerModel->rootModel[3][0] += diff.x;
-        //        playerModel->rootModel[3][1] += diff.y;
-        //        playerModel->rootModel[3][2] += diff.z;
-        //        playerGunModel->rootModel[3][0] += diff.x;
-        //        playerGunModel->rootModel[3][1] += diff.y;
-        //        playerGunModel->rootModel[3][2] += diff.z;
-        //        playerGunModel->animationRootModel[3][0] += diff.x;
-        //        playerGunModel->animationRootModel[3][1] += diff.y;
-        //        playerGunModel->animationRootModel[3][2] += diff.z;
-        //        playerGunModelCenter += diff;
-        //        prevPosition = position;
-        //    }
-        //}
+            if (boundingBox->getActive()) {
+                applyConstraints(maze->getBoundingBox());
+            }
+            if (state != dead && state != still)
+            {
+                createFootPrint(position);
+            }
+            if (state != still)
+            {
+                //update player model position
+                glm::vec3 diff = position - prevPosition;
+                playerModel->rootModel[3][0] += diff.x;
+                playerModel->rootModel[3][1] += diff.y;
+                playerModel->rootModel[3][2] += diff.z;
+                playerGunModel->rootModel[3][0] += diff.x;
+                playerGunModel->rootModel[3][1] += diff.y;
+                playerGunModel->rootModel[3][2] += diff.z;
+                playerGunModel->animationRootModel[3][0] += diff.x;
+                playerGunModel->animationRootModel[3][1] += diff.y;
+                playerGunModel->animationRootModel[3][2] += diff.z;
+                playerGunModelCenter += diff;
+                prevPosition = position;
+            }
+        }
 
         if (moving == 1) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
@@ -472,6 +473,7 @@ void Player::pickUpAbility()
             currentAbility = maze->getAbility(chestPos);
             maze->removeAbility(chestPos);
             chest->opening = true;
+            //TODO tell server that chest has opened
             std::cout << "Picked up ability:" << currentAbility << std::endl;
 
             //delete parentCube;

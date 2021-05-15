@@ -167,6 +167,13 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         else if (*it == "start")
         {
         }
+        else if(*it == "chestOpen") {
+            wallInfo** mazeArray = game->maze->getMazeArray();
+            int r = stoi(*(it + 1));
+            int c = stoi(*(it + 2));
+            mazeArray[r][c].ability = Player::opened;
+            it = it + 2;
+        }
         it++;
     }
     //string header = messageValues.front();
@@ -219,6 +226,27 @@ string clientParse::buildInputMessage(Game* game) {
     
     //cout << "inputMessage: " << inputMessage << endl;
     return inputMessage;
+}
+
+
+/*
+ * Return the chest open message string. Tells the server that a chest
+ * has been opened and is no longer usable.
+ */
+void clientParse::chestOpenMessageHandler(Game* game) {
+
+    
+    return;
+}
+
+/*
+ * Return the chest open message string. Tells the server that a chest
+ * has been opened and is no longer usable.
+ */
+string clientParse::buildChestOpenMessage(Game* game) {
+
+    string message = "chestOpen,";
+    return message;
 }
 
 /*

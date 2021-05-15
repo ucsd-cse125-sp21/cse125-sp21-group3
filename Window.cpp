@@ -534,20 +534,43 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 	//chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
+	//for (Model* abilityChest : maze->getChests())
+	//{
+	//	//cout << "draw ability chest" << endl;
+	//	if (abilityChest->opening && !abilityChest->opened) {
+	//		if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
+	//			abilityChest->opening = false;
+	//			abilityChest->opened = true;
+	//		}
+	//		else {
+	//			abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
+	//		}
+	//	}
+	//	abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//}
+
+	
 	for (Model* abilityChest : maze->getChests())
 	{
-		//cout << "draw ability chest" << endl;
-		if (abilityChest->opening && !abilityChest->opened) {
+		wallInfo** mazeArray = maze->getMazeArray();
+		glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
+		int* abilityChestPos = maze->getCoordinates(abilityChestLocation);
+		if (abilityChest->opening) { //if client is in the process of opening the chest
 			if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
 				abilityChest->opening = false;
-				abilityChest->opened = true;
 			}
 			else {
 				abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
 			}
 		}
+		else if (mazeArray[abilityChestPos[0]][abilityChestPos[1]].ability == Player::opened) { //if the server has said this chest is open
+			abilityChest->animationClipList.at(0)->prevTime = abilityChest->animationClipList.at(0)->duration;
+			abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.0f, false);
+		}
+
 		abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
+
 
 	//character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);

@@ -337,7 +337,7 @@ int Maze::getAbility(int* coordinate)
 
 void Maze::removeAbility(int* coordinate)
 {
-	mazeArray[coordinate[0]][coordinate[1]].ability = Player::none;
+	mazeArray[coordinate[0]][coordinate[1]].ability = Player::opened;
 }
 
 
