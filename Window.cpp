@@ -80,7 +80,7 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-	debugMode = true;
+	debugMode = false;
 	return true;
 }
 
@@ -540,10 +540,19 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 	//chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
-	for (Model* abilityChests : maze->getChests())
+	for (Model* abilityChest : maze->getChests())
 	{
 		//cout << "draw ability chest" << endl;
-		abilityChests->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+		if (abilityChest->opening && !abilityChest->opened) {
+			if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
+				abilityChest->opening = false;
+				abilityChest->opened = true;
+			}
+			else {
+				abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
+			}
+		}
+		abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 
 	//character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);

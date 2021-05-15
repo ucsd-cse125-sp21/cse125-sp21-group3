@@ -467,7 +467,7 @@ void Player::pickUpAbility()
         {
             currentAbility = maze->getAbility(chestPos);
             maze->removeAbility(chestPos);
-
+            chest->opening = true;
             std::cout << "Picked up ability:" << currentAbility << std::endl;
 
             //delete parentCube;

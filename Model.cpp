@@ -13,6 +13,10 @@ Model::Model(string const& path, glm::mat4 _rootModel)
     gammaCorrection = false;
     meshCounter = 0;
     loadModel(path);
+
+    //only for chests
+    opening = false;
+    opened = false;
 }
 
 // draws the model, and thus all its meshes
