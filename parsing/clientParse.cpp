@@ -95,11 +95,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     vector<string> messageValues;
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
     vector<string>::iterator it = messageValues.begin();
-    /*vector<string>::iterator it2 = messageValues.begin();
-    while (it2 != messageValues.end()) {
-        cout << *it2 << endl;
-        it2++;
-    }*/
     while (it != messageValues.end())
     {
         if (*it == "joinResponse")
@@ -112,7 +107,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             if (game == NULL || game->maze == NULL) {
                 return;
             }
-            int userId = stoi(messageValues.at(1));
+            int userId = stoi(*(it+1));
             bool createPlayer = true;
             if (userId == game->myPlayerId) {
                 createPlayer = false;
@@ -137,10 +132,10 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                     if (userId != game->myPlayerId) {
                         game->allPlayers.at(i)->setMoving(stoi(messageValues.at(2)));
                         string hasFired;
-                        for (int j = 0; j < messageValues.at(6).size(); j++) {
-                            int c = (int)messageValues.at(6).at(j);
+                        for (int j = 0; j < (*(it+6)).size(); j++) {
+                            int c = (int)(*(it + 6)).at(j);
                             if (c >= (int)'a' && c <= (int)'z') {
-                                hasFired += messageValues.at(6).at(j);
+                                hasFired += (*(it + 6)).at(j);
                             }
                         }
                         if (hasFired.compare("true") == 0) {
@@ -152,42 +147,27 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                 }
             }
 
-            int x = stoi(*(it + 2));
+            /*int x = stoi(*(it + 2));
             int y = stoi(*(it + 3));
-            int health = stoi(*(it + 4));
-            it = (it + 4);
+            int health = stoi(*(it + 4));*/
+            it = (it + 6);
         }
         else if (*it == "mazeInitial")
         {
         }
         else if (*it == "mazeUpdate")
         {
-            /*vector<string>::iterator it2 = messageValues.begin();
-            while (it2 != messageValues.end()) {
-                cout << *it << endl;
-                it++;
-            }*/
-            //cout << "enter mazeUpdate parse: " << endl;
             int row = stoi(*(it + 1));
-            //cout << "set row" << endl;
             int col = stoi(*(it + 2));
-            //cout << "set col" << endl;
             int wallDirection = stoi(*(it + 3));
-            //cout << "set wall direction" << endl;
             int ability = stoi(*(it + 4));
-            //cout << "set ability" << endl;
-            //int ability = 0;
-            //cout << "updating maze: " << row << " " << col << " " << wallDirection << " " << ability << endl;
             game->maze->setWall(row, col, wallDirection, 1, ability);
-            //cout << "before incrementing iterator" << endl;
             it = (it + 4);
-            //cout << "after incrementing iterator" << endl;
         }
         else if (*it == "start")
         {
         }
         it++;
-        //cout << "while loop iterator increment" << endl;
     }
     //string header = messageValues.front();
     //if (header=="joinResponse") {
@@ -232,21 +212,13 @@ string clientParse::buildLeaveMessage() {
  */
 string clientParse::buildInputMessage(Game* game) {
     
-    //string inputMessage = "input," + selfId + "," + Window::playerInputString
-    //    + MESSAGE_TAIL;
-    /*string defaultMessage = "input," + selfId + ",true,false,false,false,true,false,300.58,false"
-        + MESSAGE_TAIL;
-    cout << "theirString: " << defaultMessage;*/
     string inputMessage = "";
     if(game->myPlayer) {
         inputMessage = game->myPlayer->getPlayerInputString();
-        if (game->myPlayer->getHasFired()) {
-            cout << "build input hasFired" << endl;
-        }
     }
     
     //cout << "inputMessage: " << inputMessage << endl;
-    return inputMessage;// inputMessage;
+    return inputMessage;
 }
 
 /*

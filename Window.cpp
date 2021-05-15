@@ -136,11 +136,7 @@ bool Window::initializeObjects(Game* game)
 	//character = new Model("Assets/character.gltf", characterRootTransform);
 	//character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
 
-
-
-
 	//initializing digit segments to represent health
-
 	for (int y = 0; y < 20; y++)
 	{
 		for (int x = 0; x < 3; x++)
@@ -160,9 +156,6 @@ bool Window::initializeObjects(Game* game)
 			horizontalDigitSegment[y][x][2] = 0.0f;
 		}
 	}
-
-
-
 
 	return true;
 }
