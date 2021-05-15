@@ -60,9 +60,7 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, position.y - height * 0.82f, 2.25f));
         glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
         glm::mat4 playerModelRootTransform = translation * rotation * scaling;
-        cout << "before player model" << endl;
         playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
-        cout << "before player model" << endl;
         playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
         walkingBackward = false;
         playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
@@ -157,6 +155,66 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
 
     //cout << "updating: " << id << endl;
     if (!isClient) { //update stuff for not client side player instances
+        //switch (state)
+        //{
+        //case crouch:
+        //    if (position.y >= 1.5f)
+        //    {
+        //        glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
+        //        velocity += v;
+        //    }
+        //    velocity *= 0.5f;
+        //case sprint:
+        //    velocity *= 1.40f;
+        //    break;
+        //case dead:
+        //    velocity *= 3;
+        //    break;
+        //case still:
+        //    velocity *= 0;
+        //    break;
+        //default:
+        //    if (position.y <= 3.5f)
+        //    {
+        //        glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
+        //        velocity += v;
+        //        velocity *= 0.5f;
+        //    }
+        //    break;
+        //}
+        //if (glm::length(velocity) > 0.0f) {
+        //    position = position + velocity * deltaTime;
+
+        //    //update player bounding box
+        //    boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
+        //        glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+        //}
+
+        //if (boundingBox->getActive()) {
+        //    applyConstraints(maze->getBoundingBox());
+        //}
+        //if (state != dead && state != still)
+        //{
+        //    createFootPrint(position);
+        //}
+        //if (state != still)
+        //{
+        //    //update player model position
+        //    glm::vec3 diff = position - prevPosition;
+        //    playerModel->rootModel[3][0] += diff.x;
+        //    playerModel->rootModel[3][1] += diff.y;
+        //    playerModel->rootModel[3][2] += diff.z;
+        //    playerGunModel->rootModel[3][0] += diff.x;
+        //    playerGunModel->rootModel[3][1] += diff.y;
+        //    playerGunModel->rootModel[3][2] += diff.z;
+        //    playerGunModel->animationRootModel[3][0] += diff.x;
+        //    playerGunModel->animationRootModel[3][1] += diff.y;
+        //    playerGunModel->animationRootModel[3][2] += diff.z;
+        //    playerGunModelCenter += diff;
+        //    prevPosition = position;
+        //}
+    }
+    else { //update stuff for all client players including opponents
         switch (state)
         {
         case crouch:
@@ -213,11 +271,8 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
             playerGunModel->animationRootModel[3][1] += diff.y;
             playerGunModel->animationRootModel[3][2] += diff.z;
             playerGunModelCenter += diff;
-
             prevPosition = position;
         }
-    }
-    else { //update stuff for all client players including opponents
         if (moving == 1) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
         }

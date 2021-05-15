@@ -97,6 +97,8 @@ bool Window::initializeObjects(Game* game)
 	ground = maze->generateGround();
 
 	walls = maze->generateWalls();
+
+	maze->generateAbilityChests();
 	
 
 	//player setup
@@ -538,8 +540,9 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 	//chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
-	for (Cube* abilityChests : maze->getChests())
+	for (Model* abilityChests : maze->getChests())
 	{
+		//cout << "draw ability chest" << endl;
 		abilityChests->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
 

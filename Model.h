@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "BoundingBox.h"
 
 using namespace std;
 
@@ -23,6 +24,7 @@ class Model
 {
 public:
     // model data 
+    BoundingBox* boundingBox;
     vector<Mesh*> meshes;
     int meshCounter;
     string directory;

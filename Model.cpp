@@ -91,7 +91,7 @@ void Model::processAnimations(const aiScene* scene) {
                 new AnimationNode(aiNodeAnim, meshes, animation->mTicksPerSecond)));
         }
         animationClipList.push_back(new AnimationClip(animationNodeMap, meshes));
-        cout << "processAnimation: " << animation->mName.C_Str() << endl;
+        //cout << "processAnimation: " << animation->mName.C_Str() << endl;
         animationClipList.at(animationClipList.size() - 1)->name = animation->mName.C_Str();
     }
 }

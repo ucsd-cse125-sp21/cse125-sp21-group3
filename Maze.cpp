@@ -29,6 +29,7 @@ Maze::Maze(int size, int scale, bool client)
 	// Set seed for random creation for testing purposes
 	//srand(0);
 	srand(time(NULL));
+	createAbilityChests(25);
 }
 
 
@@ -64,7 +65,7 @@ Cube * Maze::generateGround()
 
 
 
-void  Maze::createAbilityChests(int numChests)
+void Maze::createAbilityChests(int numChests)
 {
 	int numAbilities = numChests;
 	for (int i = 0; i < numChests; i++)
@@ -91,7 +92,7 @@ void  Maze::createAbilityChests(int numChests)
 
 
 
-std::vector<Cube*> Maze::generateAbilityChests()
+std::vector<Model*> Maze::generateAbilityChests()
 {
 	for (int r = 0; r < mazeSize; r++)
 	{
@@ -99,11 +100,12 @@ std::vector<Cube*> Maze::generateAbilityChests()
 		{
 			if (mazeArray[r][c].ability != Player::none)
 			{
-				Cube* chest = new Cube(glm::vec3(r * mapScale + wallWidth, 0.0f, c * mapScale + wallWidth), glm::vec3((r + 0.5) * mapScale, wallHeight/2, (c + 0.5) * mapScale), Cube::abilityChest, isClient);
-				chest->setColor(glm::vec3(0.2f, 0.5f, 0.9f));
+				glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3((r + 0.5) * mapScale, 0.0f, (c + 0.5) * mapScale));
+				Model* chest = new Model("Assets/chestOpen.gltf", translation);
 				abilityChests.push_back(chest);
-				boundingBoxList.push_back(chest->getBoundingBox());
-				chestBoundingBoxList.push_back(chest->getBoundingBox());
+				//chest->boundingBox = new BoundingBox();
+				//boundingBoxList.push_back(chest->getBoundingBox());
+				//chestBoundingBoxList.push_back(chest->getBoundingBox());
 
 			}
 		}

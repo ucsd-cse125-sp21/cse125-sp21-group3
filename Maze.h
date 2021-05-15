@@ -9,6 +9,7 @@
 #include "Window.h"
 #include <glm/glm.hpp>
 #include "Player.h"
+#include "Model.h"
 
 struct wallInfo {
 	bool right;
@@ -26,7 +27,7 @@ public:
 
 	void  createAbilityChests(int numChests);
 
-	std::vector<Cube*> generateAbilityChests();
+	std::vector<Model*> generateAbilityChests();
 
 
 	void printMaze();
@@ -38,7 +39,7 @@ public:
 
 	std::vector<Cube*> getWalls() { return walls; }
 
-	std::vector<Cube*> getChests() { return abilityChests; }
+	std::vector<Model*> getChests() { return abilityChests; }
 
 	std::vector<BoundingBox*> getChestBoundingBox() { return chestBoundingBoxList; }
 
@@ -64,7 +65,7 @@ private:
 
 	std::vector<Cube*> walls;
 
-	std::vector<Cube*> abilityChests;
+	std::vector<Model*> abilityChests;
 
 
 	std::vector<BoundingBox*> boundingBoxList;
