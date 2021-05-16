@@ -285,7 +285,7 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
         }
 
         if (game->myPlayerId == id) { //only update camera for client
-            oldPitch = playerCamera->getPitch();
+            //oldPitch = playerCamera->getPitch();
             playerCamera->setPosition(position);
 
             //update player camera

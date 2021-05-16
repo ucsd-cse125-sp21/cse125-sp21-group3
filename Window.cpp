@@ -45,6 +45,7 @@ int MouseX, MouseY;
 
 // The shader program id
 GLuint Window::shaderProgram;
+GLuint Window::shaderTextureProgram;
 
 //toggle to see bounding boxes
 bool Window::debugMode;
@@ -60,6 +61,18 @@ Cube* Window::cube;
 int Window::createOpponent;
 vector<string> Window::messagesToServer;
 
+//rendering icons
+
+unsigned int quadVAO, quadVBO;
+float quadVertices[] = {
+	// positions        // texture Coords
+	-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+	-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+	 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+	 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -73,6 +86,7 @@ bool Window::initializeProgram() {
 	
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
+	shaderTextureProgram = LoadShaders("shaders/shaderTexture.vert", "shaders/shaderTexture.frag");
 
 	// Check the shader program.
 	if (!shaderProgram)
@@ -415,12 +429,12 @@ void Window::drawCrosshair() {
 	glDrawPixels(crosshairLength, crosshairThickness, GL_RGB, GL_FLOAT, horizontalBar);
 }
 
+
 /*
- * Draws health in the form of digits
+ * Draws digit in seven segment form.
  *
  * @author Lucas Hwang
  */
-
 void Window::drawDigit(int startingX, int startingY, vector<bool> segmentsUsed) {
 
 	
@@ -452,6 +466,11 @@ void Window::drawDigit(int startingX, int startingY, vector<bool> segmentsUsed) 
 	}
 }
 
+/*
+ * Draws health in the form of digits
+ *
+ * @author Lucas Hwang
+ */
 void Window::drawHealth() {
 
 	vector<int> digits;
@@ -507,6 +526,43 @@ void Window::drawHealth() {
 	
 }
 
+
+void renderQuad()
+{
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		// setup plane VAO
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
+}
+
+void Window::drawIcon() {
+
+	glViewport(0, 0, width / 6, height / 6);
+	glUseProgram(Window::shaderProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, depthMap);
+	renderQuad();
+}
 /*
  * This method is called every frame and renders all objects based on their current
  * game state.
@@ -542,22 +598,6 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 	
 	//chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-
-	//for (Model* abilityChest : maze->getChests())
-	//{
-	//	//cout << "draw ability chest" << endl;
-	//	if (abilityChest->opening && !abilityChest->opened) {
-	//		if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
-	//			abilityChest->opening = false;
-	//			abilityChest->opened = true;
-	//		}
-	//		else {
-	//			abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
-	//		}
-	//	}
-	//	abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	//}
-
 	
 	for (Model* abilityChest : maze->getChests())
 	{
@@ -579,7 +619,6 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 
 		abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	}
-
 
 	//character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 	//cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);

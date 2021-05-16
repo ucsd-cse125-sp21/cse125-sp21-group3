@@ -154,7 +154,7 @@ private:
 	irrklang::ISoundEngine* soundEngine;
 	Weapon* playerWeapon;
 
-	float oldPitch;
+	//float oldPitch;
 
 	int state;
 
