@@ -307,20 +307,26 @@ void Window::idleCallback(Game* game)
 	//Cam->Update();
 	player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
 	player->setMoving(0);
-
-	if (GetAsyncKeyState(GLFW_KEY_W)) {
+	
+	/*if (activeWindow.compare("00000000") == true) {
+		cout << "window is not active" << endl;
+	}
+	else {
+		cout << "window is active" << endl;
+	}*/
+	if (GetAsyncKeyState(GLFW_KEY_W) && GetActiveWindow() != NULL) {
 		player->moveDirection(player->forward);
 		player->setMoving(1);
 	}
-	if (GetAsyncKeyState(GLFW_KEY_D)) {
+	if (GetAsyncKeyState(GLFW_KEY_D) && GetActiveWindow() != NULL) {
 		player->moveDirection(player->right);
 		player->setMoving(1);
 	}
-	if (GetAsyncKeyState(GLFW_KEY_A)) {
+	if (GetAsyncKeyState(GLFW_KEY_A) && GetActiveWindow() != NULL) {
 		player->moveDirection(player->left);
 		player->setMoving(1);
 	}
-	if (GetAsyncKeyState(GLFW_KEY_S)) {
+	if (GetAsyncKeyState(GLFW_KEY_S) && GetActiveWindow() != NULL) {
 		player->moveDirection(player->backward);
 		player->setMoving(-1);
 	}
@@ -332,10 +338,10 @@ void Window::idleCallback(Game* game)
 	//	player->pickUpAbility();
 	//}
 	// Allow player to move up and down for debugging
-	if (GetAsyncKeyState(GLFW_KEY_X)) {
+	if (GetAsyncKeyState(GLFW_KEY_X) && GetActiveWindow() != NULL) {
 		player->moveDirection(player->down);
 	}
-	if (GetAsyncKeyState(GLFW_KEY_Z)) {
+	if (GetAsyncKeyState(GLFW_KEY_Z) && GetActiveWindow() != NULL) {
 		player->moveDirection(player->up);
 	}
 
@@ -620,6 +626,9 @@ void Window::resetCamera()
  */
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	if (GetActiveWindow() == NULL) {
+		return;
+	}
 	/*
 	 * TODO: Modify below to add your key callbacks.
 	 */
@@ -698,10 +707,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
  */
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && GetActiveWindow() != NULL) {
 		LeftDown = (action == GLFW_PRESS);
 	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && GetActiveWindow() != NULL) {
 		RightDown = (action == GLFW_PRESS);
 	}
 
@@ -723,6 +732,10 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
  * @author Part of 169 starter code
  */
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
+
+	if (GetActiveWindow() == NULL) {
+		return;
+	}
 
 	int maxDelta = 100;
 	int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
