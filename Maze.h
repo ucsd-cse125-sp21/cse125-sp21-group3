@@ -14,6 +14,9 @@ struct wallInfo {
 	bool right;
 	bool bottom;
 	int ability;
+	Cube* wallRight;
+	Cube* wallBottom;
+	Cube* abilityChest;
 };
 
 class Maze {

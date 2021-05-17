@@ -6,7 +6,6 @@
 #include "shader.h"
 #include "Camera.h"
 #include "Game.h"
-#include "Opponent.h"
 
 class Game;
 
@@ -45,8 +44,8 @@ public:
 	static void resizeCallback(GLFWwindow* window, int width, int height);
 
 	// update and draw functions
-	static void idleCallback();
-	static void displayCallback(GLFWwindow*);
+	static void idleCallback(Game* game);
+	static void displayCallback(Game* game, GLFWwindow*);
 
 	// helper to reset the camera
 	static void resetCamera();
@@ -57,21 +56,13 @@ public:
 	static void cursor_callback(GLFWwindow* window, double currX, double currY);
 
 	static void drawCrosshair();
+	static void drawHealth();
+	static void drawDigit(int startingX, int startingY, vector<bool> segmentsUsed);
 	static bool debugMode;
 
 	//Networking Stuff
-	static void constructPlayerInputString();
-	static std::string playerInputString;
-	static bool isForwardPressed;
-	static bool isRightPressed;
-	static bool isLeftPressed;
-	static bool isBackwardPressed;
-	static bool isCrouched;
-	static bool isSprinting;
-	static glm::vec3 playerDirection;
-	static bool hasFired;
-	static map<int, Opponent*> opponentMap;
-	static void updateOpponent(int id, glm::vec3 position, glm::vec3 direction, int moving);
+	static int createOpponent;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

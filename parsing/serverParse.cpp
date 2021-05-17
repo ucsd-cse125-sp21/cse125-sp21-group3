@@ -1,9 +1,5 @@
 #include "serverParse.h"
 
-using namespace std;
-using namespace boost::asio;
-using ip::tcp;
-
 
 int serverParse::userIdCount = 0;
 const string serverParse::MESSAGE_TAIL = "\r\n";
@@ -19,11 +15,11 @@ string serverParse::createMazeString(Maze* maze)
         {
             if (mazeArray[r][c].right)
             {
-                message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",0,";
+                message += "mU," + to_string(r) + "," + to_string(c) + ",0,";
             }
             if (mazeArray[r][c].bottom)
             {
-                message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",1,";
+                message += "mU," + to_string(r) + "," + to_string(c) + ",1,";
             }
         }
     }
@@ -40,7 +36,7 @@ string serverParse::createAbilityString(Maze* maze)
         {
             if (mazeArray[r][c].ability != Player::none)
             {
-                message += "mazeAbility," + to_string(r) + "," + to_string(c) + "," + to_string(mazeArray[r][c].ability) + ",";
+                message += "mA," + to_string(r) + "," + to_string(c) + "," + to_string(mazeArray[r][c].ability) + ",";
             }
 
         }
@@ -82,7 +78,7 @@ void serverParse::leaveMessageHandler(string clientId){
 /*
  * Store data from input message in the approriate idClientMap entry.
  */
-void serverParse::inputMessageHandler(vector<string> messageValues){
+void serverParse::inputMessageHandler(Game* game, vector<string> messageValues){
 
     //string clientId;
 
@@ -93,7 +89,38 @@ void serverParse::inputMessageHandler(vector<string> messageValues){
     //        clientId += c;
     //    }
     //}
+    int clientId = stoi(messageValues.at(1));
+    if (clientId >= game->allPlayers.size()) {
+        cout << "invalid clientId in inputMessageHandler: " << clientId << endl;
+        return;
+    }
+    Player* player = NULL;
+    for (int i = 0; i < game->allPlayers.size(); i++) {
+        if (clientId == game->allPlayers.at(i)->getId()) {
+            player = game->allPlayers.at(i);
+            break;
+        }
+    }
+    if (player == NULL) {
+        cout << "invalid player in inputMessageHandler: " << clientId << endl;
+        return;
+    }
 
+    
+    player->setMoving(stoi(messageValues.at(2)));
+    player->setLookingDirection(glm::vec3(stof(messageValues.at(3)), stof(messageValues.at(4)), stof(messageValues.at(5))));
+    string hasFired;
+    for (int i = 0; i < messageValues.at(6).size(); i++) {
+        int c = (int)messageValues.at(6).at(i);
+        if (c >= (int)'a' && c <= (int)'z') {
+            hasFired += messageValues.at(6).at(i);
+        }
+    }
+    if (hasFired.compare("true") == 0) {
+        cout << "received hasFired to true for player " << clientId << endl;
+        player->setHasFired(true);
+    }
+ 
     //vector<string> keyInputVector = { messageValues[2], messageValues[3], messageValues[4], messageValues[5], messageValues[6], messageValues[7] };
     //idClientMap[clientId].setKeyDirection(keyInputVector);
     //idClientMap[clientId].setIsCrouching(messageValues.at(6)=="true");
@@ -107,22 +134,72 @@ void serverParse::inputMessageHandler(vector<string> messageValues){
  * relevant.  Assume the MESSAGE_TAIL has already been removed by a
  * read_until method.
  */
-void serverParse::sortClientMessage(string clientMessage) {
+void serverParse::sortClientMessage(Game* game, string clientMessage) {
+    
     vector<string> messageValues;
     boost::split(messageValues, clientMessage, boost::is_any_of(","));
-    string header = messageValues.front();
-    if (header=="join") {
-        serverParse::joinMessageHandler();
-    }
-    else if (header=="leave") {
-        serverParse::leaveMessageHandler(messageValues.at(1));
-    }
-    else if (header=="input"){
-        serverParse::inputMessageHandler(messageValues);
-    }
-    else {
-        cout << clientMessage << endl;
-        cout<<"Unexpected message type from client"<<endl;
+    vector<string>::iterator it = messageValues.begin();
+    while (it != messageValues.end())
+    {
+        if (*it == "join") {
+        }
+        else if (*it == "leave") {
+        }
+        else if (*it == "input") {
+            int playerID = stoi(*(it + 1));
+            int isMoving = stoi(*(it + 2));
+            float yaw = stof(*(it + 3));
+            float pitch = stof(*(it + 4));
+            int state = stoi(*(it + 5));
+            Player* player = game->allPlayers.at(0);
+            for (int i = 1; i < game->allPlayers.size(); i++)
+            {
+                if (game->allPlayers.at(i)->getId() == playerID)
+                {
+                    player = game->allPlayers.at(i);
+                    break;
+                }
+            }
+
+            Camera* cam = player->getPlayerCamera();
+            cam->setYaw(yaw);
+            cam->setPitch(pitch);
+            cam->Update();
+            player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+            player->setState(state);
+
+            for (int i = Player::forward; i <= Player::down; i++)
+            {
+                int dirOn = stoi(*(it + 6 + i));
+                if (dirOn)
+                {
+                    player->moveDirection(i);
+                }
+            }
+            int hasFired = stoi(*(it + 6 + Player::down + 1));
+            if (hasFired)
+            {
+                player->shootWeapon(game -> allBoundingBoxes);
+            }
+            int pickUpAbility = stoi(*(it + 6 + Player::down + 2));
+            if (pickUpAbility)
+            {
+                cout << "Picking up ability" << endl;
+                player->pickUpAbility();
+                player->setPickUpAbilityKey(false);
+            }
+            int useAbility = stoi(*(it + 6 + Player::down + 3));
+            if (useAbility)
+            {
+                cout << "Using ability" << endl;
+                player -> useAbility();
+                player->setUseAbilityKey(false);
+            }
+            it = it + 6 + Player::down + 3;
+        }
+        else {
+        }
+        it++;
     }
 }
 
@@ -136,11 +213,28 @@ string serverParse::buildJoinResponse(string clientId) {
 /*
  * Return the player message string.
  */
-string serverParse::buildPlayerMessage(string clientId) {
+string serverParse::buildPlayerMessage(Game* game, string clientId) {
 
-    //return "player," + clientId + idClientMap[clientId].getPayloadString() 
-    //    + MESSAGE_TAIL;
-    return "";
+    string playerMessage = "";
+    if (game == NULL) {
+        return playerMessage;
+    }
+    if (stoi(clientId) >= game->allPlayers.size()) {
+        cout << "invalid clientId in buildPlayerMessage: " << clientId << endl;
+        return playerMessage;
+    }
+
+    for (int i = 0; i < game->allPlayers.size(); i++) {
+        if (game->allPlayers.at(i)->getId() == stoi(clientId)) {
+            playerMessage = game->allPlayers.at(i)->getPlayerInfoString();
+            //cout << "sending playerMessage: " << playerMessage << endl;
+            game->allPlayers.at(i)->setHasFired(false);
+            break;
+        }
+    }
+
+    return playerMessage;
+    //return "";
 }
 
 /*

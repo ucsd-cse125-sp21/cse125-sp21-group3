@@ -27,6 +27,7 @@ void Model::loadModel(string const& path)
     Assimp::Importer importer;
 
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+
     // check for errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
@@ -129,9 +130,6 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
         time = animationClip->prevTime + speed; 
     }
     if (time > animationClip->duration) {
-        if (animationClip->name.compare("shooting") == 0) {
-            Window::hasFired = false;
-        }
         time = 0.0f;
     }
     if (time < 0.0f) {
@@ -142,7 +140,6 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
     animationClip->calculateBoneTransforms(time, root, animationRootModel);
     animationClip->applyBoneTransforms();
     animationClip->prevTime = time;
-   
 }
 
 void Model::rotateAnimation(float amount, glm::vec3 p) {

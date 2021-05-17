@@ -17,6 +17,9 @@ Maze::Maze(int size, int scale, bool client)
 			mazeArray[r][c].right = false;
 			mazeArray[r][c].bottom = false;
 			mazeArray[r][c].ability = Player::none;
+			mazeArray[r][c].wallRight = NULL;
+			mazeArray[r][c].wallBottom = NULL;
+			mazeArray[r][c].abilityChest = NULL;
 		}
 	}
 
@@ -104,6 +107,7 @@ std::vector<Cube*> Maze::generateAbilityChests()
 				abilityChests.push_back(chest);
 				boundingBoxList.push_back(chest->getBoundingBox());
 				chestBoundingBoxList.push_back(chest->getBoundingBox());
+				mazeArray[r][c].abilityChest = chest;
 
 			}
 		}
@@ -159,6 +163,7 @@ std::vector<Cube*> Maze::generateWalls()
 				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3(r * mapScale + wallWidth, wallHeight, (c + 1) * mapScale + wallWidth), canDelete, isClient);
 				walls.push_back(newWall);
 				boundingBoxList.push_back(newWall->getBoundingBox());
+				mazeArray[r][c].wallBottom = newWall;
 			}
 			if (mazeArray[r][c].right)
 			{
@@ -169,6 +174,7 @@ std::vector<Cube*> Maze::generateWalls()
 				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3((r + 1) * mapScale, wallHeight, c * mapScale + wallWidth), canDelete, isClient);
 				walls.push_back(newWall);
 				boundingBoxList.push_back(newWall->getBoundingBox());
+				mazeArray[r][c].wallRight = newWall;
 			}
 		}
 	}

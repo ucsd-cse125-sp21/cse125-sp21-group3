@@ -2,12 +2,13 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <../util/ts_queue.cpp>
-#include <../parsing/clientParse.h>
-#include <../main.h>
-#include <../Game.h>
+#include "../util/ts_queue.cpp"
+#include "../parsing/clientParse.h"
+#include "main.h"
+#include "Game.h"
 
-#define PERIOD 500 //client period in ms
+#define PERIOD 30 //client period in ms
+#define DELAY_PERIOD 750
 
 using namespace boost::asio;
 using ip::tcp;
@@ -26,9 +27,11 @@ public:
 
     Game* game;
 
+    bool gameInitialized;
+
     Client(boost::asio::io_service& io_service) : io_service_(io_service), sock(io_service) {
         game = new Game(true);
-        game->beginGame();
+        gameInitialized = false;
     }
 
 
@@ -54,7 +57,7 @@ public:
     void client_handle_read(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (!err) {
-            cout << "Received:" << input_buf << endl;
+            //cout << "Received:" << input_buf << endl;
             clientParse::sortServerMessage(game, input_buf);
             input_buf = ""; //clear the input buffer
             async_read_until(
@@ -92,8 +95,14 @@ public:
     void client_handle_timeout(){
         while(1){
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
-            std::string input_string =  clientParse::buildInputMessage();
+            if (!gameInitialized || !game -> gameBegun)
+            {
+                continue;
+            }
+            std::string input_string =  clientParse::buildInputMessage(game);
 
+            game->update(PERIOD/1000.0f);
+            //cout << "Sending:" << input_string << endl;
             sock.async_write_some(
                 boost::asio::buffer(input_string, input_string.size()),
                 boost::bind(&Client::client_handle_send_input,
@@ -179,13 +188,7 @@ int main(int argc, char* argv[])
     boost::asio::io_service io_service;
     Client client(io_service);
     client.sock.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
-    client.start();
     std::cout << "Client started" << std::endl;
-    //run the io_service in its own thread
-    std::thread io_thread = std::thread([&]() {client.io_service_.run();});
-
-    //run timer in its own thread
-    std::thread timer_thread = std::thread([&]() {client.client_handle_timeout();});
 
     std::cout << "Creating window" << std::endl;
 
@@ -211,19 +214,35 @@ int main(int argc, char* argv[])
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
 
 
-
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+    client.gameInitialized = true;
+    client.start();
+
+
+    //run the io_service in its own thread
+    std::thread io_thread = std::thread([&]() {client.io_service_.run(); });
+
+    //run timer in its own thread
+    std::thread timer_thread = std::thread([&]() {client.client_handle_timeout(); });
+
+    while (!client.game->gameSet)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));
+        cout << "waiting for maze" << endl;
+    }
+    client.game->initiateGame();
 
 
     // Loop while GLFW window should stay open.
     while (!glfwWindowShouldClose(window))
     {
         // Main render display callback. Rendering of objects is done here.
-        Window::displayCallback(window);
+        Window::displayCallback(client.game, window);
 
 
         // Idle callback. Updating objects, etc. can be done here.
-        Window::idleCallback();
+        Window::idleCallback(client.game);
     }
 
 

@@ -4,7 +4,7 @@
 #define GAME_H
 
 #include "main.h"
-#include<vector>
+#include <vector>
 #include <glm/glm.hpp>
 #include "Maze.h"
 #include "Player.h"
@@ -16,12 +16,19 @@ public:
 
 	void beginGame();
 	void initiateGame();
+	void update(float deltaTime);
+
 
 	Maze* maze;
 	Player* myPlayer;
+	int myPlayerId;
 	vector<Player*> allPlayers;
 
+	vector<BoundingBox*> allBoundingBoxes;
+
 	bool isClient;
+	bool gameBegun;
+	bool gameSet;
 };
 
 #endif

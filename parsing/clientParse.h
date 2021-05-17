@@ -1,3 +1,9 @@
+#pragma once
+
+#ifndef CLIENTPARSE_H
+#define CLIENTPARSE_H
+
+
 #include <iostream>
 #include <cstdlib>
 #include <boost/asio.hpp>
@@ -12,14 +18,6 @@ using namespace std;
 using namespace boost::asio;
 using ip::tcp;
 
-#pragma once
-
-const string JOIN_RESPONSE = "joinResponse,0";
-const string START_MESSAGE = "start";
-const string PLAYER_MESSAGE_INITIAL = "player,1,0.0,0.0,100";
-const string PLAYER_MESSAGE_UPDATE = "player,1,555.5,444.4,33";
-const string MAZE_INITIAL = "mazeInitial,4,1,1,2,0,1,0,0,1,2,1,0,1,2,1,1,0";
-const string MAZE_UPDATE = "mazeUpdate,0,0,2,1,1,2";
 
 const int MAX_FOOTSTEPS = 10;
 
@@ -67,10 +65,13 @@ class clientParse
 
         static string buildLeaveMessage();
 
-        static string buildInputMessage();
+        static string buildInputMessage(Game* game);
 
         void printArray();
 
         void printFootsteps(string playerId);
 
 };
+
+
+#endif

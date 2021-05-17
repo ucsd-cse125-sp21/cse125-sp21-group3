@@ -1,6 +1,5 @@
 #include "clientParse.h"
 
-
 /*
  * Set selfId field to userId sent in Join Response message.
  */
@@ -95,34 +94,114 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     vector<string> messageValues;
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
     vector<string>::iterator it = messageValues.begin();
+    bool createdMaze = false;
     while (it != messageValues.end())
     {
-
         if (*it == "joinResponse")
         {
-
+            int playerId = stoi(*(it + 1));
+            game->myPlayerId = playerId;
+            it = it + 1;
         }
         else if (*it == "player")
         {
-            string userid = *(it + 1);
-            int x = stoi(*(it + 2));
-            int y = stoi(*(it + 3));
-            int health = stoi(*(it + 4));
-            it = (it + 4);
+            if (game == NULL || game->maze == NULL) {
+                return;
+            }
+            int userId = stoi(*(it + 1));
+            bool createPlayer = true;
+            if (userId == game->myPlayerId) {
+                createPlayer = false;
+            }
+            else {
+                for (int i = 0; i < game->allPlayers.size(); i++) {
+                    int id = game->allPlayers.at(i)->getId();
+                    if (userId == id) {
+                        createPlayer = false;
+                        break;
+                    }
+                }
+            }
+
+            if (createPlayer) {
+                Window::createOpponent = userId; //set flag to create new player (opponent)
+            }
+
+            Player* player = game -> myPlayer;
+            //since allPlayers[i] does not necessarily equal player i, we must search to find correct player
+            for (int i = 0; i < game->allPlayers.size(); i++)
+            {
+                if (userId == game->allPlayers.at(i)->getId())
+                {
+                    Player* player = game->allPlayers.at(i);
+                    break;
+                    //if (userId != game->myPlayerId) {
+                    //    game->allPlayers.at(i)->setMoving(stoi(messageValues.at(2)));
+                    //    string hasFired;
+                    //    for (int j = 0; j < messageValues.at(6).size(); j++) {
+                    //        int c = (int)messageValues.at(6).at(j);
+                    //        if (c >= (int)'a' && c <= (int)'z') {
+                    //            hasFired += messageValues.at(6).at(j);
+                    //        }
+                    //    }
+                    //    if (hasFired.compare("true") == 0) {
+                    //        //cout << "set isFiring for opponent" << endl;
+                    //        game->allPlayers.at(i)->setIsFiring(true);
+                    //    }
+                }
+            }
+
+
+            bool isMoving = stoi(*(it + 2));
+
+            float position_x = stof(*(it + 3));
+            float position_y = stof(*(it + 4));
+            float position_z = stof(*(it + 5));
+
+            float velocity_x = stof(*(it + 6));
+            float velocity_y = stof(*(it + 7));
+            float velocity_z = stof(*(it + 8));
+
+
+            if (player != NULL)
+            {
+                player->setMoving(isMoving);
+
+                player->setPosition(glm::vec3(position_x, position_y, position_z));
+            }
+
+            float currentHealth = stof(*(it + 9));
+            float maxHealth = stof(*(it + 10));
+            float currentArmor = stof(*(it + 11));
+            float currentDamageBoost = stof(*(it + 12));
+            int currentAbility = stoi(*(it + 13));
+
+            player->setHealth(currentHealth);
+            player->setMaxHealth(maxHealth);
+            player->setArmor(currentArmor);
+            player->setDamageBoost(currentDamageBoost);
+            player->setAbility(currentAbility);
+            //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
+
+            it = it + 13;
+
         }
         else if (*it == "mazeInitial")
         {
         }
-        else if (*it == "mazeUpdate")
+        // mazeUpdate
+        else if (*it == "mU")
         {
+            createdMaze = true;
             int row = stoi(*(it + 1));
             int col = stoi(*(it + 2));
             int wallDirection = stoi(*(it + 3));
             game->maze->setWall(row, col, wallDirection, 1);
             it = (it + 3);
         }
-        else if (*it == "mazeAbility")
+        else if (*it == "mA")
         {
+            createdMaze = true;
             int row = stoi(*(it + 1));
             int col = stoi(*(it + 2));
             int ability = stoi(*(it + 3));
@@ -134,6 +213,11 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         }
         it++;
     }
+    if (createdMaze)
+    {
+        game->gameSet = true;
+    }
+
     //string header = messageValues.front();
     //if (header=="joinResponse") {
     //    joinResponseHandler(messageValues.at(1));
@@ -171,18 +255,28 @@ string clientParse::buildLeaveMessage() {
     return "";
 }
 
+
 /*
  * Return the input message string.  String inserted here is a sample.  Input
  * parameters will need to be added.
  */
-string clientParse::buildInputMessage() {
+string clientParse::buildInputMessage(Game* game) {
     
     //string inputMessage = "input," + selfId + "," + Window::playerInputString
     //    + MESSAGE_TAIL;
     /*string defaultMessage = "input," + selfId + ",true,false,false,false,true,false,300.58,false"
         + MESSAGE_TAIL;
     cout << "theirString: " << defaultMessage;*/
-    return "";// inputMessage;
+    string inputMessage = "";
+    if(game->myPlayer) {
+        inputMessage = game->myPlayer->getPlayerInputString();
+        if (game->myPlayer->getHasFired()) {
+            cout << "build input hasFired" << endl;
+        }
+    }
+    
+    //cout << "inputMessage: " << inputMessage << endl;
+    return inputMessage;// inputMessage;
 }
 
 /*
