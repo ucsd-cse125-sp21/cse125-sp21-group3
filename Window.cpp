@@ -48,7 +48,6 @@ int MouseX, MouseY;
 
 // The shader program id
 GLuint Window::shaderProgram;
-GLuint Window::shaderTextureProgram;
 GLuint Window::shaderTextureQuadProgram;
 
 //toggle to see bounding boxes
@@ -93,7 +92,6 @@ bool Window::initializeProgram() {
 	
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
-	shaderTextureProgram = LoadShaders("shaders/shaderTexture.vert", "shaders/shaderTexture.frag");
 	shaderTextureQuadProgram = LoadShaders("shaders/shaderTexture_quad.vert", "shaders/shaderTexture_quad.frag");
 
 	// Check the shader program.
