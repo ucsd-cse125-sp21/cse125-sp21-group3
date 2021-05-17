@@ -7,7 +7,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include "Player.h"
 #include "Camera.h"
-#include "TextureCube.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 
 /*
@@ -48,6 +49,7 @@ int MouseX, MouseY;
 // The shader program id
 GLuint Window::shaderProgram;
 GLuint Window::shaderTextureProgram;
+GLuint Window::shaderTextureQuadProgram;
 
 //toggle to see bounding boxes
 bool Window::debugMode;
@@ -65,16 +67,16 @@ vector<string> Window::messagesToServer;
 
 //rendering icons
 
-unsigned int quadVAO, quadVBO;
-float quadVertices[] = {
+unsigned int abilityQuadVAO, abilityQuadVBO;
+float abilityQuadVertices[] = {
 	// positions        // texture Coords
-	-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-	-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-	 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-	 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+	-1.0f,  1.0f, 0.0f, 1.0f, 0.0f,
+	-1.0f, -1.0f, 0.0f, 1.0f, 1.0f,
+	 1.0f,  1.0f, 0.0f, 0.0f, 0.0f,
+	 1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
 };
-
-TextureCube* textureCube;
+GLuint abilityTexture;
+//TextureCube* textureCube;
 
 
 
@@ -92,6 +94,7 @@ bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
 	shaderTextureProgram = LoadShaders("shaders/shaderTexture.vert", "shaders/shaderTexture.frag");
+	shaderTextureQuadProgram = LoadShaders("shaders/shaderTexture_quad.vert", "shaders/shaderTexture_quad.frag");
 
 	// Check the shader program.
 	if (!shaderProgram)
@@ -181,7 +184,40 @@ bool Window::initializeObjects(Game* game)
 
 
 
-	textureCube = new TextureCube();
+	// setup plane VAO
+	glGenVertexArrays(1, &abilityQuadVAO);
+	glGenBuffers(1, &abilityQuadVBO);
+	glBindVertexArray(abilityQuadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, abilityQuadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(abilityQuadVertices), &abilityQuadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	glGenTextures(1, &abilityTexture);
+	glBindTexture(GL_TEXTURE_2D, abilityTexture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	int width, height, nrChannels;
+	// The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
+	unsigned char* data = stbi_load("Assets/icons/increasePlayerMaxHealth.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+	//textureCube = new TextureCube();
 	return true;
 }
 
@@ -539,27 +575,11 @@ void Window::drawHealth() {
 
 void renderQuad()
 {
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			// positions        // texture Coords
-			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		};
-		// setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	}
-	glBindVertexArray(quadVAO);
+	glUseProgram(Window::shaderTextureQuadProgram);
+	glBindVertexArray(abilityQuadVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, abilityTexture);
+	// draw the points using triangles, indexed with the EBO
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);
 }
@@ -584,6 +604,9 @@ void Window::drawIcon() {
  */
 void Window::displayCallback(Game* game, GLFWwindow* window)
 {	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, width, height);
+
 	// Clear the color and depth buffers.
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -637,15 +660,14 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 	//cube2->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-
-
-	textureCube->draw(Cam->GetViewProjectMtx(), Window::shaderTextureProgram);
-
+	drawCrosshair();
+	drawHealth();
+	//if (player has ability) {
+		glViewport(0, 0, width / 6, height / 6);
+		renderQuad();
+	//}
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
-	
-	//drawCrosshair();
-	//drawHealth();
 	
 	
 	// Swap buffers.

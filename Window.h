@@ -34,6 +34,7 @@ public:
 	// Shader Program 
 	static GLuint shaderProgram;
 	static GLuint shaderTextureProgram;
+	static GLuint shaderTextureQuadProgram;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();
