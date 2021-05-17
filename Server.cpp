@@ -185,37 +185,29 @@ public:
     //constructor for accepting connection from client
     Server(boost::asio::io_service& io_service); 
 
-    
     void begin_game()
     {
         game = new Game(false);
         game->beginGame();
 
-        //Maze* maze = game->maze;
-        //string message = "";
-        //wallInfo** mazeArray = maze->getMazeArray();
-        //for (int r = 0; r <  maze -> getMazeSize(); r++)
-        //{
-        //    for (int c = 0; c < maze -> getMazeSize(); c++)
-        //    {
-        //        if (mazeArray[r][c].right)
-        //        {
-        //            message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",0,";
-        //            message += to_string(0) + ",";
-        //        }
-        //        if (mazeArray[r][c].bottom)
-        //        {
-        //            message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",1,";
-        //            message += to_string(0) + ",";
-        //        }
-      
-        //        //message += to_string(0) + ",";
-        //        //cout << "message: " << message << endl;
-        //    }
-        //}
-        //cout << "broadcasting maze message: " << endl;
-        //cout << message << endl;
-        //broadcast(message);
+        Maze* maze = game->maze;
+        string message = "";
+        wallInfo** mazeArray = maze->getMazeArray();
+        for (int r = 0; r <  maze -> getMazeSize(); r++)
+        {
+            for (int c = 0; c < maze -> getMazeSize(); c++)
+            {
+                if (mazeArray[r][c].right)
+                {
+                    message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",0,";
+                }
+                if (mazeArray[r][c].bottom)
+                {
+                    message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",1,";
+                }
+            }
+        }
+        broadcast(message);
     }
 
     void handle_accept(con_handler::pointer connection, const boost::system::error_code& err)
@@ -231,7 +223,6 @@ public:
         }
         game->allPlayers.push_back(new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, false));
         game->allPlayers.at(game->allPlayers.size() - 1)->setId(serverParse::userIdCount - 1);
-        connection->send_game_state(serverParse::buildMazeUpdateMessage(game));
     }
 
     /*
@@ -261,24 +252,13 @@ public:
                 for (bufIndex = 0; bufIndex < serverParse::userIdCount; bufIndex++) {
                     std::string nextMessage = playerConnections[bufIndex]->dequeue();
                     //cout << "calling sort for playerConnection: " << bufIndex << endl;
-                    if (!nextMessage.empty()) {
-                        //cout << "enter sortClientMessage" << endl;
+                    if (!nextMessage.empty())
                         serverParse::sortClientMessage(game, nextMessage);
-                        vector<string> messageValues;
-                        boost::split(messageValues, nextMessage, boost::is_any_of(","));
-                        if (messageValues.front() == "chestOpen") {
-                            for (int p = 0; p < serverParse::userIdCount; p++) {
-                                cout << "sending chest open to all players" << endl;
-                                //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
-                                broadcast(nextMessage);
-                            }
-                        }
-                    }
 
                     //printMoving(playerConnections[0]->pid_str);
                     //then broadcast the game_state
                     for (int p = 0; p < serverParse::userIdCount; p++) {
-                        //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
+                        cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
                         std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
                         broadcast(playerStateString);
                     }

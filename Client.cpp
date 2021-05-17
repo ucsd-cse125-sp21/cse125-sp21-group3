@@ -102,17 +102,6 @@ public:
                     boost::asio::placeholders::bytes_transferred));
         }
     }
-
-     void client_send_messages(vector<string> messages) {
-         for (string message : messages) {
-             sock.async_write_some(
-                 boost::asio::buffer(message, message.size()),
-                 boost::bind(&Client::client_handle_send_input,
-                     this,
-                     boost::asio::placeholders::error,
-                     boost::asio::placeholders::bytes_transferred));
-         }
-    }
     
 };
 
@@ -234,12 +223,6 @@ int main(int argc, char* argv[])
 
         // Idle callback. Updating objects, etc. can be done here.
         Window::idleCallback(client.game);
-
-        //send any messages which need to be sent
-        if (Window::messagesToServer.size() > 0) {
-            client.client_send_messages(Window::messagesToServer);
-            Window::messagesToServer = {};
-        }
     }
 
 
