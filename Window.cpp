@@ -7,6 +7,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include "Player.h"
 #include "Camera.h"
+#include "TextureCube.h"
+
 
 /*
  * File Name: Window.cpp
@@ -71,6 +73,9 @@ float quadVertices[] = {
 	 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
 	 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 };
+
+TextureCube* textureCube;
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -172,6 +177,11 @@ bool Window::initializeObjects(Game* game)
 		}
 	}
 
+
+
+
+
+	textureCube = new TextureCube();
 	return true;
 }
 
@@ -556,12 +566,14 @@ void renderQuad()
 
 void Window::drawIcon() {
 
-	glViewport(0, 0, width / 6, height / 6);
-	glUseProgram(Window::shaderProgram);
+	//glViewport(0, 0, width / 6, height / 6);
+	//glUseProgram(Window::shaderProgram);
 
-	glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, depthMap);
-	renderQuad();
+	//glActiveTexture(GL_TEXTURE0);
+	////glBindTexture(GL_TEXTURE_2D, depthMap);
+	//renderQuad();
+
+
 }
 /*
  * This method is called every frame and renders all objects based on their current
@@ -627,11 +639,14 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 	ground->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
 
+	textureCube->draw(Cam->GetViewProjectMtx(), Window::shaderTextureProgram);
+
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
 	
-	drawCrosshair();
-	drawHealth();
+	//drawCrosshair();
+	//drawHealth();
+	
 	
 	// Swap buffers.
 	glfwSwapBuffers(window);
