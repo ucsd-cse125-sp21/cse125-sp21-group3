@@ -31,10 +31,10 @@ TextureCube::TextureCube()
 
 	// Specify vertex positions
 	positions = {
-		glm::vec3(2.5f,  2.5f, -3.0f),
-		glm::vec3(2.5f, 1.5f, -3.0f),
-		glm::vec3(1.5f, 1.5f, -3.0f),
-		glm::vec3(1.5f,  2.5f, -3.0f)
+		glm::vec3(3.0f,  4.0f, 1.5f),
+		glm::vec3(3.0f, 3.0f, 1.5f),
+		glm::vec3(2.0f, 3.0f, 1.5f),
+		glm::vec3(2.0f,  4.0f, 1.5f)
 	};
 
 	// Specify normals
