@@ -16,10 +16,18 @@ Unix: ./booststrap-vcpkg.sh
 Install 32 bit versions of all the packages. To install 64 bit version append :x64-windows (or mac) to the end of the install command. But 32 bit is easier.
 
 vcpkg install boost-date-time
+
 vcpkg install boost
+
 vcpkg install assimp
+
 vcpkg install glm
+
 vcpkg install opengl
+
+vcpkg install glfw3
+
+vcpkg install glew
 
 Finish with
 vcpkg integrate install
