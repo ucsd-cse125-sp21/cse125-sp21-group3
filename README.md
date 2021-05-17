@@ -29,6 +29,8 @@ vcpkg install glfw3
 
 vcpkg install glew
 
+vcpkg install zlib
+
 Finish with
 vcpkg integrate install
 
