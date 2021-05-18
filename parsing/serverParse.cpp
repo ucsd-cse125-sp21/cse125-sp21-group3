@@ -262,9 +262,30 @@ string serverParse::buildMazeInitialMessage() {
  * Return the update maze message sent during the game after updates to the
  * maze for the passed client.
  */
-string serverParse::buildMazeUpdateMessage(string clientId) {
-    //return "mazeUpdate" + idClientMap[clientId].getMazeUpdates() + MESSAGE_TAIL;
-    return "";
+string serverParse::buildMazeUpdateMessage(Game* game) {
+    Maze* maze = game->maze;
+    string message = "";
+    wallInfo** mazeArray = maze->getMazeArray();
+    for (int r = 0; r < maze->getMazeSize(); r++)
+    {
+        for (int c = 0; c < maze->getMazeSize(); c++)
+        {
+            if (mazeArray[r][c].right)
+            {
+                message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",0,";
+                message += to_string(mazeArray[r][c].ability) + ",";                
+            }
+            if (mazeArray[r][c].bottom)
+            {
+                message += "mazeUpdate," + to_string(r) + "," + to_string(c) + ",1,";
+                message += to_string(mazeArray[r][c].ability) + ",";
+            }
+
+            //message += to_string(0) + ",";
+            //cout << "message: " << message << endl;
+        }
+    }
+    return message;
 }
 
 /*

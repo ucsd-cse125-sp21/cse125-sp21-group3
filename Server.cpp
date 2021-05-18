@@ -184,6 +184,7 @@ public:
     //constructor for accepting connection from client
     Server(boost::asio::io_service& io_service); 
 
+    
     void begin_game()
     {
         game = new Game(false);
@@ -246,6 +247,15 @@ public:
                     if (!nextMessage.empty()) {
                         //cout << "Receiving message for player:" << bufIndex << ":" << nextMessage << endl;
                         serverParse::sortClientMessage(game, nextMessage);
+                        vector<string> messageValues;
+                        boost::split(messageValues, nextMessage, boost::is_any_of(","));
+                        if (messageValues.front() == "chestOpen") {
+                            for (int p = 0; p < serverParse::userIdCount; p++) {
+                                cout << "sending chest open to all players" << endl;
+                                //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
+                                broadcast(nextMessage);
+                            }
+                        }
                     }
 
                     if (game)

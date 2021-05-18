@@ -211,6 +211,13 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         else if (*it == "start")
         {
         }
+        else if(*it == "chestOpen") {
+            wallInfo** mazeArray = game->maze->getMazeArray();
+            int r = stoi(*(it + 1));
+            int c = stoi(*(it + 2));
+            mazeArray[r][c].ability = Player::opened;
+            it = it + 2;
+        }
         it++;
     }
     if (createdMaze)
@@ -262,22 +269,15 @@ string clientParse::buildLeaveMessage() {
  */
 string clientParse::buildInputMessage(Game* game) {
     
-    //string inputMessage = "input," + selfId + "," + Window::playerInputString
-    //    + MESSAGE_TAIL;
-    /*string defaultMessage = "input," + selfId + ",true,false,false,false,true,false,300.58,false"
-        + MESSAGE_TAIL;
-    cout << "theirString: " << defaultMessage;*/
     string inputMessage = "";
     if(game->myPlayer) {
         inputMessage = game->myPlayer->getPlayerInputString();
-        if (game->myPlayer->getHasFired()) {
-            cout << "build input hasFired" << endl;
-        }
     }
     
     //cout << "inputMessage: " << inputMessage << endl;
-    return inputMessage;// inputMessage;
+    return inputMessage;
 }
+
 
 /*
  * Method to display 2D array in string form.  Only for verifying methods.

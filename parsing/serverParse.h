@@ -53,7 +53,7 @@ public:
     static string buildPlayerMessage(Game* game, string clientId);
     static string buildStartMessage();
     static string buildMazeInitialMessage();
-    static string buildMazeUpdateMessage(string clientId);
+    static string buildMazeUpdateMessage(Game* game);
     static void printArray();
 
 

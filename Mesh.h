@@ -30,9 +30,10 @@ public:
     glm::vec4 baseColor;
     
     string name;
+    bool isClient;
 
     // constructor
-    Mesh(aiMesh* aiMesh, const aiScene* scene, glm::mat4 _model);
+    Mesh(aiMesh* aiMesh, const aiScene* scene, glm::mat4 _model, bool client);
     
     // render the mesh
     void draw(const glm::mat4& viewProjMtx, GLuint shader);

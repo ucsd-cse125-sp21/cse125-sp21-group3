@@ -53,6 +53,7 @@ Player* player;
 //Networking Stuff
 Cube* Window::cube;
 int Window::createOpponent;
+vector<string> Window::messagesToServer;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -130,11 +131,7 @@ bool Window::initializeObjects(Game* game)
 	//character = new Model("Assets/character.gltf", characterRootTransform);
 	//character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
 
-
-
-
 	//initializing digit segments to represent health
-
 	for (int y = 0; y < 20; y++)
 	{
 		for (int x = 0; x < 3; x++)
@@ -154,9 +151,6 @@ bool Window::initializeObjects(Game* game)
 			horizontalDigitSegment[y][x][2] = 0.0f;
 		}
 	}
-
-
-
 
 	return true;
 }
@@ -195,6 +189,7 @@ void Window::cleanUp()
 GLFWwindow* Window::createWindow(int width, int height)
 {
 	Window::createOpponent = -1;
+	Window::messagesToServer = {};
 
 	// Initialize GLFW.
 	if (!glfwInit())
@@ -531,9 +526,9 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		// Clear the color and depth buffers.
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		for (Cube* footprint : player->getFootprints()) {
+		//for (Cube* footprint : player->getFootprints()) {
 			//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-		}
+		//}
 
 		//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		for (int i = 0; i < game->allPlayers.size(); i++) {
@@ -555,16 +550,44 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		//chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		//gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
-		for (Cube* abilityChests : game->maze->getChests())
-		{
-			abilityChests->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//for (Model* abilityChest : maze->getChests())
+	//{
+	//	//cout << "draw ability chest" << endl;
+	//	if (abilityChest->opening && !abilityChest->opened) {
+	//		if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
+	//			abilityChest->opening = false;
+	//			abilityChest->opened = true;
+	//		}
+	//		else {
+	//			abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
+	//		}
+	//	}
+	//	abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	//}
+
+	
+	for (Model* abilityChest : gm -> maze->getChests())
+	{
+		wallInfo** mazeArray = gm -> maze->getMazeArray();
+		glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
+		int* abilityChestPos = gm -> maze->getCoordinates(abilityChestLocation);
+		if (abilityChest->opening) { //if client is in the process of opening the chest
+			if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
+				abilityChest->opening = false;
+			}
+			else {
+				abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
+			}
+		}
+		else if (mazeArray[abilityChestPos[0]][abilityChestPos[1]].ability == Player::opened) { //if the server has said this chest is open
+			abilityChest->animationClipList.at(0)->prevTime = abilityChest->animationClipList.at(0)->duration;
+			abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.0f, false);
 		}
 
-		//character->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-		//cube->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-		//cube2->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+		abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+	}
 
-		game->maze->getGround()->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
 
 		// Gets events, including input such as keyboard and mouse or window resizing.
@@ -606,6 +629,9 @@ void Window::resetCamera()
  */
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	if (GetActiveWindow() == NULL) {
+		return;
+	}
 	/*
 	 * TODO: Modify below to add your key callbacks.
 	 */
@@ -721,10 +747,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
  */
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && GetActiveWindow() != NULL) {
 		LeftDown = (action == GLFW_PRESS);
 	}
-	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && GetActiveWindow() != NULL) {
 		RightDown = (action == GLFW_PRESS);
 	}
 
@@ -732,7 +758,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 		player->setHasFired(true);
 		player->setIsFiring(true);
 		std::cerr << "Fired" << std::endl;
-		player->shootWeapon(gm -> maze -> getBoundingBox());
+		player->shootWeapon(gm -> allBoundingBoxes);
 	}
 
 }
@@ -746,6 +772,10 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
  * @author Part of 169 starter code
  */
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
+
+	if (GetActiveWindow() == NULL) {
+		return;
+	}
 
 	int maxDelta = 100;
 	int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);

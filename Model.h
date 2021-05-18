@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "BoundingBox.h"
 
 using namespace std;
 
@@ -23,6 +24,7 @@ class Model
 {
 public:
     // model data 
+    BoundingBox* boundingBox;
     vector<Mesh*> meshes;
     int meshCounter;
     string directory;
@@ -35,15 +37,22 @@ public:
     Node* root;
 
     // constructor, expects a filepath to a 3D model.
-    Model(string const& path, glm::mat4 _rootModel);
+    Model(string const& path, glm::mat4 _rootModel, bool client);
+    ~Model();
 
     // draws the model, and thus all its meshes
     void draw(const glm::mat4& viewProjMtx, GLuint shader);
     void update();
     void updateNodes(Node* node, glm::mat4 parentTransform);
-    void playAnimation(AnimationClip* animationClip, float time, bool reverse);
+    void playAnimation(AnimationClip* animationClip, float speed, bool reverse);
     void rotateAnimation(float amount, glm::vec3 p); //rotates animationRootModel around point p
     void rotate(float amount, glm::vec3 p); //rotates rootModel around point p
+
+    BoundingBox* getBoundingBox() { return boundingBox; }
+
+    //for chests only
+    bool opening;
+
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const& path);
@@ -54,6 +63,8 @@ private:
     void processAnimations(const aiScene* scene);
 
     Mesh* processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 model);
+
+    bool isClient;
     
 };
 #endif

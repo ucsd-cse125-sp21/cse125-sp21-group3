@@ -67,7 +67,7 @@ Cube * Maze::generateGround()
 
 
 
-void  Maze::createAbilityChests(int numChests)
+void Maze::createAbilityChests(int numChests)
 {
 	int numAbilities = numChests;
 	for (int i = 0; i < numChests; i++)
@@ -94,7 +94,7 @@ void  Maze::createAbilityChests(int numChests)
 
 
 
-std::vector<Cube*> Maze::generateAbilityChests()
+std::vector<Model*> Maze::generateAbilityChests()
 {
 	for (int r = 0; r < mazeSize; r++)
 	{
@@ -102,8 +102,11 @@ std::vector<Cube*> Maze::generateAbilityChests()
 		{
 			if (mazeArray[r][c].ability != Player::none)
 			{
-				Cube* chest = new Cube(glm::vec3(r * mapScale + wallWidth, 0.0f, c * mapScale + wallWidth), glm::vec3((r + 0.5) * mapScale, wallHeight/2, (c + 0.5) * mapScale), Cube::abilityChest, isClient);
-				chest->setColor(glm::vec3(0.2f, 0.5f, 0.9f));
+				glm::vec3 chestPosition((r + 0.5) * mapScale, 0.0f, (c + 0.5) * mapScale);
+				glm::mat4 translation = glm::translate(glm::mat4(1.0f), chestPosition);
+				Model* chest = new Model("Assets/chestOpen.gltf", translation, isClient);
+				chest->boundingBox = new BoundingBox(glm::vec3(chestPosition.x - 0.5f, 0.0f, chestPosition.z - 1.0f),
+					glm::vec3(chestPosition.x + 0.5f, 1.5f, chestPosition.z + 1.0f), chest, true);
 				abilityChests.push_back(chest);
 				boundingBoxList.push_back(chest->getBoundingBox());
 				chestBoundingBoxList.push_back(chest->getBoundingBox());
@@ -337,7 +340,7 @@ int Maze::getAbility(int* coordinate)
 
 void Maze::removeAbility(int* coordinate)
 {
-	mazeArray[coordinate[0]][coordinate[1]].ability = Player::none;
+	mazeArray[coordinate[0]][coordinate[1]].ability = Player::opened;
 }
 
 

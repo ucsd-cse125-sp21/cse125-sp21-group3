@@ -5,20 +5,42 @@
 #define AI_MATKEY_GLTF_MATNAME "?mat.name", 0, 0
 
 
-Model::Model(string const& path, glm::mat4 _rootModel) 
+Model::Model(string const& path, glm::mat4 _rootModel, bool client) 
 {
     rootModel = _rootModel;
+    boundingBox == NULL;
     animationRootModel = rootModel;
     gammaCorrection = false;
     meshCounter = 0;
     loadModel(path);
+
+    isClient = client;
+
+    //only for chests
+    opening = false;
+}
+
+Model::~Model()
+{
+    std::cout << "Deleting" << std::endl;
+    if (boundingBox)
+    {
+        boundingBox->setActive(false);
+    }
 }
 
 // draws the model, and thus all its meshes
 void Model::draw(const glm::mat4& viewProjMtx, GLuint shader)
 {
+
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i]->draw(viewProjMtx, shader);
+
+    if (Window::debugMode) {
+        if (boundingBox != NULL) {
+            boundingBox->draw(viewProjMtx, shader);
+        }
+    }
 }
 
 void Model::loadModel(string const& path)
@@ -70,7 +92,7 @@ void Model::processNode(aiNode* aiNode, Node* node, const aiScene* scene, glm::m
 Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 model)
 {
     // return a mesh object created from the extracted mesh data
-    Mesh* m = new Mesh(mesh, scene, model);
+    Mesh* m = new Mesh(mesh, scene, model, isClient);
     m->id = meshCounter;
     meshCounter++;
     return m;
@@ -91,7 +113,7 @@ void Model::processAnimations(const aiScene* scene) {
                 new AnimationNode(aiNodeAnim, meshes, animation->mTicksPerSecond)));
         }
         animationClipList.push_back(new AnimationClip(animationNodeMap, meshes));
-        cout << "processAnimation: " << animation->mName.C_Str() << endl;
+        //cout << "processAnimation: " << animation->mName.C_Str() << endl;
         animationClipList.at(animationClipList.size() - 1)->name = animation->mName.C_Str();
     }
 }
