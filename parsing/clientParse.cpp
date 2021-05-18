@@ -95,6 +95,8 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
     vector<string>::iterator it = messageValues.begin();
     bool createdMaze = false;
+    cerr << "received message: " << serverMessage << endl;
+    cerr << "received message size: " << serverMessage.size() << endl;
     while (it != messageValues.end())
     {
         if (*it == "joinResponse")
@@ -196,6 +198,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             int row = stoi(*(it + 1));
             int col = stoi(*(it + 2));
             int wallDirection = stoi(*(it + 3));
+            //cout << "row: " << row << " col: " << col << " wallDirection: " << wallDirection << endl;
             game->maze->setWall(row, col, wallDirection, 1);
             it = (it + 3);
         }
@@ -222,6 +225,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     }
     if (createdMaze)
     {
+        cout << "gameSet true" << endl;
         game->gameSet = true;
     }
 

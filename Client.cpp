@@ -42,7 +42,7 @@ public:
     void start(){
         async_read_until(
                 sock,
-                boost::asio::dynamic_buffer(input_buf),
+                boost::asio::dynamic_buffer(input_buf, 4500),
                 "\r\n",
                 boost::bind(&Client::client_handle_read,
                     this,
@@ -57,12 +57,13 @@ public:
     void client_handle_read(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (!err) {
-            //cout << "Received:" << input_buf << endl;
+            //cout << "in client_handle_read Received message of size: " << input_buf.size() << endl;
+            //cout << "bytes transferred: " << bytes_transferred << endl;
             clientParse::sortServerMessage(game, input_buf);
             input_buf = ""; //clear the input buffer
             async_read_until(
                 sock,
-                boost::asio::dynamic_buffer(input_buf),  
+                boost::asio::dynamic_buffer(input_buf, 4500),  
                 "\r\n",
                 boost::bind(&Client::client_handle_read,
                     this,
@@ -226,7 +227,7 @@ int main(int argc, char* argv[])
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
 
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     client.gameInitialized = true;
     client.start();
@@ -237,7 +238,7 @@ int main(int argc, char* argv[])
 
     //run timer in its own thread
     std::thread timer_thread = std::thread([&]() {client.client_handle_timeout(); });
-
+    cout << "before while loop" << endl;
     while (!client.game->gameSet)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));

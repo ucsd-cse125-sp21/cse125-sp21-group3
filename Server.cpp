@@ -194,7 +194,24 @@ public:
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));
 
         string message = serverParse::createMazeString(game->maze);
-        broadcast(message);
+       /* while (message.size() > 512) {
+            for (int j = 511; j >= 0; j--) {
+                if (message.at(j) == 'm') {
+                    string temp = message.substr(0, j);
+                    cerr << "sending temp message: " << temp << endl;
+                    cerr << "temp message size: " << temp.size() << endl;
+                    broadcast(temp);
+                    message.erase(message.begin(), message.begin() + j);
+                    cerr << "message size is now: " << message.size() << endl;
+                    break;
+                }
+            }
+        }*/
+        /*if (message.size() > 0) {
+            cerr << "sending remaining: " << message.size() << endl;
+            broadcast(message);
+        }*/
+        broadcast("mU,1,1,1,");
         message = "";
 
         message = serverParse::createAbilityString(game->maze);
