@@ -575,8 +575,10 @@ void Window::drawHealth() {
 }
 
 
-void renderQuad()
-{
+
+void Window::drawIcon() {
+
+	glViewport(0, 0, width / 6, height / 6);
 	glUseProgram(Window::shaderTextureQuadProgram);
 	glBindVertexArray(abilityQuadVAO);
 	glActiveTexture(GL_TEXTURE0);
@@ -586,17 +588,6 @@ void renderQuad()
 	glBindVertexArray(0);
 }
 
-void Window::drawIcon() {
-
-	//glViewport(0, 0, width / 6, height / 6);
-	//glUseProgram(Window::shaderProgram);
-
-	//glActiveTexture(GL_TEXTURE0);
-	////glBindTexture(GL_TEXTURE_2D, depthMap);
-	//renderQuad();
-
-
-}
 /*
  * This method is called every frame and renders all objects based on their current
  * game state.
@@ -636,52 +627,38 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 
 		//chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		//gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-
-	//for (Model* abilityChest : maze->getChests())
-	//{
-	//	//cout << "draw ability chest" << endl;
-	//	if (abilityChest->opening && !abilityChest->opened) {
-	//		if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
-	//			abilityChest->opening = false;
-	//			abilityChest->opened = true;
-	//		}
-	//		else {
-	//			abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
-	//		}
-	//	}
-	//	abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	//}
-
 	
-	for (Model* abilityChest : gm -> maze->getChests())
-	{
-		wallInfo** mazeArray = gm -> maze->getMazeArray();
-		glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
-		int* abilityChestPos = gm -> maze->getCoordinates(abilityChestLocation);
-		if (abilityChest->opening) { //if client is in the process of opening the chest
-			if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
-				abilityChest->opening = false;
+		for (Model* abilityChest : gm -> maze->getChests())
+		{
+			wallInfo** mazeArray = gm -> maze->getMazeArray();
+			glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
+			int* abilityChestPos = gm -> maze->getCoordinates(abilityChestLocation);
+			if (abilityChest->opening) { //if client is in the process of opening the chest
+				if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
+					abilityChest->opening = false;
+				}
+				else {
+					abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
+				}
 			}
-			else {
-				abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
+			else if (mazeArray[abilityChestPos[0]][abilityChestPos[1]].ability == Player::opened) { //if the server has said this chest is open
+				abilityChest->animationClipList.at(0)->prevTime = abilityChest->animationClipList.at(0)->duration;
+				abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.0f, false);
 			}
-		}
-		else if (mazeArray[abilityChestPos[0]][abilityChestPos[1]].ability == Player::opened) { //if the server has said this chest is open
-			abilityChest->animationClipList.at(0)->prevTime = abilityChest->animationClipList.at(0)->duration;
-			abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.0f, false);
+
+			abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
 
-		abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	}
 
 		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-
+		drawCrosshair();
+		drawHealth();
+		//drawIcon();
 
 		// Gets events, including input such as keyboard and mouse or window resizing.
 		glfwPollEvents();
 
-		drawCrosshair();
-		drawHealth();
+		
 
 		// Swap buffers.
 		glfwSwapBuffers(window);
