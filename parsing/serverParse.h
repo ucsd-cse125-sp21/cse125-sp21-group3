@@ -9,142 +9,13 @@
 #include <boost/algorithm/string.hpp>
 #include <unordered_map>
 #include <queue>
-#include "Game.h"
+#include "../Game.h"
+#include "../Maze.h"
 
 using namespace std;
 using namespace boost::asio;
 using ip::tcp;
 
-/*
- * Example messages for server parsing.  It assumes the MESSAGE_TAIL has already
- * been removed by a read_until method.
- */
-const string JOIN_MESSAGE = "join";
-const string LEAVE_MESSAGE = "leave,0";
-const string INPUT_MESSAGE = "input,1,true,false,false,false,true,false,300.58,false";
-
-
-
-
-/*
- * Store information about the client including the most recent input message
- * data.
- */
-class Client {
-
-public:
-    double positionX = 0;
-    double positionY = 0;
-    int health = 100;
-
-    int keyDirection;
-    bool isCrouching = false;
-    bool isSprinting = false;
-    double playerDirection;
-    bool isFiring = false;
-
-    string unsentMazeUpdates = "";
-
-    /*
-     * Must somehow maintain connection with client.  Server still needs to
-     * send player, maze, and start messages to client before regular
-     * messagin begins.
-     *
-     * Socket might not be the right thing to store here, but whatever is
-     * needed to send the initial player and star messages should be.
-     */
-     //tcp::socket & clientSocket;
-
-    Client()
-    {
-    }
-
-    /*
-     * This constructor is to be used in joinMessageHandler.
-     */
-     /*
-     Client(tcp::socket & clientSocket)
-     {
-         this->clientSocket = clientSocket;
-     }
-     */
-
-    double getX()
-    {
-        return positionX;
-    }
-
-    double getY()
-    {
-        return positionY;
-    }
-
-    int getHealth()
-    {
-        return health;
-    }
-
-    /*
-     * Return the stringified payload for player_message.
-     */
-    string getPayloadString() {
-        return "," + to_string(positionX) + "," + to_string(positionY)
-            + "," + to_string(health);
-    }
-
-    /*
-     * Return maze updates for this Client.  Clear unsent maze update
-     * list.
-     */
-    string getMazeUpdates() {
-        string mazeUpdates = unsentMazeUpdates;
-        unsentMazeUpdates = "";
-        return mazeUpdates;
-    }
-
-    void setKeyDirection(vector<string> keyInputVector)
-    {
-        keyDirection = 0;
-    }
-
-    void setIsCrouching(bool isCrouching)
-    {
-        this->isCrouching = isCrouching;
-    }
-
-    void setIsSprinting(bool isSprinting)
-    {
-        this->isSprinting = isSprinting;
-    }
-
-    void setPlayerDirection(double playerDirection)
-    {
-        this->playerDirection = playerDirection;
-    }
-
-    void setIsFiring(bool isFiring) {
-        this->isFiring = isFiring;
-    }
-
-    void setX(double positionX)
-    {
-        this->positionX = positionX;
-    }
-
-    void setY(double positionY)
-    {
-        this->positionY = positionY;
-    }
-
-    void setHealth(int health)
-    {
-        this->health = health;
-    }
-
-    void addMazeUpdate(string mazeUpdate) {
-        unsentMazeUpdates += mazeUpdate;
-    }
-};
 
 
 
@@ -169,6 +40,9 @@ public:
  //*/
 
  //   int mazeArr[MAZE_SIZE][MAZE_SIZE];
+    static string createMazeString(Maze* maze);
+    static string createAbilityString(Maze* maze);
+
 
     static void updateMaze(int row, int col, int wallState);
     static void joinMessageHandler();

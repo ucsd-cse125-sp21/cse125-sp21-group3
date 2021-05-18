@@ -15,13 +15,20 @@ public:
 	~Game();
 
 	void beginGame();
+	void initiateGame();
+	void update(float deltaTime);
+
 
 	Maze* maze;
 	Player* myPlayer;
 	int myPlayerId;
 	vector<Player*> allPlayers;
 
+	vector<BoundingBox*> allBoundingBoxes;
+
 	bool isClient;
+	bool gameBegun;
+	bool gameSet;
 };
 
 #endif

@@ -40,7 +40,7 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         glm::vec3(position.x + width * 0.5f, position.y + height * 0.125f, position.z + width * 0.5f), this, isClient);
     
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    speed = 3.5f;
+    speed = 10.0f;
     playerWeapon = new Weapon();
   
     maxHealth = 100.0f;
@@ -54,6 +54,8 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
     state = stand;
 
     maze = mz;
+
+    playerCamera = new Camera(glm::vec3(2.5f, 3.5f, 2.5f));
     
     if (client) {
         //creating and initializing playerModel
@@ -61,7 +63,7 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, position.y - height * 0.82f, 2.25f));
         glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
         glm::mat4 playerModelRootTransform = translation * rotation * scaling;
-        playerModel = new Model("Assets/character.gltf", playerModelRootTransform);
+        playerModel = new Model("Assets/character.gltf", playerModelRootTransform, isClient);
         playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
         walkingBackward = false;
         playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
@@ -71,7 +73,7 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.7f, 3.0f, 2.25f));
         scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerGunModelScale));
         glm::mat4 playerGunModelRootTransform = translation * rotation * scaling;
-        playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform);
+        playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform, isClient);
         playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0] - 0.45f, playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2] + 1.0f);
     }
 
@@ -79,7 +81,14 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
     moving = 0;
     hasFired = false;
     isFiring = false;
-    cout << "exit player constructor" << endl;
+    inputDirections = new bool[6];
+    pickUpAbilityKey = false;
+    useAbilityKey = false;
+    for (int i = forward; i <= down; i++)
+    {
+        inputDirections[i] = false;
+    }
+    cout << "Player created" << endl;
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -151,101 +160,40 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
  * @param deltaTime How much time has passed since last update
  * @author Lucas Hwang
  */
-void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, Game* game) {
-
-    //cout << "updating: " << id << endl;
+void Player::update(float deltaTime, Game* game)
+{
     if (!isClient) { //update stuff for not client side player instances
-        //switch (state)
-        //{
-        //case crouch:
-        //    if (position.y >= 1.5f)
-        //    {
-        //        glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
-        //        velocity += v;
-        //    }
-        //    velocity *= 0.5f;
-        //case sprint:
-        //    velocity *= 1.40f;
-        //    break;
-        //case dead:
-        //    velocity *= 3;
-        //    break;
-        //case still:
-        //    velocity *= 0;
-        //    break;
-        //default:
-        //    if (position.y <= 3.5f)
-        //    {
-        //        glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
-        //        velocity += v;
-        //        velocity *= 0.5f;
-        //    }
-        //    break;
-        //}
-        //if (glm::length(velocity) > 0.0f) {
-        //    position = position + velocity * deltaTime;
-
-        //    //update player bounding box
-        //    boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-        //        glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
-        //}
-
-        //if (boundingBox->getActive()) {
-        //    applyConstraints(maze->getBoundingBox());
-        //}
-        //if (state != dead && state != still)
-        //{
-        //    createFootPrint(position);
-        //}
-        //if (state != still)
-        //{
-        //    //update player model position
-        //    glm::vec3 diff = position - prevPosition;
-        //    playerModel->rootModel[3][0] += diff.x;
-        //    playerModel->rootModel[3][1] += diff.y;
-        //    playerModel->rootModel[3][2] += diff.z;
-        //    playerGunModel->rootModel[3][0] += diff.x;
-        //    playerGunModel->rootModel[3][1] += diff.y;
-        //    playerGunModel->rootModel[3][2] += diff.z;
-        //    playerGunModel->animationRootModel[3][0] += diff.x;
-        //    playerGunModel->animationRootModel[3][1] += diff.y;
-        //    playerGunModel->animationRootModel[3][2] += diff.z;
-        //    playerGunModelCenter += diff;
-        //    prevPosition = position;
-        //}
-    }
-    else { //update stuff for all client players including opponents
-        
-        if (game->myPlayerId == id) {
-            switch (state)
+        switch (state)
+        {
+        case crouch:
+            if (position.y >= 1.5f)
             {
-            case crouch:
-                if (position.y >= 1.5f)
-                {
-                    glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
-                    velocity += v;
-                }
-                velocity *= 0.5f;
-            case sprint:
-                velocity *= 1.40f;
-                break;
-            case dead:
-                velocity *= 3;
-                break;
-            case still:
-                velocity *= 0;
-                break;
-            default:
-                if (position.y <= 3.5f)
-                {
-                    glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
-                    velocity += v;
-                    velocity *= 0.5f;
-                }
-                break;
+                glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
+                velocity += v;
             }
-            if (glm::length(velocity) > 0.0f) {
-                position = position + velocity * deltaTime;
+            velocity *= 0.5f;
+        case sprint:
+            velocity *= 1.40f;
+            break;
+        case dead:
+            velocity *= 3;
+            break;
+        case still:
+            velocity *= 0;
+            break;
+        default:
+            if (position.y <= 3.5f)
+            {
+                glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
+                velocity += v;
+                velocity *= 0.5f;
+            }
+            break;
+        }
+
+        if (glm::length(velocity) > 0.0f) {
+            prevPosition = position;
+            position = position + velocity * deltaTime;
 
                 //update player bounding box
                 boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
@@ -253,30 +201,31 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
             }
 
             if (boundingBox->getActive()) {
-                applyConstraints(maze->getBoundingBox());
+                applyConstraints(game -> maze ->getBoundingBox());
             }
-            if (state != dead && state != still)
-            {
-                createFootPrint(position);
-            }
-            if (state != still)
-            {
-                //update player model position
-                glm::vec3 diff = position - prevPosition;
-                playerModel->rootModel[3][0] += diff.x;
-                playerModel->rootModel[3][1] += diff.y;
-                playerModel->rootModel[3][2] += diff.z;
-                playerGunModel->rootModel[3][0] += diff.x;
-                playerGunModel->rootModel[3][1] += diff.y;
-                playerGunModel->rootModel[3][2] += diff.z;
-                playerGunModel->animationRootModel[3][0] += diff.x;
-                playerGunModel->animationRootModel[3][1] += diff.y;
-                playerGunModel->animationRootModel[3][2] += diff.z;
-                playerGunModelCenter += diff;
-                prevPosition = position;
-            }
+            //if (state != dead && state != still)
+            //{
+            //    createFootPrint(position);
+            //}
+            //if (state != still)
+            //{
+            //    //update player model position
+            //    glm::vec3 diff = position - prevPosition;
+            //    playerModel->rootModel[3][0] += diff.x;
+            //    playerModel->rootModel[3][1] += diff.y;
+            //    playerModel->rootModel[3][2] += diff.z;
+            //    playerGunModel->rootModel[3][0] += diff.x;
+            //    playerGunModel->rootModel[3][1] += diff.y;
+            //    playerGunModel->rootModel[3][2] += diff.z;
+            //    playerGunModel->animationRootModel[3][0] += diff.x;
+            //    playerGunModel->animationRootModel[3][1] += diff.y;
+            //    playerGunModel->animationRootModel[3][2] += diff.z;
+            //    playerGunModelCenter += diff;
+            //    prevPosition = position;
+            //}
         }
-
+    else
+    {
         if (moving == 1) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
         }
@@ -288,12 +237,12 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
             //oldPitch = playerCamera->getPitch();
             playerCamera->setPosition(position);
 
-            //update player camera
-            playerCamera->Update();
         }
         //update player and player gun model
         playerModel->update();
         playerGunModel->update();
+
+
 
         if (isFiring) {
             if (playerGunModel->animationClipList.at(0)->prevTime + 0.2f > playerGunModel->animationClipList.at(0)->duration) {
@@ -301,7 +250,13 @@ void Player::update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, 
             }
             playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
         }
+
     }
+    // Both client and server should update
+    playerCamera->setPosition(position);
+
+    //update player camera
+    playerCamera->Update();
 }
 
 /*
@@ -322,6 +277,18 @@ void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     playerGunModel->draw(viewProjMtx, shader);
 }
 
+void Player::setInput(int dir, bool on)
+{
+    inputDirections[dir] = on;
+}
+
+void Player::resetInputDirections()
+{
+    for (int i = forward; i <= down; i++)
+    {
+        inputDirections[i] = false;
+    }
+}
 /*
  * Moves the player in the direction inputted.
  *
@@ -352,6 +319,7 @@ void Player::moveDirection(int dir) {
         glm::vec3 v = glm::normalize(glm::cross(currentDirection, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
         velocity += v;
     }
+    // DEBUG: take out true if not testing
     if (state == dead || true)
     {
         if (dir == up) {
@@ -476,7 +444,7 @@ void Player::pickUpAbility()
             string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + ",";
             Window::messagesToServer.push_back(chestOpenMessage);
             //TODO tell server that chest has opened
-            std::cout << "Picked up ability:" << currentAbility << std::endl;
+            std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
 
             //delete parentCube;
             delete playerPos;
@@ -528,6 +496,42 @@ void Player::useAbility()
 }
 
 
+string Player::getAbilityName(int ability)
+{
+    string name = "";
+    switch (ability)
+    {
+    case none:
+        name = "None";
+        break;
+    case removeWall:
+        name = "Remove Wall";
+        break;
+    case trackPlayer:
+        name = "Track Player";
+        break;
+    case seeMap:
+        name = "See Map";
+        break;
+    case healPlayer:
+        name = "Heal Player";
+        break;
+    case increasePlayerHealth:
+        name = "Increase Max Health";
+        break;
+    case armorPlayer:
+        name = "Add Armor";
+        break;
+    case damageBoost:
+        name = "Damage Boost";
+        break;
+    default:
+        name = "None";
+        break;
+    }
+    return name;
+}
+
 
 BoundingBox* Player::shootWeapon(std::vector<BoundingBox *> objects) {
    
@@ -568,25 +572,28 @@ bool Player::seeMapAbility()
     return true;
 }
 
+
 //client side to pass to server
 string Player::getPlayerInputString() {
 
     string MESSAGE_TAIL = "\r\n";
     glm::vec3 direction = playerCamera->getCameraFront();
+    float yaw = playerCamera->getYaw();
+    float pitch = playerCamera->getPitch();
     playerInputString = "input," + to_string(id) + "," + to_string(moving) + "," +
-        to_string(direction.x) + "," + to_string(direction.y) + "," +
-        to_string(direction.z) + ",";
-    if (hasFired) {
-        playerInputString += "true";
-    }
-    else {
-        playerInputString += "false";
-    }
-    hasFired = false;
-    playerInputString += MESSAGE_TAIL;
-    //handle crouching
+        to_string(yaw) + "," + to_string(pitch) + ",";
+    playerInputString += to_string(state) + ",";
 
-    //handle sprinting
+    for (int i = forward; i <= down; i++)
+    {
+        playerInputString += to_string(inputDirections[i]) + ",";
+    }
+    playerInputString += to_string(hasFired) + "," + to_string(pickUpAbilityKey) + "," + to_string(useAbilityKey) + ",";
+
+    hasFired = false;
+    pickUpAbilityKey = false;
+    useAbilityKey = false;
+    playerInputString += MESSAGE_TAIL;
 
     return playerInputString;
 }
@@ -595,14 +602,12 @@ string Player::getPlayerInputString() {
 string Player::getPlayerInfoString() {
 
     string MESSAGE_TAIL = "\r\n";
-    playerInfoString = "player," + to_string(id) + "," + to_string(moving) + "," + to_string(lookingDirection.x) + "," +
-        to_string(lookingDirection.y) + "," + to_string(lookingDirection.z) + ",";
-    if (hasFired) {
-        playerInfoString += "true";
-    }
-    else {
-        playerInfoString += "false";
-    }
+    playerInfoString = "player," + to_string(id) + "," + to_string(moving) + ",";
+    playerInfoString += to_string(position.x) + "," + to_string(position.y) + "," + to_string(position.z) + ",";
+    playerInfoString += to_string(velocity.x) + "," + to_string(velocity.y) + "," + to_string(velocity.z) + ",";
+
+    playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
+
     playerInfoString += MESSAGE_TAIL;
 
     return playerInfoString;

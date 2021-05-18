@@ -38,12 +38,12 @@ public:
 	void computeForces();
 	void integrate(float deltaTime);
 	void applyConstraints(std::vector<BoundingBox*> boundingBoxList);
-	void update(float deltaTime, std::vector<BoundingBox*> boundingBoxList, Game* game);
+	void update(float deltaTime, Game* game);
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);
 	
 	// Access functions
 	void setPosition(glm::vec3 p) { position = p; }
-	void setVelocity(glm::vec3 v) { velocity = v; }
+	void setVelocity(glm::vec3 v) { velocity.x = v.x; velocity.y = v.y; velocity.z = v.z; }
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
 	void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
@@ -61,6 +61,7 @@ public:
 	glm::vec3 getPlayerModelCenter() { return playerModelCenter; }
 	glm::vec3 getPlayerGunModelCenter() { return playerGunModelCenter; }
 	void createFootPrint(glm::vec3);
+	void setInput(int dir, bool on);
 	void moveDirection(int dir);
 	void updateBoundingBox();
 	void handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b);
@@ -128,7 +129,21 @@ public:
 	void setHasFired(bool val) { hasFired = val; }
 	void setIsFiring(bool val) { isFiring = val; }
 	bool getHasFired() { return hasFired; }
+
+	void setAbility(int ab) { currentAbility = ab; }
+	int getAbility() { return currentAbility; }
+
 	glm::vec3 getLookingDirection() { return lookingDirection; }
+
+	bool* getInputDirections() { return inputDirections; }
+
+	void resetInputDirections();
+
+	void setPickUpAbilityKey(bool on) { pickUpAbilityKey = on; }
+	void setUseAbilityKey(bool on) { useAbilityKey = on; }
+
+	static string getAbilityName(int ability);
+
 
 private:
 
@@ -180,6 +195,10 @@ private:
 	string playerInputString;
 	string playerInfoString;
 	glm::vec3 lookingDirection;
+
+	bool* inputDirections;
+	bool pickUpAbilityKey;
+	bool useAbilityKey;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

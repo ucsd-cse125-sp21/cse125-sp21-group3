@@ -15,6 +15,9 @@ struct wallInfo {
 	bool right;
 	bool bottom;
 	int ability;
+	Cube* wallRight;
+	Cube* wallBottom;
+	Model* abilityChest;
 };
 
 class Maze {
@@ -50,13 +53,16 @@ public:
 
 	void removeAbility(int* coordinate);
 
-	void setWall(int r, int c, bool direction, bool exist, int ability);
+	void setWall(int r, int c, bool direction, bool exist);
+	void setAbility(int r, int c, int ab);
 
 	int getMazeSize() { return mazeSize; }
 
 	int getMapScale() { return mapScale; }
 
 	wallInfo** getMazeArray() { return mazeArray; }
+
+	Cube* getGround() { return ground; }
 
 
 private:
