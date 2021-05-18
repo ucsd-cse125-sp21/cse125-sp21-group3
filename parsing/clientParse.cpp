@@ -94,9 +94,10 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     vector<string> messageValues;
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
     vector<string>::iterator it = messageValues.begin();
+    //cerr << "server message contains tail at: " << serverMessage.find("\r\n") << endl;
+    //cerr << "received message: " << serverMessage << endl;
+    //cerr << "received message size: " << serverMessage.size() << endl;
     bool createdMaze = false;
-    cerr << "received message: " << serverMessage << endl;
-    cerr << "received message size: " << serverMessage.size() << endl;
     while (it != messageValues.end())
     {
         if (*it == "joinResponse")
@@ -225,7 +226,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     }
     if (createdMaze)
     {
-        cout << "gameSet true" << endl;
         game->gameSet = true;
     }
 

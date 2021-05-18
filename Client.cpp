@@ -23,7 +23,9 @@ public:
 
     boost::asio::io_service & io_service_;
     tcp::socket sock;
-    std::string input_buf;
+    std::string buffer;
+    boost::asio::dynamic_string_buffer<char, std::char_traits<char>, std::allocator<char>> 
+        input_buf = boost::asio::dynamic_buffer(buffer);
 
     Game* game;
 
@@ -42,7 +44,7 @@ public:
     void start(){
         async_read_until(
                 sock,
-                boost::asio::dynamic_buffer(input_buf, 4500),
+                input_buf,
                 "\r\n",
                 boost::bind(&Client::client_handle_read,
                     this,
@@ -58,12 +60,15 @@ public:
     {
         if (!err) {
             //cout << "in client_handle_read Received message of size: " << input_buf.size() << endl;
+            string temp = buffer.substr(0, buffer.find("\r\n"));
             //cout << "bytes transferred: " << bytes_transferred << endl;
-            clientParse::sortServerMessage(game, input_buf);
-            input_buf = ""; //clear the input buffer
+            //cout << "temp is: " << temp << endl;
+            clientParse::sortServerMessage(game, temp);
+            input_buf.consume(bytes_transferred);
+            //input_buf = ""; //clear the input buffer
             async_read_until(
                 sock,
-                boost::asio::dynamic_buffer(input_buf, 4500),  
+                input_buf,  
                 "\r\n",
                 boost::bind(&Client::client_handle_read,
                     this,
