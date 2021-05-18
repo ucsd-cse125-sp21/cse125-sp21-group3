@@ -348,7 +348,7 @@ void Maze::removeAbility(int* coordinate)
 }
 
 
-void Maze::setWall(int r, int c, bool direction, bool exist, int ability)
+void Maze::setWall(int r, int c, bool direction, bool exist)
 {
 	if (direction)
 	{
@@ -359,7 +359,6 @@ void Maze::setWall(int r, int c, bool direction, bool exist, int ability)
 		mazeArray[r][c].right = exist;
 	}
 
-	mazeArray[r][c].ability = ability;
 }
 
 
