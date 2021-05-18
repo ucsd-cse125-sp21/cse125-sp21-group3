@@ -196,8 +196,9 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             int row = stoi(*(it + 1));
             int col = stoi(*(it + 2));
             int wallDirection = stoi(*(it + 3));
-            game->maze->setWall(row, col, wallDirection, 1);
-            it = (it + 3);
+            int ability = stoi(*(it + 4));
+            game->maze->setWall(row, col, wallDirection, 1, ability);
+            it = (it + 4);
         }
         else if (*it == "mA")
         {
