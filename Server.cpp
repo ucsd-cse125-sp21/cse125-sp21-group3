@@ -23,13 +23,15 @@ private:
     tcp::socket sock;
     std::string message = "Hello From Server!";
     enum { max_length = 1024 };
-    std::string input_str;
+    string buffer;
+    boost::asio::dynamic_string_buffer<char, std::char_traits<char>, std::allocator<char>>
+        input_buf = boost::asio::dynamic_buffer(buffer);
     ThreadSafeQueue<std::string> input_buffer;
 
 public:
     int pid;
     string pid_str; //for parser
-
+   
     Game* game;
 
     typedef boost::shared_ptr<con_handler> pointer;
@@ -55,7 +57,7 @@ public:
     {
         async_read_until(
             sock,
-            boost::asio::dynamic_buffer(input_str),
+            input_buf,
             "\r\n",
             boost::bind(&con_handler::handle_read,
                 shared_from_this(),
@@ -73,12 +75,13 @@ public:
         if (!err) {
             //std::string incoming;
             //incoming.assign(data, bytes_transferred);
-            input_buffer.push(input_str);
-            input_str = "";
+            string temp = buffer.substr(0, buffer.find("\r\n"));
+            input_buffer.push(temp);
+            input_buf.consume(bytes_transferred);
 
             async_read_until(
             sock,
-            boost::asio::dynamic_buffer(input_str),
+            input_buf,
             "\r\n",
             boost::bind(&con_handler::handle_read,
                 shared_from_this(),

@@ -441,7 +441,7 @@ void Player::pickUpAbility()
             currentAbility = maze->getAbility(chestPos);
             maze->removeAbility(chestPos);
             chest->opening = true;
-            string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + ",";
+            string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
             Window::messagesToServer.push_back(chestOpenMessage);
             //TODO tell server that chest has opened
             std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
