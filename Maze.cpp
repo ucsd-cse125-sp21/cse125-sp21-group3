@@ -32,10 +32,10 @@ Maze::Maze(int size, int scale, bool client)
 	// Set seed for random creation for testing purposes
 	//srand(0);
 	srand(time(NULL));
-	if (!client) {
+	/*if (!client) {
 		cout << "create ability chests for server" << endl;
 		createAbilityChests(25);
-	}
+	}*/
 }
 
 
@@ -74,7 +74,7 @@ Cube * Maze::generateGround()
 void Maze::createAbilityChests(int numChests)
 {
 	int numAbilities = numChests;
-	for (int i = 0; i < numChests; i++)
+	for (int i = 0; i < numAbilities; i++)
 	{
 		int abilityType = rand() % 8;
 		while (abilityType == Player::none || abilityType == Player::trackPlayer)

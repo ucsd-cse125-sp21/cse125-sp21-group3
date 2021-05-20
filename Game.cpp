@@ -17,7 +17,7 @@ Game::~Game()
 void Game::beginGame()
 {
 	maze->createWalls();
-	maze->createAbilityChests(15);
+	maze->createAbilityChests(1);
 	//myPlayer = new Player(glm::vec3(1.0f, 1.0f, 1.0f), maze);
 }
 
