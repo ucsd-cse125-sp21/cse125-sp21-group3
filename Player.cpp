@@ -76,9 +76,10 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform, isClient);
         playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0] - 0.45f, playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2] + 1.0f);
         
-        //playerModel->rootModel = glm::mat4(1.0f);
-        //playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
-        //playerModel->animationRootModel = glm::mat4(1.0f);
+        /*playerModel->rootModel = glm::mat4(1.0f);
+        playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
+        playerModel->animationRootModel = glm::mat4(1.0f);
+        playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);*/
         //cout << "before play animation in constructor" << endl;
     }
 
@@ -247,7 +248,7 @@ void Player::update(float deltaTime, Game* game)
 
         }
 
-        //playerModel->rotateAnimation(0.1f, glm::vec3(0.0f, 0.0f, 0.0f));
+        
         //cout << "before play animation in update" << endl;
 
         //update player and player gun model
@@ -626,12 +627,21 @@ string Player::getPlayerInfoString() {
 void Player::setPosition(glm::vec3 p) {
 
     glm::vec3 diff = p - position;
-    getPlayerModel()->rootModel[3][0] += diff.x;
-    getPlayerModel()->rootModel[3][1] += diff.y;
-    getPlayerModel()->rootModel[3][2] += diff.z;
-    getPlayerGunModel()->rootModel[3][0] += diff.x;
-    getPlayerGunModel()->rootModel[3][1] += diff.y;
-    getPlayerGunModel()->rootModel[3][2] += diff.z;
+    playerModel->rootModel[3][0] += diff.x;
+    playerModel->rootModel[3][1] += diff.y;
+    playerModel->rootModel[3][2] += diff.z;
+    playerGunModel->rootModel[3][0] += diff.x;
+    playerGunModel->rootModel[3][1] += diff.y;
+    playerGunModel->rootModel[3][2] += diff.z;
+    playerGunModel->animationRootModel[3][0] += diff.x;
+    playerGunModel->animationRootModel[3][1] += diff.y;
+    playerGunModel->animationRootModel[3][2] += diff.z;
+    playerGunModelCenter += diff;
+
+    //playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0], playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2]);
+    /*playerGunModel->animationRootModel[3][0] += diff.x;
+    playerGunModel->animationRootModel[3][1] += diff.y;
+    playerGunModel->animationRootModel[3][2] += diff.z;*/
     position = p;
 }
 
