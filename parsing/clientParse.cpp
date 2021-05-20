@@ -155,8 +155,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             }
 
 
-            bool isMoving = stoi(*(it + 2));
-
+            int isMoving = stoi(*(it + 2));
             
             float position_x = stof(*(it + 3));
             float position_y = stof(*(it + 4));
@@ -168,8 +167,8 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
 
             if (player != NULL)
             {
-                player->setMoving(isMoving);
-                // player->setPosition(glm::vec3(position_x, position_y, position_z));
+                //player->setMoving(isMoving);
+                player->setPosition(glm::vec3(position_x, position_y, position_z));
             }
 
             float currentHealth = stof(*(it + 9));

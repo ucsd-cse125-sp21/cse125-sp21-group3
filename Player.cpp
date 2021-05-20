@@ -66,7 +66,7 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         playerModel = new Model("Assets/character.gltf", playerModelRootTransform, isClient);
         playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
         walkingBackward = false;
-        //playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
+        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
 
         //creating and initializing playerGunModel
         rotation = glm::rotate(glm::mat4(1.0f), 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -249,8 +249,6 @@ void Player::update(float deltaTime, Game* game)
 
         //playerModel->rotateAnimation(0.1f, glm::vec3(0.0f, 0.0f, 0.0f));
         //cout << "before play animation in update" << endl;
-        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.1f, false);
-
 
         //update player and player gun model
         playerModel->update();
@@ -621,6 +619,7 @@ string Player::getPlayerInfoString() {
     playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
 
     playerInfoString += MESSAGE_TAIL;
+    //cout << "moving in getPlayerInfo: " << moving << endl;
     return playerInfoString;
 }
 

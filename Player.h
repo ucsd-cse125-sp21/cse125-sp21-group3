@@ -125,6 +125,7 @@ public:
 	string getPlayerInputString();
 	string getPlayerInfoString();
 	void setMoving(int m) { moving = m; }
+	int getMoving() { return moving; }
 	void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
 	void setHasFired(bool val) { hasFired = val; }
 	void setIsFiring(bool val) { isFiring = val; }

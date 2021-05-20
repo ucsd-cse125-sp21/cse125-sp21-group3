@@ -357,6 +357,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
  */
 void Window::idleCallback(Game* game)
 {
+	
 	// Perform any updates as necessary.
 	//Cam->Update();
 	//player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -736,15 +737,19 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			player->setHealth(player->getHealth() - 1);
 			break;
 		case GLFW_KEY_W:
+			player->setMoving(1);
 			player->setInput(player->forward, 1);
 			break;
 		case GLFW_KEY_A:
+			player->setMoving(1);
 			player->setInput(player->left, 1);
 			break;
 		case GLFW_KEY_S:
+			player->setMoving(-1);
 			player->setInput(player->backward, 1);
 			break;
 		case GLFW_KEY_D:
+			player->setMoving(1);
 			player->setInput(player->right, 1);
 			break;
 		case GLFW_KEY_Z:
@@ -769,15 +774,19 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			player->setState(player->stand);
 			break;
 		case GLFW_KEY_W:
+			player->setMoving(0);
 			player->setInput(player->forward, 0);
 			break;
 		case GLFW_KEY_A:
+			player->setMoving(0);
 			player->setInput(player->left, 0);
 			break;
 		case GLFW_KEY_S:
+			player->setMoving(0);
 			player->setInput(player->backward, 0);
 			break;
 		case GLFW_KEY_D:
+			player->setMoving(0);
 			player->setInput(player->right, 0);
 			break;
 		case GLFW_KEY_Z:
