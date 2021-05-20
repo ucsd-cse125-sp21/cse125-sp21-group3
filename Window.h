@@ -33,6 +33,7 @@ public:
 
 	// Shader Program 
 	static GLuint shaderProgram;
+	static GLuint shaderTextureQuadProgram;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();
@@ -58,11 +59,13 @@ public:
 	static void drawCrosshair();
 	static void drawHealth();
 	static void drawDigit(int startingX, int startingY, vector<bool> segmentsUsed);
+	static void drawIcon();
 	static bool debugMode;
 
 	//Networking Stuff
 	static int createOpponent;
 	static vector<string> messagesToServer;
+	static GLFWcursor* cursor;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

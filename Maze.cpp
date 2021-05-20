@@ -17,6 +17,9 @@ Maze::Maze(int size, int scale, bool client)
 			mazeArray[r][c].right = false;
 			mazeArray[r][c].bottom = false;
 			mazeArray[r][c].ability = Player::none;
+			mazeArray[r][c].wallRight = NULL;
+			mazeArray[r][c].wallBottom = NULL;
+			mazeArray[r][c].abilityChest = NULL;
 		}
 	}
 
@@ -105,12 +108,14 @@ std::vector<Model*> Maze::generateAbilityChests()
 			{
 				glm::vec3 chestPosition((r + 0.5) * mapScale, 0.0f, (c + 0.5) * mapScale);
 				glm::mat4 translation = glm::translate(glm::mat4(1.0f), chestPosition);
-				Model* chest = new Model("Assets/chestOpen.gltf", translation);
+				Model* chest = new Model("Assets/chestOpen.gltf", translation, isClient);
 				chest->boundingBox = new BoundingBox(glm::vec3(chestPosition.x - 0.5f, 0.0f, chestPosition.z - 1.0f),
 					glm::vec3(chestPosition.x + 0.5f, 1.5f, chestPosition.z + 1.0f), chest, true);
 				abilityChests.push_back(chest);
-				boundingBoxList.push_back(chest->boundingBox);
-				chestBoundingBoxList.push_back(chest->boundingBox);
+				boundingBoxList.push_back(chest->getBoundingBox());
+				chestBoundingBoxList.push_back(chest->getBoundingBox());
+				mazeArray[r][c].abilityChest = chest;
+
 			}
 		}
 	}
@@ -165,6 +170,7 @@ std::vector<Cube*> Maze::generateWalls()
 				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3(r * mapScale + wallWidth, wallHeight, (c + 1) * mapScale + wallWidth), canDelete, isClient);
 				walls.push_back(newWall);
 				boundingBoxList.push_back(newWall->getBoundingBox());
+				mazeArray[r][c].wallBottom = newWall;
 			}
 			if (mazeArray[r][c].right)
 			{
@@ -175,6 +181,7 @@ std::vector<Cube*> Maze::generateWalls()
 				Cube* newWall = new Cube(glm::vec3(r * mapScale, -1.2f, c * mapScale), glm::vec3((r + 1) * mapScale, wallHeight, c * mapScale + wallWidth), canDelete, isClient);
 				walls.push_back(newWall);
 				boundingBoxList.push_back(newWall->getBoundingBox());
+				mazeArray[r][c].wallRight = newWall;
 			}
 		}
 	}
@@ -341,7 +348,7 @@ void Maze::removeAbility(int* coordinate)
 }
 
 
-void Maze::setWall(int r, int c, bool direction, bool exist, int ability)
+void Maze::setWall(int r, int c, bool direction, bool exist)
 {
 	if (direction)
 	{
@@ -352,9 +359,13 @@ void Maze::setWall(int r, int c, bool direction, bool exist, int ability)
 		mazeArray[r][c].right = exist;
 	}
 
-	mazeArray[r][c].ability = ability;
 }
 
+
+void Maze::setAbility(int r, int c, int ab)
+{
+	mazeArray[r][c].ability = ab;
+}
 
 
 // Print out maze to console

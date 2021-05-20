@@ -37,7 +37,8 @@ public:
     Node* root;
 
     // constructor, expects a filepath to a 3D model.
-    Model(string const& path, glm::mat4 _rootModel);
+    Model(string const& path, glm::mat4 _rootModel, bool client);
+    ~Model();
 
     // draws the model, and thus all its meshes
     void draw(const glm::mat4& viewProjMtx, GLuint shader);
@@ -47,6 +48,7 @@ public:
     void rotateAnimation(float amount, glm::vec3 p); //rotates animationRootModel around point p
     void rotate(float amount, glm::vec3 p); //rotates rootModel around point p
 
+    BoundingBox* getBoundingBox() { return boundingBox; }
 
     //for chests only
     bool opening;
@@ -61,6 +63,8 @@ private:
     void processAnimations(const aiScene* scene);
 
     Mesh* processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 model);
+
+    bool isClient;
     
 };
 #endif

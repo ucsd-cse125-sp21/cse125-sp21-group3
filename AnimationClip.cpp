@@ -146,7 +146,6 @@ void AnimationClip::applyBoneTransforms() {
 					glm::vec4 n(mesh->initialNormals.at(vertexId).x, mesh->initialNormals.at(vertexId).y, mesh->initialNormals.at(vertexId).z, 0.0f);
 					glm::vec4 n_prime = nodeModel * bone->offsetMatrix * n;
 					boneNormals.at(vertexId) += glm::vec3(n_prime.x, n_prime.y, n_prime.z) * bone->weights.at(k);
-					
 				}
 			}
 			else {
@@ -155,6 +154,8 @@ void AnimationClip::applyBoneTransforms() {
 		}
 
 		if (mesh->bones.size() > 0) {
+			//cout << "vertex 828 before: " << glm::to_string(mesh->positions.at(828)) << endl;
+
 			mesh->positions = bonePositions;
 			mesh->normals = boneNormals;
 			//cout << "final value for vertex 828: " << glm::to_string(mesh->positions.at(828)) << endl;

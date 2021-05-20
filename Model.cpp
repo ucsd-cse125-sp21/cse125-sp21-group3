@@ -5,17 +5,29 @@
 #define AI_MATKEY_GLTF_MATNAME "?mat.name", 0, 0
 
 
-Model::Model(string const& path, glm::mat4 _rootModel) 
+Model::Model(string const& path, glm::mat4 _rootModel, bool client) 
 {
     rootModel = _rootModel;
     boundingBox == NULL;
     animationRootModel = rootModel;
     gammaCorrection = false;
     meshCounter = 0;
-    loadModel(path);
+    isClient = client;
 
+    if (isClient) {
+        loadModel(path);
+    }
     //only for chests
     opening = false;
+}
+
+Model::~Model()
+{
+    std::cout << "Deleting" << std::endl;
+    if (boundingBox)
+    {
+        boundingBox->setActive(false);
+    }
 }
 
 // draws the model, and thus all its meshes
@@ -81,7 +93,7 @@ void Model::processNode(aiNode* aiNode, Node* node, const aiScene* scene, glm::m
 Mesh* Model::processMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 model)
 {
     // return a mesh object created from the extracted mesh data
-    Mesh* m = new Mesh(mesh, scene, model);
+    Mesh* m = new Mesh(mesh, scene, model, isClient);
     m->id = meshCounter;
     meshCounter++;
     return m;
@@ -147,7 +159,6 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
         time = animationClip->duration;
     }
     
-    //cout << "before calculateBoneTransform time: " << time << endl;
     animationClip->calculateBoneTransforms(time, root, animationRootModel);
     animationClip->applyBoneTransforms();
     animationClip->prevTime = time;

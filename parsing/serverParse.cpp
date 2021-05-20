@@ -1,12 +1,48 @@
 #include "serverParse.h"
 
-using namespace std;
-using namespace boost::asio;
-using ip::tcp;
-
 
 int serverParse::userIdCount = 0;
 const string serverParse::MESSAGE_TAIL = "\r\n";
+
+
+string serverParse::createMazeString(Maze* maze)
+{
+    string message = "";
+    wallInfo** mazeArray = maze->getMazeArray();
+    for (int r = 0; r < maze->getMazeSize(); r++)
+    {
+        for (int c = 0; c < maze->getMazeSize(); c++)
+        {
+            if (mazeArray[r][c].right)
+            {
+                message += "mU," + to_string(r) + "," + to_string(c) + ",0,";
+            }
+            if (mazeArray[r][c].bottom)
+            {
+                message += "mU," + to_string(r) + "," + to_string(c) + ",1,";
+            }
+        }
+    }
+    return message;
+}
+
+string serverParse::createAbilityString(Maze* maze)
+{
+    string message = "";
+    wallInfo** mazeArray = maze->getMazeArray();
+    for (int r = 0; r < maze->getMazeSize(); r++)
+    {
+        for (int c = 0; c < maze->getMazeSize(); c++)
+        {
+            if (mazeArray[r][c].ability != Player::none)
+            {
+                message += "mA," + to_string(r) + "," + to_string(c) + "," + to_string(mazeArray[r][c].ability) + ",";
+            }
+
+        }
+    }
+    return message;
+}
 
 
 /*
@@ -102,26 +138,69 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
     
     vector<string> messageValues;
     boost::split(messageValues, clientMessage, boost::is_any_of(","));
-    string header = messageValues.front();
-    if (header=="join") {
-        serverParse::joinMessageHandler();
-    }
-    else if (header=="leave") {
-        serverParse::leaveMessageHandler(messageValues.at(1));
-    }
-    else if (header=="input"){
-        //cout << "received input message: " << clientMessage << endl;
-        serverParse::inputMessageHandler(game, messageValues);
-    }
-    else if (header == "chestOpen") {
-        wallInfo** mazeArray = game->maze->getMazeArray();
-        int r = stoi(messageValues.at(1));
-        int c = stoi(messageValues.at(2));
-        mazeArray[r][c].ability = Player::opened;
-    }
-    else {
-        cout << clientMessage << endl;
-        cout<<"Unexpected message type from client"<<endl;
+    vector<string>::iterator it = messageValues.begin();
+    while (it != messageValues.end())
+    {
+        if (*it == "join") {
+        }
+        else if (*it == "leave") {
+        }
+        else if (*it == "input") {
+            int playerID = stoi(*(it + 1));
+            int isMoving = stoi(*(it + 2));
+            float yaw = stof(*(it + 3));
+            float pitch = stof(*(it + 4));
+            int state = stoi(*(it + 5));
+            Player* player = game->allPlayers.at(0);
+            for (int i = 1; i < game->allPlayers.size(); i++)
+            {
+                if (game->allPlayers.at(i)->getId() == playerID)
+                {
+                    player = game->allPlayers.at(i);
+                    break;
+                }
+            }
+
+            Camera* cam = player->getPlayerCamera();
+            cam->setYaw(yaw);
+            cam->setPitch(pitch);
+            cam->Update();
+            player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+            player->setState(state);
+            player->setMoving(isMoving);
+
+            for (int i = Player::forward; i <= Player::down; i++)
+            {
+                int dirOn = stoi(*(it + 6 + i));
+                if (dirOn)
+                {
+                    player->moveDirection(i);
+                }
+            }
+            int hasFired = stoi(*(it + 6 + Player::down + 1));
+            if (hasFired)
+            {
+                player->shootWeapon(game -> allBoundingBoxes);
+            }
+            int pickUpAbility = stoi(*(it + 6 + Player::down + 2));
+            if (pickUpAbility)
+            {
+                cout << "Picking up ability" << endl;
+                player->pickUpAbility();
+                player->setPickUpAbilityKey(false);
+            }
+            int useAbility = stoi(*(it + 6 + Player::down + 3));
+            if (useAbility)
+            {
+                cout << "Using ability" << endl;
+                player -> useAbility();
+                player->setUseAbilityKey(false);
+            }
+            it = it + 6 + Player::down + 3;
+        }
+        else {
+        }
+        it++;
     }
 }
 
