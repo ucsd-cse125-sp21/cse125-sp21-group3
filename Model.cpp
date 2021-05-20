@@ -159,7 +159,6 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
         time = animationClip->duration;
     }
     
-    //cout << "before calculateBoneTransform time: " << time << endl;
     animationClip->calculateBoneTransforms(time, root, animationRootModel);
     animationClip->applyBoneTransforms();
     animationClip->prevTime = time;

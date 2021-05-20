@@ -42,7 +42,7 @@ public:
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);
 	
 	// Access functions
-	void setPosition(glm::vec3 p) { position = p; }
+	void setPosition(glm::vec3 p);
 	void setVelocity(glm::vec3 v) { velocity.x = v.x; velocity.y = v.y; velocity.z = v.z; }
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }

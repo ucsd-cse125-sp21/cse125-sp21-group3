@@ -243,16 +243,14 @@ int main(int argc, char* argv[])
 
     //run timer in its own thread
     std::thread timer_thread = std::thread([&]() {client.client_handle_timeout(); });
-    cout << "before while loop" << endl;
     while (!client.game->gameSet)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));
         cout << "waiting for maze" << endl;
     }
-    cout << "outside of while loop" << endl;
     client.game->initiateGame();
 
-
+    
     // Loop while GLFW window should stay open.
     while (!glfwWindowShouldClose(window))
     {

@@ -66,7 +66,7 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         playerModel = new Model("Assets/character.gltf", playerModelRootTransform, isClient);
         playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
         walkingBackward = false;
-        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
+        //playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
 
         //creating and initializing playerGunModel
         rotation = glm::rotate(glm::mat4(1.0f), 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -75,6 +75,11 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         glm::mat4 playerGunModelRootTransform = translation * rotation * scaling;
         playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform, isClient);
         playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0] - 0.45f, playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2] + 1.0f);
+        
+        //playerModel->rootModel = glm::mat4(1.0f);
+        //playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
+        //playerModel->animationRootModel = glm::mat4(1.0f);
+        //cout << "before play animation in constructor" << endl;
     }
 
     //networking stuff
@@ -89,6 +94,7 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         inputDirections[i] = false;
     }
     cout << "Player created" << endl;
+    
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
@@ -162,6 +168,7 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
  */
 void Player::update(float deltaTime, Game* game)
 {
+
     if (!isClient) { //update stuff for not client side player instances
         switch (state)
         {
@@ -182,12 +189,12 @@ void Player::update(float deltaTime, Game* game)
             velocity *= 0;
             break;
         default:
-            if (position.y <= 3.5f)
+            /*if (position.y <= 3.5f)
             {
                 glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
                 velocity += v;
                 velocity *= 0.5f;
-            }
+            }*/
             break;
         }
 
@@ -198,32 +205,33 @@ void Player::update(float deltaTime, Game* game)
                 //update player bounding box
                 boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
                     glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
-            }
-
-            if (boundingBox->getActive()) {
-                applyConstraints(game -> maze ->getBoundingBox());
-            }
-            //if (state != dead && state != still)
-            //{
-            //    createFootPrint(position);
-            //}
-            //if (state != still)
-            //{
-            //    //update player model position
-            //    glm::vec3 diff = position - prevPosition;
-            //    playerModel->rootModel[3][0] += diff.x;
-            //    playerModel->rootModel[3][1] += diff.y;
-            //    playerModel->rootModel[3][2] += diff.z;
-            //    playerGunModel->rootModel[3][0] += diff.x;
-            //    playerGunModel->rootModel[3][1] += diff.y;
-            //    playerGunModel->rootModel[3][2] += diff.z;
-            //    playerGunModel->animationRootModel[3][0] += diff.x;
-            //    playerGunModel->animationRootModel[3][1] += diff.y;
-            //    playerGunModel->animationRootModel[3][2] += diff.z;
-            //    playerGunModelCenter += diff;
-            //    prevPosition = position;
-            //}
         }
+
+        if (boundingBox->getActive()) {
+            applyConstraints(game -> maze ->getBoundingBox());
+        }
+        //if (state != dead && state != still)
+        //{
+        //    createFootPrint(position);
+        //}
+        //if (state != still)
+        //{
+        //    //update player model position
+        //    glm::vec3 diff = position - prevPosition;
+        //    playerModel->rootModel[3][0] += diff.x;
+        //    playerModel->rootModel[3][1] += diff.y;
+        //    playerModel->rootModel[3][2] += diff.z;
+        //    playerGunModel->rootModel[3][0] += diff.x;
+        //    playerGunModel->rootModel[3][1] += diff.y;
+        //    playerGunModel->rootModel[3][2] += diff.z;
+        //    playerGunModel->animationRootModel[3][0] += diff.x;
+        //    playerGunModel->animationRootModel[3][1] += diff.y;
+        //    playerGunModel->animationRootModel[3][2] += diff.z;
+        //    playerGunModelCenter += diff;
+        //    prevPosition = position;
+        //}
+       
+    }
     else
     {
         if (moving == 1) {
@@ -238,11 +246,15 @@ void Player::update(float deltaTime, Game* game)
             playerCamera->setPosition(position);
 
         }
+
+        //playerModel->rotateAnimation(0.1f, glm::vec3(0.0f, 0.0f, 0.0f));
+        //cout << "before play animation in update" << endl;
+        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.1f, false);
+
+
         //update player and player gun model
         playerModel->update();
         playerGunModel->update();
-
-
 
         if (isFiring) {
             if (playerGunModel->animationClipList.at(0)->prevTime + 0.2f > playerGunModel->animationClipList.at(0)->duration) {
@@ -609,8 +621,19 @@ string Player::getPlayerInfoString() {
     playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
 
     playerInfoString += MESSAGE_TAIL;
-
     return playerInfoString;
+}
+
+void Player::setPosition(glm::vec3 p) {
+
+    glm::vec3 diff = p - position;
+    getPlayerModel()->rootModel[3][0] += diff.x;
+    getPlayerModel()->rootModel[3][1] += diff.y;
+    getPlayerModel()->rootModel[3][2] += diff.z;
+    getPlayerGunModel()->rootModel[3][0] += diff.x;
+    getPlayerGunModel()->rootModel[3][1] += diff.y;
+    getPlayerGunModel()->rootModel[3][2] += diff.z;
+    position = p;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

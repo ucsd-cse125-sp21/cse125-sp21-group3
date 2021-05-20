@@ -65,6 +65,7 @@ public:
 	//Networking Stuff
 	static int createOpponent;
 	static vector<string> messagesToServer;
+	static GLFWcursor* cursor;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

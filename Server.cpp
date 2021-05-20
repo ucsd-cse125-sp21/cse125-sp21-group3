@@ -6,6 +6,7 @@
 #include "parsing/serverParse.cpp"
 #include "Game.h"
 #include "main.h"
+#include <glm/gtx/string_cast.hpp>
 
 #define MAX_CONNECTIONS 4
 #define PERIOD 30 //server period in ms
@@ -293,6 +294,7 @@ public:
                     //then broadcast the game_state
                     for (int p = 0; p < serverParse::userIdCount; p++) {
                         //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
+                        //cout << "before broadcast position is: " << glm::to_string(game->allPlayers.at(0)->getPosition()) << endl;
                         std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
                         //cout << "Broadcasting:" << playerStateString << endl;
                         broadcast(playerStateString);

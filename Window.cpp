@@ -58,6 +58,7 @@ Player* player;
 Cube* Window::cube;
 int Window::createOpponent;
 vector<string> Window::messagesToServer;
+GLFWcursor* Window::cursor;
 
 //rendering icons
 
@@ -97,6 +98,7 @@ bool Window::initializeProgram() {
 	}
 
 	debugMode = false;
+	
 	return true;
 }
 
@@ -109,12 +111,10 @@ bool Window::initializeProgram() {
 bool Window::initializeObjects(Game* game)
 {
 	cout << "Initializing game" << endl;
-
 	gm = game;
 
-
 	//player setup
-	player = new Player(glm::vec3(1.0f, 1.0f, 1.0f), game -> maze, true);
+	player = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game -> maze, true);
 	game->myPlayer = player;
 
 	game->allPlayers.push_back(player);
@@ -125,11 +125,8 @@ bool Window::initializeObjects(Game* game)
 	player->setSoundEngine(soundEngine);
 	player->resetInputDirections();
 
-
 	cout << "Set player ID: " << game->myPlayerId << endl;
 	player->setId(game->myPlayerId);
-
-
 
 	glm::mat4 chestRootTransform(1.0f);
 	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
@@ -170,9 +167,6 @@ bool Window::initializeObjects(Game* game)
 			horizontalDigitSegment[y][x][2] = 0.0f;
 		}
 	}
-
-
-
 
 
 	// setup plane VAO
@@ -247,6 +241,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 {
 	Window::createOpponent = -1;
 	Window::messagesToServer = {};
+	
 
 	// Initialize GLFW.
 	if (!glfwInit())
@@ -299,7 +294,6 @@ GLFWwindow* Window::createWindow(int width, int height)
 #endif
 
 
-
 	// Set swap interval to 1.
 	glfwSwapInterval(0);
 
@@ -318,6 +312,8 @@ GLFWwindow* Window::createWindow(int width, int height)
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 
+	cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+	glfwSetCursor(window, cursor);
 	return window;
 }
 
@@ -408,9 +404,11 @@ void Window::idleCallback(Game* game)
 	//}
 
 	//update all players in the game	
-	//for (int i = 0; i < game->allPlayers.size(); i++) {
-	//	game->allPlayers.at(i)->update(0.01f, game);
-	//}
+	for (int i = 0; i < game->allPlayers.size(); i++) {
+		game->allPlayers.at(i)->update(0.1f, game);
+		//game->allPlayers.at(i)->getPlayerModel()->playAnimation(game->allPlayers.at(i)->getPlayerModel()->animationClipList.at(0), 0.1f, false);
+	}
+
 
 	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
 	//gun->playAnimation(gun->animationClipList.at(0), 0.05f, false);
@@ -570,8 +568,7 @@ void Window::drawHealth() {
 
 		drawDigit(startingX, height - 50, segmentsUsed);
 		startingX += 30;
-	}
-	
+	}	
 }
 
 
@@ -610,8 +607,10 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 
 		//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		for (int i = 0; i < game->allPlayers.size(); i++) {
-			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			//game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
+
 
 		Camera* playCam = player->getPlayerCamera();
 		irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
@@ -657,8 +656,6 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 
 		// Gets events, including input such as keyboard and mouse or window resizing.
 		glfwPollEvents();
-
-		
 
 		// Swap buffers.
 		glfwSwapBuffers(window);
@@ -793,11 +790,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		}
 	}
-
-	//Networking Stuff
-	//------------------------------------------------------------------------
-
-	//------------------------------------------------------------------------
 }
 
 /*
@@ -837,14 +829,22 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
  */
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
+	
+
 	if (GetActiveWindow() == NULL) {
 		return;
 	}
 
 	int maxDelta = 100;
+	
 	int dx = glm::clamp((int)currX - MouseX, -maxDelta, maxDelta);
 	int dy = glm::clamp(-((int)currY - MouseY), -maxDelta, maxDelta);
-
+	//cout << "dx: " << dx << endl;
+	//cout << "dy:" << dy << endl;
+	//cout << "currX: " << currX << endl;
+	//cout << "currY: " << currY << endl;
+	//cout << "mouseX: " << MouseX << endl;
+	//cout << "mouseY: " << MouseY << endl;
 	MouseX = (int)currX;
 	MouseY = (int)currY;
 
@@ -853,22 +853,24 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	//updating camera viewing direction
 	float yaw = Cam->getYaw();
 	float pitch = Cam->getPitch();
+
 	yaw += dx * sensitivity;
 	
 	//rotation animation stuff for player
-	player->getPlayerModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerModelCenter());
-	player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f, false);
-	player->getPlayerGunModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
-	player->getPlayerGunModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
+	//player->getPlayerModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerModelCenter());
+	//player->getPlayerModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerModelCenter());
+	//player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f, false);
+	//player->getPlayerGunModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
+	//player->getPlayerGunModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
 
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);
 	Cam->setPitch(pitch);
 
 	//keeps cursor locked in the middle
-	glfwSetCursorPos(window, width / 2, height / 2);
+	/*glfwSetCursorPos(window, width / 2, height / 2);
 	MouseX = width / 2;
-	MouseY = height / 2;
+	MouseY = height / 2;*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

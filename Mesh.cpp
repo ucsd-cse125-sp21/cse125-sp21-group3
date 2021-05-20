@@ -79,6 +79,7 @@ void Mesh::draw(const glm::mat4& viewProjMtx, GLuint shader)
 {
 	if (isClient)
 	{
+		
 		glUseProgram(shader);
 
 		// get the locations and send the uniforms to the shader 
