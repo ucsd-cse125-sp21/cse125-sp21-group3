@@ -2,8 +2,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include "../util/ts_queue.cpp"
-#include "../parsing/clientParse.cpp"
+#include "util/ts_queue.cpp"
+#include "parsing/clientParse.h"
 #include "main.h"
 #include "Game.h"
 

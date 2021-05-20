@@ -32,10 +32,10 @@ Maze::Maze(int size, int scale, bool client)
 	// Set seed for random creation for testing purposes
 	//srand(0);
 	srand(time(NULL));
-	if (!client) {
+	/*if (!client) {
 		cout << "create ability chests for server" << endl;
 		createAbilityChests(25);
-	}
+	}*/
 }
 
 
@@ -74,7 +74,7 @@ Cube * Maze::generateGround()
 void Maze::createAbilityChests(int numChests)
 {
 	int numAbilities = numChests;
-	for (int i = 0; i < numChests; i++)
+	for (int i = 0; i < numAbilities; i++)
 	{
 		int abilityType = rand() % 8;
 		while (abilityType == Player::none || abilityType == Player::trackPlayer)
@@ -104,8 +104,7 @@ std::vector<Model*> Maze::generateAbilityChests()
 	{
 		for (int c = 0; c < mazeSize; c++)
 		{
-			if (mazeArray[r][c].ability != Player::none)
-			{
+			if (mazeArray[r][c].ability != Player::none) {
 				glm::vec3 chestPosition((r + 0.5) * mapScale, 0.0f, (c + 0.5) * mapScale);
 				glm::mat4 translation = glm::translate(glm::mat4(1.0f), chestPosition);
 				Model* chest = new Model("Assets/chestOpen.gltf", translation, isClient);
@@ -115,7 +114,6 @@ std::vector<Model*> Maze::generateAbilityChests()
 				boundingBoxList.push_back(chest->getBoundingBox());
 				chestBoundingBoxList.push_back(chest->getBoundingBox());
 				mazeArray[r][c].abilityChest = chest;
-
 			}
 		}
 	}

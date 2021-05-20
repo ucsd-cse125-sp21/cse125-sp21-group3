@@ -3,7 +3,7 @@
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include "util/ts_queue.cpp"
-#include "parsing/serverParse.cpp"
+#include "parsing/serverParse.h"
 #include "Game.h"
 #include "main.h"
 #include <glm/gtx/string_cast.hpp>
