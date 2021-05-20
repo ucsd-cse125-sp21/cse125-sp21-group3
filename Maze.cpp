@@ -104,8 +104,7 @@ std::vector<Model*> Maze::generateAbilityChests()
 	{
 		for (int c = 0; c < mazeSize; c++)
 		{
-			if (mazeArray[r][c].ability != Player::none)
-			{
+			if (mazeArray[r][c].ability != Player::none) {
 				glm::vec3 chestPosition((r + 0.5) * mapScale, 0.0f, (c + 0.5) * mapScale);
 				glm::mat4 translation = glm::translate(glm::mat4(1.0f), chestPosition);
 				Model* chest = new Model("Assets/chestOpen.gltf", translation, isClient);
@@ -115,7 +114,6 @@ std::vector<Model*> Maze::generateAbilityChests()
 				boundingBoxList.push_back(chest->getBoundingBox());
 				chestBoundingBoxList.push_back(chest->getBoundingBox());
 				mazeArray[r][c].abilityChest = chest;
-
 			}
 		}
 	}

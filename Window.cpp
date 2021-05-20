@@ -58,7 +58,6 @@ Player* player;
 Cube* Window::cube;
 int Window::createOpponent;
 vector<string> Window::messagesToServer;
-GLFWcursor* Window::cursor;
 
 //rendering icons
 
@@ -311,9 +310,6 @@ GLFWwindow* Window::createWindow(int width, int height)
 	//disable cursor
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-
-	cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-	glfwSetCursor(window, cursor);
 	return window;
 }
 
