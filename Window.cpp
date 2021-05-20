@@ -566,26 +566,26 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 	//}
 
 	
-	for (Model* abilityChest : gm -> maze->getChests())
-	{
-		wallInfo** mazeArray = gm -> maze->getMazeArray();
-		glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
-		int* abilityChestPos = gm -> maze->getCoordinates(abilityChestLocation);
-		if (abilityChest->opening) { //if client is in the process of opening the chest
-			if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
-				abilityChest->opening = false;
+		for (Model* abilityChest : gm -> maze->getChests())
+		{
+			wallInfo** mazeArray = gm -> maze->getMazeArray();
+			glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
+			int* abilityChestPos = gm -> maze->getCoordinates(abilityChestLocation);
+			if (abilityChest->opening) { //if client is in the process of opening the chest
+				if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
+					abilityChest->opening = false;
+				}
+				else {
+					abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
+				}
 			}
-			else {
-				abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.1f, false);
+			else if (mazeArray[abilityChestPos[0]][abilityChestPos[1]].ability == Player::opened) { //if the server has said this chest is open
+				abilityChest->animationClipList.at(0)->prevTime = abilityChest->animationClipList.at(0)->duration;
+				abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.0f, false);
 			}
-		}
-		else if (mazeArray[abilityChestPos[0]][abilityChestPos[1]].ability == Player::opened) { //if the server has said this chest is open
-			abilityChest->animationClipList.at(0)->prevTime = abilityChest->animationClipList.at(0)->duration;
-			abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.0f, false);
-		}
 
-		abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	}
+			abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+		}
 
 		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 
@@ -702,7 +702,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		{
 		case GLFW_KEY_LEFT_CONTROL:
 			player->setState(player->stand);
-
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
 			player->setState(player->stand);

@@ -439,8 +439,8 @@ void Player::pickUpAbility()
             (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) || 
             (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
         {
-            currentAbility = maze->getAbility(chestPos);
-            maze->removeAbility(chestPos);
+            currentAbility = maze->getAbility(chestPos[0], chestPos[1]);
+            maze->removeAbility(chestPos[0], chestPos[1]);
             chest->opening = true;
             string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + ",";
             Window::messagesToServer.push_back(chestOpenMessage);
@@ -477,6 +477,7 @@ void Player::useAbility()
         break;
     case increasePlayerHealth:
         setMaxHealth(getMaxHealth() + 50.0f);
+        setHealth(getHealth() + 50.0f);
         used = true;
         break;
     case armorPlayer:
@@ -577,7 +578,6 @@ bool Player::seeMapAbility()
 //client side to pass to server
 string Player::getPlayerInputString() {
 
-    string MESSAGE_TAIL = "\r\n";
     glm::vec3 direction = playerCamera->getCameraFront();
     float yaw = playerCamera->getYaw();
     float pitch = playerCamera->getPitch();
@@ -594,22 +594,17 @@ string Player::getPlayerInputString() {
     hasFired = false;
     pickUpAbilityKey = false;
     useAbilityKey = false;
-    playerInputString += MESSAGE_TAIL;
-
     return playerInputString;
 }
 
 //server side to pass to client
 string Player::getPlayerInfoString() {
 
-    string MESSAGE_TAIL = "\r\n";
     playerInfoString = "player," + to_string(id) + "," + to_string(moving) + ",";
     playerInfoString += to_string(position.x) + "," + to_string(position.y) + "," + to_string(position.z) + ",";
     playerInfoString += to_string(velocity.x) + "," + to_string(velocity.y) + "," + to_string(velocity.z) + ",";
 
-    playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
-
-    playerInfoString += MESSAGE_TAIL;
+    playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility) + ",";
 
     return playerInfoString;
 }

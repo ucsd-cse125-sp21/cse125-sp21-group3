@@ -192,7 +192,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         // mazeUpdate
         else if (*it == "mU")
         {
-            createdMaze = true;
             int row = stoi(*(it + 1));
             int col = stoi(*(it + 2));
             int wallDirection = stoi(*(it + 3));
@@ -217,6 +216,20 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             int c = stoi(*(it + 2));
             mazeArray[r][c].ability = Player::opened;
             it = it + 2;
+        }
+        else if (*it == "deleteWall")
+        {
+            int r = stoi(*(it + 1));
+            int c = stoi(*(it + 2));
+            int dir = stoi(*(it + 3));
+            game->maze->setWall(r, c, dir, 0);
+        }
+        else if (*it == "deleteAbility")
+        {
+            int r = stoi(*(it + 1));
+            int c = stoi(*(it + 2));
+            cout << "removing" << endl;
+            game->maze -> removeAbility(r, c);
         }
         it++;
     }
@@ -269,13 +282,8 @@ string clientParse::buildLeaveMessage() {
  */
 string clientParse::buildInputMessage(Game* game) {
     
-    string inputMessage = "";
-    if(game->myPlayer) {
-        inputMessage = game->myPlayer->getPlayerInputString();
-    }
-    
     //cout << "inputMessage: " << inputMessage << endl;
-    return inputMessage;
+    return game -> getClientInputMessage();
 }
 
 
