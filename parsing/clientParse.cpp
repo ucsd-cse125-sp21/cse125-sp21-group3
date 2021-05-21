@@ -150,7 +150,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                     //    if (hasFired.compare("true") == 0) {
                     //        //cout << "set isFiring for opponent" << endl;
                     //        game->allPlayers.at(i)->setIsFiring(true);
-                    //    }
+                    //}
                 }
             }
 
@@ -179,7 +179,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
 
             player->setHealth(currentHealth);
             player->setMaxHealth(maxHealth);
-            player->setArmor(currentArmor);
+            //player->setArmor(currentArmor);
             player->setDamageBoost(currentDamageBoost);
             player->setAbility(currentAbility);
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
@@ -189,6 +189,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         }
         else if (*it == "mazeInitial")
         {
+
         }
         // mazeUpdate
         else if (*it == "mU")

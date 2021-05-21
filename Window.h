@@ -58,8 +58,11 @@ public:
 
 	static void drawCrosshair();
 	static void drawHealth();
-	static void drawDigit(int startingX, int startingY, vector<bool> segmentsUsed);
+	static void drawArmor();
+	static void drawHealthDigit(int startingX, int startingY, vector<bool> segmentsUsed);
+	static void drawArmorDigit(int startingX, int startingY, vector<bool> segmentsUsed);
 	static void drawIcon();
+	static void loadAbilityIcon();
 	static bool debugMode;
 
 	//Networking Stuff
