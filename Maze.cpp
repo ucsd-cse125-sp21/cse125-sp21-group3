@@ -96,8 +96,6 @@ void Maze::createAbilityChests(int numChests)
 }
 
 
-
-
 std::vector<Model*> Maze::generateAbilityChests()
 {
 	for (int r = 0; r < mazeSize; r++)
@@ -147,8 +145,6 @@ void  Maze::createWalls()
 	// Add a beginning
 	mazeArray[0][0].right = false;
 }
-
-
 
 
 std::vector<Cube*> Maze::generateWalls()

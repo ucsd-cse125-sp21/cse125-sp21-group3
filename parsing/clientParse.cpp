@@ -150,7 +150,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                     //    if (hasFired.compare("true") == 0) {
                     //        //cout << "set isFiring for opponent" << endl;
                     //        game->allPlayers.at(i)->setIsFiring(true);
-                    //    }
+                    //}
                 }
             }
 
@@ -189,6 +189,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         }
         else if (*it == "mazeInitial")
         {
+
         }
         // mazeUpdate
         else if (*it == "mU")

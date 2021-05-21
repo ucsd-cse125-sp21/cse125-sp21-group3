@@ -456,7 +456,6 @@ void Player::pickUpAbility()
             Window::messagesToServer.push_back(chestOpenMessage);
             //TODO tell server that chest has opened
             std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
-
             //delete parentCube;
             delete playerPos;
             delete chestPos;
