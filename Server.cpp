@@ -186,7 +186,10 @@ public:
     Game* game;
 
     //constructor for accepting connection from client
-    Server(boost::asio::io_service& io_service); 
+    Server(boost::asio::io_service& io_service, int portNum) : io_service_(io_service),
+        acceptor_(io_service_, tcp::endpoint(tcp::v4(), portNum)) {
+        start_accept();
+    }
 
     void begin_game()
     {
@@ -269,7 +272,7 @@ public:
                     if (!nextMessage.empty()) {
                         //cout << "Receiving message for player:" << bufIndex << ":" << nextMessage << endl;
                         serverParse::sortClientMessage(game, nextMessage);
-
+                    }
                     if (game)
                     {
                         for (int i = 0; i < game->allPlayers.size(); i++)
@@ -297,12 +300,6 @@ public:
 
     
 };
-
-Server::Server(boost::asio::io_service& io_service, int portNum) : io_service_(io_service),
-acceptor_(io_service_, tcp::endpoint(tcp::v4(), portNum)) {
-    start_accept();
-
-}
 
 
 
