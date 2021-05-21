@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
         }
         
         boost::asio::io_service io_service;
-        Server server(io_service);
+        Server server(io_service,portNum);
         //init state to dummy values
 
         boost::asio::io_service::work idleWork(io_service);
