@@ -23,7 +23,7 @@
  */
 Player::Player(glm::vec3 _position, Maze* mz, bool client) {
     
-
+    id = -1;
     position = _position;
 
     lastFootPrintPos = _position;
@@ -169,7 +169,7 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
  */
 void Player::update(float deltaTime, Game* game)
 {
-
+    
     if (!isClient) { //update stuff for not client side player instances
         switch (state)
         {

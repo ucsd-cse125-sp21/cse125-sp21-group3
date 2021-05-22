@@ -106,9 +106,8 @@ public:
                 continue;
             }
             std::string input_string =  clientParse::buildInputMessage(game);
-            //cout << "Sending:" << input_string << endl;
 
-            game->update(PERIOD/1000.0f);
+            //game->update(PERIOD/1000.0f);
 
             sock.async_write_some(
                 boost::asio::buffer(input_string, input_string.size()),
@@ -231,7 +230,7 @@ int main(int argc, char* argv[])
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
 
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     client.gameInitialized = true;
     client.start();
@@ -267,10 +266,4 @@ int main(int argc, char* argv[])
     glfwDestroyWindow(window);
     // Terminate GLFW.
     glfwTerminate();
-
-    std::cout << "Beginning main thread" << std::endl;
-
-
-    while(1){
-    }
 }

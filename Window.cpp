@@ -126,28 +126,6 @@ bool Window::initializeObjects(Game* game)
 	player->setSoundEngine(soundEngine);
 	player->resetInputDirections();
 
-	cout << "Set player ID: " << game->myPlayerId << endl;
-	player->setId(game->myPlayerId);
-
-	glm::mat4 chestRootTransform(1.0f);
-	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
-	chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-	//chest = new Model("Assets/chestOpen.gltf", chestRootTransform);
-	//chest = new Model("C:/Users/Calpok/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
-	
-
-	glm::mat4 gunRootTransform(1.0f);
-	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
-	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
-	//gun = new Model("Assets/pistolReload.gltf", gunRootTransform);
-	//gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
-
-	glm::mat4 characterRootTransform(1.0f);
-	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
-	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
-	//character = new Model("Assets/character.gltf", characterRootTransform);
-	//character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
-
 	//initializing digit segments to represent health
 	for (int y = 0; y < healthDigitSegmentLength; y++)
 	{
@@ -212,6 +190,7 @@ bool Window::initializeObjects(Game* game)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
 	abilityLoaded = false;
+	//game->initiateGame();
 	return true;
 }
 
@@ -363,81 +342,29 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
  */
 void Window::idleCallback(Game* game)
 {
-	
-	// Perform any updates as necessary.
-	//Cam->Update();
-	//player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
-	//player->setMoving(0);
-
-	//if (GetAsyncKeyState(GLFW_KEY_W)) {
-	//	player->moveDirection(player->forward);
-	//	player->setMoving(1);
-	//}
-	//if (GetAsyncKeyState(GLFW_KEY_D)) {
-	//	player->moveDirection(player->right);
-	//	player->setMoving(1);
-	//	player->setInput(player->right, 1);
-
-	//}
-	//if (GetAsyncKeyState(GLFW_KEY_A)) {
-	//	player->moveDirection(player->left);
-	//	player->setMoving(1);
-	//	player->setInput(player->left, 1);
-
-	//}
-	//if (GetAsyncKeyState(GLFW_KEY_S)) {
-	//	player->moveDirection(player->backward);
-	//	player->setMoving(-1);
-	//	player->setInput(player->backward, 1);
-
-	//}
-	//
-	////if (GetAsyncKeyState(GLFW_KEY_E)) {
-	////	player->useAbility();
-	////}
-	////if (GetAsyncKeyState(GLFW_KEY_F)) {
-	////	player->pickUpAbility();
-	////}
-	//// Allow player to move up and down for debugging
-	//if (GetAsyncKeyState(GLFW_KEY_X)) {
-	//	player->moveDirection(player->down);
-	//	player->setInput(player->down, 1);
-
-	//}
-	//if (GetAsyncKeyState(GLFW_KEY_Z)) {
-	//	player->moveDirection(player->up);
-	//	player->setInput(player->up, 1);
-
-	//}
-
 	//update all players in the game	
 	for (int i = 0; i < game->allPlayers.size(); i++) {
-		game->allPlayers.at(i)->update(0.1f, game);
-		//game->allPlayers.at(i)->getPlayerModel()->playAnimation(game->allPlayers.at(i)->getPlayerModel()->animationClipList.at(0), 0.1f, false);
+		if (game->allPlayers.at(i)->getId() != -1) {
+			game->allPlayers.at(i)->update(0.1f, game);
+		}
 	}
-
-
-	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
-	//gun->playAnimation(gun->animationClipList.at(0), 0.05f, false);
-	//character->playAnimation(character->animationClipList.at(0), 0.05f);
-
 
 	//Networking Stuff
 	//------------------------------------------------------------------------
-	//if (Window::createOpponent != -1) {
-	//	cout << "creating player: " << Window::createOpponent << endl;
-	//	Player* p = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, true);
+	if (Window::createOpponent != -1) {
+		cout << "creating player: " << Window::createOpponent << endl;
+		Player* p = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, true);
 
-	//	//changing position for testing purposes
-	//	p->getPlayerModel()->rootModel[3][2] -= 5.0f;
-	//	p->getPlayerGunModel()->rootModel[3][2] -= 5.0f;
-	//	////////////////////////////////////////
+		//changing position for testing purposes
+		/*p->getPlayerModel()->rootModel[3][2] -= 5.0f;
+		p->getPlayerGunModel()->rootModel[3][2] -= 5.0f;*/
+		////////////////////////////////////////
 
-	//	p->setId(Window::createOpponent);
-	//	game->allPlayers.push_back(p);
-	//	cout << "added player successfully" << endl;
-	//	Window::createOpponent = -1;
-	//}
+		p->setId(Window::createOpponent);
+		game->allPlayers.push_back(p);
+		cout << "added player successfully" << endl;
+		Window::createOpponent = -1;
+	}
 	//------------------------------------------------------------------------
 }
 
@@ -811,28 +738,23 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 
 		//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		for (int i = 0; i < game->allPlayers.size(); i++) {
-			player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-			//game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
 
 
-		Camera* playCam = player->getPlayerCamera();
-		irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
-		irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
-		irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
-		irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
-		soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
+		//Camera* playCam = player->getPlayerCamera();
+		//irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
+		//irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
+		//irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
+		//irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
+		//soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
 
-		for (Cube* wall : game->maze->getWalls())
-		{
+		for (Cube* wall : game->maze->getWalls()) {
 			wall->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
 
-		//chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-		//gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	
-		for (Model* abilityChest : gm -> maze->getChests())
-		{
+		for (Model* abilityChest : gm -> maze->getChests()) {
 			wallInfo** mazeArray = gm -> maze->getMazeArray();
 			glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
 			int* abilityChestPos = gm -> maze->getCoordinates(abilityChestLocation);
@@ -1085,9 +1007,9 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	Cam->setPitch(pitch);
 
 	//keeps cursor locked in the middle
-	/*glfwSetCursorPos(window, width / 2, height / 2);
+	glfwSetCursorPos(window, width / 2, height / 2);
 	MouseX = width / 2;
-	MouseY = height / 2;*/
+	MouseY = height / 2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

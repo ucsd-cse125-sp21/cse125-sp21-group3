@@ -95,7 +95,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
     vector<string>::iterator it = messageValues.begin();
     //cerr << "server message contains tail at: " << serverMessage.find("\r\n") << endl;
-    //cerr << "received message: " << serverMessage << endl;
+    //cout << "received message: " << serverMessage << endl;
     //cerr << "received message size: " << serverMessage.size() << endl;
     bool createdMaze = false;
     while (it != messageValues.end())
@@ -104,6 +104,10 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         {
             int playerId = stoi(*(it + 1));
             game->myPlayerId = playerId;
+            if (game->allPlayers.size() > 0) {
+                cout << "assigning id: " << playerId << endl;
+                game->allPlayers.at(0)->setId(playerId);
+            }
             it = it + 1;
         }
         else if (*it == "player")
@@ -153,7 +157,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                     //}
                 }
             }
-
 
             int isMoving = stoi(*(it + 2));
             
@@ -273,7 +276,7 @@ string clientParse::buildLeaveMessage() {
 string clientParse::buildInputMessage(Game* game) {
     
     string inputMessage = "";
-    if(game->myPlayer) {
+    if(game->myPlayer && game->myPlayer->getId() != -1) {
         inputMessage = game->myPlayer->getPlayerInputString();
     }
     

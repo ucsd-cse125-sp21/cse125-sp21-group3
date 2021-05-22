@@ -189,11 +189,11 @@ public:
     Server(boost::asio::io_service& io_service, int portNum) : io_service_(io_service),
         acceptor_(io_service_, tcp::endpoint(tcp::v4(), portNum)) {
         start_accept();
+        game = new Game(false);
     }
 
     void begin_game()
     {
-        game = new Game(false);
         game->beginGame();
         game->initiateGame();
 
