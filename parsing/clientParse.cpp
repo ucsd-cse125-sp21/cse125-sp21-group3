@@ -140,7 +140,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             {
                 if (userId == game->allPlayers.at(i)->getId())
                 {
-                    Player* player = game->allPlayers.at(i);
+                    player = game->allPlayers.at(i);
                     break;
                     //if (userId != game->myPlayerId) {
                     //    game->allPlayers.at(i)->setMoving(stoi(messageValues.at(2)));
