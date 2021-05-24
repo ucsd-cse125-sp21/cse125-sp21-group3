@@ -71,7 +71,7 @@ public:
 	float getMaxHealth() { return maxHealth; }
 	float getArmor() { return currentArmor; }
 	float getDamageBoost() { return currentDamageBoost; }
-	float getState() { return state; }
+	int getState() { return state; }
 
 
 	void setHealth(float health);

@@ -2,8 +2,8 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include "../util/ts_queue.cpp"
-#include "../parsing/clientParse.h"
+#include "util/ts_queue.cpp"
+#include "parsing/clientParse.h"
 #include "main.h"
 #include "Game.h"
 
@@ -106,7 +106,6 @@ public:
                 continue;
             }
             std::string input_string =  clientParse::buildInputMessage(game);
-            //cout << "Sending:" << input_string << endl;
 
             game->update(PERIOD/1000.0f);
 
@@ -117,17 +116,6 @@ public:
                     boost::asio::placeholders::error,
                     boost::asio::placeholders::bytes_transferred));
         }
-    }
-
-     void client_send_messages(vector<string> messages) {
-         for (string message : messages) {
-             sock.async_write_some(
-                 boost::asio::buffer(message, message.size()),
-                 boost::bind(&Client::client_handle_send_input,
-                     this,
-                     boost::asio::placeholders::error,
-                     boost::asio::placeholders::bytes_transferred));
-         }
     }
     
 };
@@ -202,10 +190,20 @@ void print_versions()
 
 int main(int argc, char* argv[])
 {
+    /*
+     * Set Server IP address and port if available.  If not, use default values.
+     */
+    std::string ipAddress = "127.0.0.1";
+    int portNum = 1234;
+    if (argc > 1) {
+        ipAddress = argv[1];
+        portNum = std::stoi(argv[2]);
+    }
+
     std::cout << "Starting client" << std::endl;
     boost::asio::io_service io_service;
     Client client(io_service);
-    client.sock.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
+    client.sock.connect(tcp::endpoint(boost::asio::ip::address::from_string(ipAddress), portNum));
     std::cout << "Client started" << std::endl;
 
     std::cout << "Creating window" << std::endl;
@@ -232,7 +230,7 @@ int main(int argc, char* argv[])
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
 
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     client.gameInitialized = true;
     client.start();
@@ -260,12 +258,6 @@ int main(int argc, char* argv[])
 
         // Idle callback. Updating objects, etc. can be done here.
         Window::idleCallback(client.game);
-
-        //send any messages which need to be sent
-        if (Window::messagesToServer.size() > 0) {
-            client.client_send_messages(Window::messagesToServer);
-            Window::messagesToServer = {};
-        }
     }
 
 
@@ -274,10 +266,4 @@ int main(int argc, char* argv[])
     glfwDestroyWindow(window);
     // Terminate GLFW.
     glfwTerminate();
-
-    std::cout << "Beginning main thread" << std::endl;
-
-
-    while(1){
-    }
 }

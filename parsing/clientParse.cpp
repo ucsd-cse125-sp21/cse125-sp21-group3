@@ -95,7 +95,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
     vector<string>::iterator it = messageValues.begin();
     //cerr << "server message contains tail at: " << serverMessage.find("\r\n") << endl;
-    //cerr << "received message: " << serverMessage << endl;
+    //cout << "received message: " << serverMessage << endl;
     //cerr << "received message size: " << serverMessage.size() << endl;
     bool createdMaze = false;
     while (it != messageValues.end())
@@ -104,6 +104,10 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         {
             int playerId = stoi(*(it + 1));
             game->myPlayerId = playerId;
+            if (game->allPlayers.size() > 0) {
+                cout << "assigning id: " << playerId << endl;
+                game->allPlayers.at(0)->setId(playerId);
+            }
             it = it + 1;
         }
         else if (*it == "player")
@@ -136,7 +140,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             {
                 if (userId == game->allPlayers.at(i)->getId())
                 {
-                    Player* player = game->allPlayers.at(i);
+                    player = game->allPlayers.at(i);
                     break;
                     //if (userId != game->myPlayerId) {
                     //    game->allPlayers.at(i)->setMoving(stoi(messageValues.at(2)));
@@ -150,10 +154,9 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                     //    if (hasFired.compare("true") == 0) {
                     //        //cout << "set isFiring for opponent" << endl;
                     //        game->allPlayers.at(i)->setIsFiring(true);
-                    //    }
+                    //}
                 }
             }
-
 
             int isMoving = stoi(*(it + 2));
             
@@ -179,7 +182,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
 
             player->setHealth(currentHealth);
             player->setMaxHealth(maxHealth);
-            player->setArmor(currentArmor);
+            //player->setArmor(currentArmor);
             player->setDamageBoost(currentDamageBoost);
             player->setAbility(currentAbility);
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
@@ -189,6 +192,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         }
         else if (*it == "mazeInitial")
         {
+
         }
         // mazeUpdate
         else if (*it == "mU")

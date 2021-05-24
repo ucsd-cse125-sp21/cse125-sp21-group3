@@ -25,6 +25,7 @@ void Game::beginGame()
 
 void Game::initiateGame()
 {
+	cout << "Game initiated" << endl;
 	maze->generateGround();
 	maze->generateWalls();
 	maze->generateAbilityChests();

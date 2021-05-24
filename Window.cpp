@@ -26,10 +26,14 @@
 int Window::width;
 int Window::height;
 const char* Window::windowTitle = "Labyrinth of Doom";
-const int digitSegmentLength = 20;
-const int digitSegmentThickness = 3;
-float verticalDigitSegment[digitSegmentLength][digitSegmentThickness][3];
-float horizontalDigitSegment[digitSegmentThickness][digitSegmentLength][3];
+const int healthDigitSegmentLength = 20;
+const int healthDigitSegmentThickness = 3;
+float healthVerticalDigitSegment[healthDigitSegmentLength][healthDigitSegmentThickness][3];
+float healthHorizontalDigitSegment[healthDigitSegmentThickness][healthDigitSegmentLength][3];
+const int armorDigitSegmentLength = 15;
+const int armorDigitSegmentThickness = 2;
+float armorVerticalDigitSegment[armorDigitSegmentLength][armorDigitSegmentThickness][3];
+float armorHorizontalDigitSegment[armorDigitSegmentThickness][armorDigitSegmentLength][3];
 
 
 // Camera Properties
@@ -60,7 +64,6 @@ int Window::createOpponent;
 vector<string> Window::messagesToServer;
 
 //rendering icons
-
 unsigned int abilityQuadVAO, abilityQuadVBO;
 float abilityQuadVertices[] = {
 	// positions        // texture Coords
@@ -70,8 +73,7 @@ float abilityQuadVertices[] = {
 	 1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
 };
 GLuint abilityTexture;
-//TextureCube* textureCube;
-
+bool abilityLoaded;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,46 +126,45 @@ bool Window::initializeObjects(Game* game)
 	player->setSoundEngine(soundEngine);
 	player->resetInputDirections();
 
-	cout << "Set player ID: " << game->myPlayerId << endl;
-	player->setId(game->myPlayerId);
-
-	glm::mat4 chestRootTransform(1.0f);
-	chestRootTransform = glm::translate(chestRootTransform, glm::vec3(2.0f, 0.0f, 2.0f));
-	chestRootTransform = glm::rotate(chestRootTransform, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-	//chest = new Model("Assets/chestOpen.gltf", chestRootTransform);
-	//chest = new Model("C:/Users/Calpok/Desktop/CSE 125/chestOpen.gltf", chestRootTransform);
-	
-
-	glm::mat4 gunRootTransform(1.0f);
-	gunRootTransform = glm::scale(gunRootTransform, glm::vec3(0.5f, 0.5f, 0.5f));
-	gunRootTransform = glm::translate(gunRootTransform, glm::vec3(7.0f, 2.0f, 10.0f));
-	//gun = new Model("Assets/pistolReload.gltf", gunRootTransform);
-	//gun = new Model("C:/Users/Calpok/Desktop/CSE 125/pistolReload.gltf", gunRootTransform);
-
-	glm::mat4 characterRootTransform(1.0f);
-	characterRootTransform = glm::scale(characterRootTransform, glm::vec3(0.335f, 0.335f, 0.335f));
-	characterRootTransform = glm::translate(characterRootTransform, glm::vec3(7.0f, 0.0f, 2.0f));
-	//character = new Model("Assets/character.gltf", characterRootTransform);
-	//character = new Model("C:/Users/Calpok/Desktop/CSE 125/character.gltf", characterRootTransform);
-
 	//initializing digit segments to represent health
-	for (int y = 0; y < 20; y++)
+	for (int y = 0; y < healthDigitSegmentLength; y++)
 	{
-		for (int x = 0; x < 3; x++)
+		for (int x = 0; x < healthDigitSegmentThickness; x++)
 		{
-			verticalDigitSegment[y][x][0] = 1.0f;
-			verticalDigitSegment[y][x][1] = 0.0f;
-			verticalDigitSegment[y][x][2] = 0.0f;
+			healthVerticalDigitSegment[y][x][0] = 1.0f;
+			healthVerticalDigitSegment[y][x][1] = 0.0f;
+			healthVerticalDigitSegment[y][x][2] = 0.0f;
 		}
 	}
 
-	for (int y = 0; y < 3; y++)
+	for (int y = 0; y < healthDigitSegmentThickness; y++)
 	{
-		for (int x = 0; x < 20; x++)
+		for (int x = 0; x < healthDigitSegmentLength; x++)
 		{
-			horizontalDigitSegment[y][x][0] = 1.0f;
-			horizontalDigitSegment[y][x][1] = 0.0f;
-			horizontalDigitSegment[y][x][2] = 0.0f;
+			healthHorizontalDigitSegment[y][x][0] = 1.0f;
+			healthHorizontalDigitSegment[y][x][1] = 0.0f;
+			healthHorizontalDigitSegment[y][x][2] = 0.0f;
+		}
+	}
+
+	//initializing digit segments to represent armor
+	for (int y = 0; y < armorDigitSegmentLength; y++)
+	{
+		for (int x = 0; x < armorDigitSegmentThickness; x++)
+		{
+			armorVerticalDigitSegment[y][x][0] = 0.0f;
+			armorVerticalDigitSegment[y][x][1] = 0.0f;
+			armorVerticalDigitSegment[y][x][2] = 1.0f;
+		}
+	}
+
+	for (int y = 0; y < armorDigitSegmentThickness; y++)
+	{
+		for (int x = 0; x < armorDigitSegmentLength; x++)
+		{
+			armorHorizontalDigitSegment[y][x][0] = 0.0f;
+			armorHorizontalDigitSegment[y][x][1] = 0.0f;
+			armorHorizontalDigitSegment[y][x][2] = 1.0f;
 		}
 	}
 
@@ -187,21 +188,9 @@ bool Window::initializeObjects(Game* game)
 	// set texture filtering parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	int width, height, nrChannels;
-	// The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-	unsigned char* data = stbi_load("Assets/icons/increasePlayerMaxHealth.jpg", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data);
-	//textureCube = new TextureCube();
+	
+	abilityLoaded = false;
+	//game->initiateGame();
 	return true;
 }
 
@@ -353,81 +342,29 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
  */
 void Window::idleCallback(Game* game)
 {
-	
-	// Perform any updates as necessary.
-	//Cam->Update();
-	//player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
-	//player->setMoving(0);
-
-	//if (GetAsyncKeyState(GLFW_KEY_W)) {
-	//	player->moveDirection(player->forward);
-	//	player->setMoving(1);
-	//}
-	//if (GetAsyncKeyState(GLFW_KEY_D)) {
-	//	player->moveDirection(player->right);
-	//	player->setMoving(1);
-	//	player->setInput(player->right, 1);
-
-	//}
-	//if (GetAsyncKeyState(GLFW_KEY_A)) {
-	//	player->moveDirection(player->left);
-	//	player->setMoving(1);
-	//	player->setInput(player->left, 1);
-
-	//}
-	//if (GetAsyncKeyState(GLFW_KEY_S)) {
-	//	player->moveDirection(player->backward);
-	//	player->setMoving(-1);
-	//	player->setInput(player->backward, 1);
-
-	//}
-	//
-	////if (GetAsyncKeyState(GLFW_KEY_E)) {
-	////	player->useAbility();
-	////}
-	////if (GetAsyncKeyState(GLFW_KEY_F)) {
-	////	player->pickUpAbility();
-	////}
-	//// Allow player to move up and down for debugging
-	//if (GetAsyncKeyState(GLFW_KEY_X)) {
-	//	player->moveDirection(player->down);
-	//	player->setInput(player->down, 1);
-
-	//}
-	//if (GetAsyncKeyState(GLFW_KEY_Z)) {
-	//	player->moveDirection(player->up);
-	//	player->setInput(player->up, 1);
-
-	//}
-
 	//update all players in the game	
 	//for (int i = 0; i < game->allPlayers.size(); i++) {
-	//	game->allPlayers.at(i)->update(0.1f, game);
-	//	//game->allPlayers.at(i)->getPlayerModel()->playAnimation(game->allPlayers.at(i)->getPlayerModel()->animationClipList.at(0), 0.1f, false);
+	//	if (game->allPlayers.at(i)->getId() != -1) {
+	//		game->allPlayers.at(i)->update(0.1f, game);
+	//	}
 	//}
-
-
-	//chest->playAnimation(chest->animationClipList.at(0), 0.01f);
-	//gun->playAnimation(gun->animationClipList.at(0), 0.05f, false);
-	//character->playAnimation(character->animationClipList.at(0), 0.05f);
-
 
 	//Networking Stuff
 	//------------------------------------------------------------------------
-	//if (Window::createOpponent != -1) {
-	//	cout << "creating player: " << Window::createOpponent << endl;
-	//	Player* p = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, true);
+	if (Window::createOpponent != -1) {
+		cout << "creating player: " << Window::createOpponent << endl;
+		Player* p = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game, true);
 
-	//	//changing position for testing purposes
-	//	p->getPlayerModel()->rootModel[3][2] -= 5.0f;
-	//	p->getPlayerGunModel()->rootModel[3][2] -= 5.0f;
-	//	////////////////////////////////////////
+		//changing position for testing purposes
+		/*p->getPlayerModel()->rootModel[3][2] -= 5.0f;
+		p->getPlayerGunModel()->rootModel[3][2] -= 5.0f;*/
+		////////////////////////////////////////
 
-	//	p->setId(Window::createOpponent);
-	//	game->allPlayers.push_back(p);
-	//	cout << "added player successfully" << endl;
-	//	Window::createOpponent = -1;
-	//}
+		p->setId(Window::createOpponent);
+		game->allPlayers.push_back(p);
+		cout << "added player successfully" << endl;
+		Window::createOpponent = -1;
+	}
 	//------------------------------------------------------------------------
 }
 
@@ -478,36 +415,73 @@ void Window::drawCrosshair() {
  *
  * @author Lucas Hwang
  */
-void Window::drawDigit(int startingX, int startingY, vector<bool> segmentsUsed) {
+void Window::drawHealthDigit(int startingX, int startingY, vector<bool> segmentsUsed) {
 
 	
 	glWindowPos2i(startingX, startingY);
 	if (segmentsUsed.at(0)) {
-		glDrawPixels(digitSegmentLength, digitSegmentThickness, GL_RGB, GL_FLOAT, horizontalDigitSegment);
+		glDrawPixels(healthDigitSegmentLength, healthDigitSegmentThickness, GL_RGB, GL_FLOAT, healthHorizontalDigitSegment);
 	}
 	if (segmentsUsed.at(1)) {
-		glDrawPixels(digitSegmentThickness, digitSegmentLength, GL_RGB, GL_FLOAT, verticalDigitSegment);
+		glDrawPixels(healthDigitSegmentThickness, healthDigitSegmentLength, GL_RGB, GL_FLOAT, healthVerticalDigitSegment);
 	}
-	glWindowPos2i(startingX + digitSegmentLength - digitSegmentThickness, startingY);
+	glWindowPos2i(startingX + healthDigitSegmentLength - healthDigitSegmentThickness, startingY);
 	if (segmentsUsed.at(2)) {
-		glDrawPixels(digitSegmentThickness, digitSegmentLength, GL_RGB, GL_FLOAT, verticalDigitSegment);
+		glDrawPixels(healthDigitSegmentThickness, healthDigitSegmentLength, GL_RGB, GL_FLOAT, healthVerticalDigitSegment);
 	}
-	glWindowPos2i(startingX, startingY + digitSegmentLength - digitSegmentThickness);
+	glWindowPos2i(startingX, startingY + healthDigitSegmentLength - healthDigitSegmentThickness);
 	if (segmentsUsed.at(3)) {
-		glDrawPixels(digitSegmentLength, digitSegmentThickness, GL_RGB, GL_FLOAT, horizontalDigitSegment);
+		glDrawPixels(healthDigitSegmentLength, healthDigitSegmentThickness, GL_RGB, GL_FLOAT, healthHorizontalDigitSegment);
 	}
 	if (segmentsUsed.at(4)) {
-		glDrawPixels(digitSegmentThickness, digitSegmentLength, GL_RGB, GL_FLOAT, verticalDigitSegment);
+		glDrawPixels(healthDigitSegmentThickness, healthDigitSegmentLength, GL_RGB, GL_FLOAT, healthVerticalDigitSegment);
 	}
-	glWindowPos2i(startingX + digitSegmentLength - digitSegmentThickness, startingY + digitSegmentLength - digitSegmentThickness);
+	glWindowPos2i(startingX + healthDigitSegmentLength - healthDigitSegmentThickness, startingY + healthDigitSegmentLength - healthDigitSegmentThickness);
 	if (segmentsUsed.at(5)) {
-		glDrawPixels(digitSegmentThickness, digitSegmentLength, GL_RGB, GL_FLOAT, verticalDigitSegment);
+		glDrawPixels(healthDigitSegmentThickness, healthDigitSegmentLength, GL_RGB, GL_FLOAT, healthVerticalDigitSegment);
 	}
-	glWindowPos2i(startingX, startingY + 2 * (digitSegmentLength - digitSegmentThickness));
+	glWindowPos2i(startingX, startingY + 2 * (healthDigitSegmentLength - healthDigitSegmentThickness));
 	if (segmentsUsed.at(6)) {
-		glDrawPixels(digitSegmentLength, digitSegmentThickness, GL_RGB, GL_FLOAT, horizontalDigitSegment);
+		glDrawPixels(healthDigitSegmentLength, healthDigitSegmentThickness, GL_RGB, GL_FLOAT, healthHorizontalDigitSegment);
 	}
 }
+
+/*
+ * Draws digit in seven segment form.
+ *
+ * @author Lucas Hwang
+ */
+void Window::drawArmorDigit(int startingX, int startingY, vector<bool> segmentsUsed) {
+
+
+	glWindowPos2i(startingX, startingY);
+	if (segmentsUsed.at(0)) {
+		glDrawPixels(armorDigitSegmentLength, armorDigitSegmentThickness, GL_RGB, GL_FLOAT, armorHorizontalDigitSegment);
+	}
+	if (segmentsUsed.at(1)) {
+		glDrawPixels(armorDigitSegmentThickness, armorDigitSegmentLength, GL_RGB, GL_FLOAT, armorVerticalDigitSegment);
+	}
+	glWindowPos2i(startingX + armorDigitSegmentLength - armorDigitSegmentThickness, startingY);
+	if (segmentsUsed.at(2)) {
+		glDrawPixels(armorDigitSegmentThickness, armorDigitSegmentLength, GL_RGB, GL_FLOAT, armorVerticalDigitSegment);
+	}
+	glWindowPos2i(startingX, startingY + armorDigitSegmentLength - armorDigitSegmentThickness);
+	if (segmentsUsed.at(3)) {
+		glDrawPixels(armorDigitSegmentLength, armorDigitSegmentThickness, GL_RGB, GL_FLOAT, armorHorizontalDigitSegment);
+	}
+	if (segmentsUsed.at(4)) {
+		glDrawPixels(armorDigitSegmentThickness, armorDigitSegmentLength, GL_RGB, GL_FLOAT, armorVerticalDigitSegment);
+	}
+	glWindowPos2i(startingX + armorDigitSegmentLength - armorDigitSegmentThickness, startingY + armorDigitSegmentLength - armorDigitSegmentThickness);
+	if (segmentsUsed.at(5)) {
+		glDrawPixels(armorDigitSegmentThickness, armorDigitSegmentLength, GL_RGB, GL_FLOAT, armorVerticalDigitSegment);
+	}
+	glWindowPos2i(startingX, startingY + 2 * (armorDigitSegmentLength - armorDigitSegmentThickness));
+	if (segmentsUsed.at(6)) {
+		glDrawPixels(armorDigitSegmentLength, armorDigitSegmentThickness, GL_RGB, GL_FLOAT, armorHorizontalDigitSegment);
+	}
+}
+
 
 /*
  * Draws health in the form of digits
@@ -563,12 +537,172 @@ void Window::drawHealth() {
 			break;
 		}
 
-		drawDigit(startingX, height - 50, segmentsUsed);
+		drawHealthDigit(startingX, height - 50, segmentsUsed);
 		startingX += 30;
 	}	
 }
 
+/*
+ * Draws health in the form of digits
+ *
+ * @author Lucas Hwang
+ */
+void Window::drawArmor() {
 
+	vector<int> digits;
+	int temp = player->getArmor();
+	while (temp > 0) {
+		digits.push_back(temp % 10);
+		temp = temp / 10;
+	}
+
+	int startingX = 20;
+	for (int i = digits.size() - 1; i >= 0; i--) {
+		int digit = digits.at(i);
+		vector<bool> segmentsUsed;
+		switch (digit) {
+		case 0:
+			segmentsUsed = { true, true, true, false, true, true, true };
+			break;
+		case 1:
+			segmentsUsed = { false, false, true, false, false, true, false };
+			break;
+		case 2:
+			segmentsUsed = { true, true, false, true, false, true, true };
+			break;
+		case 3:
+			segmentsUsed = { true, false, true, true, false, true, true };
+			break;
+		case 4:
+			segmentsUsed = { false, false, true, true, true, true, false };
+			break;
+		case 5:
+			segmentsUsed = { true, false, true, true, true, false, true };
+			break;
+		case 6:
+			segmentsUsed = { true, true, true, true, true, false, true };
+			break;
+		case 7:
+			segmentsUsed = { false, false, true, false, false, true, true };
+			break;
+		case 8:
+			segmentsUsed = { true, true, true, true, true, true, true };
+			break;
+		case 9:
+			segmentsUsed = { true, false, true, true, true, true, true };
+			break;
+		default:
+			segmentsUsed = { false, false, false, false, false, false, false };
+			break;
+		}
+
+		drawArmorDigit(startingX, height - 100, segmentsUsed);
+		startingX += 20;
+	}
+}
+
+
+void Window::loadAbilityIcon() {
+
+	int width, height, nrChannels;
+	unsigned char* data;
+	switch (player->getAbility()) {
+	case 1:
+		data = stbi_load("Assets/icons/removeWall.jpg", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
+		break;
+	case 2:
+		data = stbi_load("Assets/icons/trackPlayer.jpg", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
+		break;
+	case 3:
+		data = stbi_load("Assets/icons/seeMap.jpg", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
+		break;
+	case 4:
+		data = stbi_load("Assets/icons/healPlayer.jpg", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
+		break;
+	case 5:
+		data = stbi_load("Assets/icons/increasePlayerMaxHealth.jpg", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
+		break;
+	case 6:
+		data = stbi_load("Assets/icons/armorPlayer.jpg", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
+		break;
+	case 7:
+		data = stbi_load("Assets/icons/damageBoost.jpg", &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else
+		{
+			std::cout << "Failed to load texture" << std::endl;
+		}
+		stbi_image_free(data);
+		break;
+	default:
+		cout << "no icon for ability: " << player->getAbility() << endl;
+		break;
+	}
+}
 
 void Window::drawIcon() {
 
@@ -609,27 +743,24 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		}
 
 
-		Camera* playCam = player->getPlayerCamera();
-		irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
-		irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
-		irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
-		irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
-		soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
+		//Camera* playCam = player->getPlayerCamera();
+		//irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
+		//irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
+		//irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
+		//irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
+		//soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
 
-		for (Cube* wall : game->maze->getWalls())
-		{
+
+		for (Cube* wall : game->maze->getWalls()) {
 			wall->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
 
-		//chest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-		//gun->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-	
-		for (Model* abilityChest : gm -> maze->getChests())
-		{
+		for (Model* abilityChest : gm -> maze->getChests()) {
 			wallInfo** mazeArray = gm -> maze->getMazeArray();
 			glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
 			int* abilityChestPos = gm -> maze->getCoordinates(abilityChestLocation);
 			if (abilityChest->opening) { //if client is in the process of opening the chest
+				cout << "ability chest is opening" << endl;
 				if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
 					abilityChest->opening = false;
 				}
@@ -649,7 +780,17 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		drawCrosshair();
 		drawHealth();
-		//drawIcon();
+		drawArmor();
+
+		if (player->getAbility() != Player::none) {
+
+			if (!abilityLoaded) {
+				loadAbilityIcon();
+				abilityLoaded = true;
+			}
+			drawIcon();
+		}
+		
 
 		// Gets events, including input such as keyboard and mouse or window resizing.
 		glfwPollEvents();
@@ -725,12 +866,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_E:
 			//player->useAbility();
 			player->setUseAbilityKey(true);
-			break;
-		case GLFW_KEY_UP:
-			player->setHealth(player->getHealth() + 1);
-			break;
-		case GLFW_KEY_DOWN:
-			player->setHealth(player->getHealth() - 1);
 			break;
 		case GLFW_KEY_W:
 			player->setMoving(1);
@@ -872,9 +1007,9 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	Cam->setPitch(pitch);
 
 	//keeps cursor locked in the middle
-	/*glfwSetCursorPos(window, width / 2, height / 2);
+	glfwSetCursorPos(window, width / 2, height / 2);
 	MouseX = width / 2;
-	MouseY = height / 2;*/
+	MouseY = height / 2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
