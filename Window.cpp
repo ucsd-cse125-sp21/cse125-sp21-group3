@@ -759,7 +759,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 			glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
 			int* abilityChestPos = gm -> maze->getCoordinates(abilityChestLocation);
 			if (abilityChest->opening) { //if client is in the process of opening the chest
-				cout << "ability chest is opening" << endl;
+				//cout << "ability chest is opening" << endl;
 				if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
 					abilityChest->opening = false;
 				}
@@ -861,6 +861,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_F:
 			//player->pickUpAbility();
 			player->setPickUpAbilityKey(true);
+			player->openChest();
 			break;
 		case GLFW_KEY_E:
 			//player->useAbility();

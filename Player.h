@@ -144,7 +144,9 @@ public:
 	void setUseAbilityKey(bool on) { useAbilityKey = on; }
 
 	static string getAbilityName(int ability);
+	
 
+	void openChest();
 
 private:
 

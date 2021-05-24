@@ -182,7 +182,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
 
             player->setHealth(currentHealth);
             player->setMaxHealth(maxHealth);
-            //player->setArmor(currentArmor);
+            player->setArmor(currentArmor);
             player->setDamageBoost(currentDamageBoost);
             player->setAbility(currentAbility);
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
