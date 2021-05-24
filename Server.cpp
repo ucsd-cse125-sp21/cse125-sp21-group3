@@ -235,7 +235,7 @@ public:
             connection -> send_join_message();
         }
         start_accept();
-        if (serverParse::userIdCount == 2)
+        if (serverParse::userIdCount == 1)
         {
             begin_game();
         }
