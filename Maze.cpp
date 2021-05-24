@@ -1,7 +1,7 @@
 #include "Maze.h"
 
 // Iniitalize maze
-Maze::Maze(int size, int scale, bool client)
+Maze::Maze(int size, int scale, Game* gm, bool client)
 {
 	mazeSize = size;
 	mazeArray = new wallInfo*[mazeSize];
@@ -28,14 +28,11 @@ Maze::Maze(int size, int scale, bool client)
 	wallHeight = 5.0f;
 
 	isClient = client;
+	game = gm;
 
 	// Set seed for random creation for testing purposes
 	//srand(0);
 	srand(time(NULL));
-	/*if (!client) {
-		cout << "create ability chests for server" << endl;
-		createAbilityChests(25);
-	}*/
 }
 
 
@@ -77,10 +74,12 @@ void Maze::createAbilityChests(int numChests)
 	for (int i = 0; i < numAbilities; i++)
 	{
 		int abilityType = rand() % 8;
-		while (abilityType == Player::none || abilityType == Player::trackPlayer)
+		while (abilityType == Player::none || abilityType == Player::trackPlayer || abilityType == Player::opened)
 		{
 			abilityType = rand() % 8;
 		}
+		// Choose ability to test
+		//abilityType = Player::seeMap;
 		int row = rand() % (mazeSize - 1);
 		int column = rand() % (mazeSize - 1);
 		if (mazeArray[row][column].ability == Player::none)
@@ -329,17 +328,31 @@ int* Maze::getCoordinates(glm::vec3 position)
 
 
 
-int Maze::getAbility(int* coordinate)
+int Maze::getAbility(int r, int c)
 {
-	return mazeArray[coordinate[0]][coordinate[1]].ability;
+	return mazeArray[r][c].ability;
 }
 
 
 
-void Maze::removeAbility(int* coordinate)
+void Maze::removeAbility(int r, int c)
 {
-	mazeArray[coordinate[0]][coordinate[1]].ability = Player::opened;
+	mazeArray[r][c].ability = Player::opened;
+	if (!isClient)
+	{
+		string inputMessage = "deleteAbility," + to_string(r) + "," + to_string(c) + ",";
+		game->addServerInputMessage(inputMessage);
+		cout << "deleting" << r << "|" << c << endl;
+	}
+	if (mazeArray[r][c].abilityChest)
+	{
+		//delete mazeArray[r][c].abilityChest;
+		mazeArray[r][c].abilityChest = NULL;
+		cout << "deleted" << endl;
+	}
+
 }
+
 
 
 void Maze::setWall(int r, int c, bool direction, bool exist)
@@ -347,12 +360,26 @@ void Maze::setWall(int r, int c, bool direction, bool exist)
 	if (direction)
 	{
 		mazeArray[r][c].bottom = exist;
+		if (!exist && mazeArray[r][c].wallBottom)
+		{
+			delete mazeArray[r][c].wallBottom;
+			//mazeArray[r][c].wallBottom = NULL;
+		}
 	}
 	else
 	{
 		mazeArray[r][c].right = exist;
+		if (!exist && mazeArray[r][c].wallRight)
+		{
+			delete mazeArray[r][c].wallRight;
+			//mazeArray[r][c].wallRight = NULL;
+		}
 	}
-
+	if (!isClient && !exist)
+	{
+		string inputMessage = "deleteWall," + to_string(r) + "," + to_string(c) + "," + to_string((int) direction) + ",";
+		game->addServerInputMessage(inputMessage);
+	}
 }
 
 

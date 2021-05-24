@@ -43,6 +43,7 @@ void Camera::Update() {
     if (pitch < -89.9f) {
         pitch = -89.9f;
     }
+
    
     direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     direction.y = sin(glm::radians(pitch));
@@ -76,7 +77,7 @@ void Camera::Reset() {
     yaw = -90.0f;
     pitch = 0.0f;
     position = glm::vec3(3.0f, 3.5f, 3.0f);
-    cameraFront = glm::vec3(0.0f, 3.5, 0.0f - position.z);
+    cameraFront = glm::vec3(10.0f, 3.5, 10.0f - position.z);
 }
 
 

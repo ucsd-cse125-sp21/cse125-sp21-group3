@@ -21,7 +21,7 @@
  * @return Player object
  * @author Lucas Hwang
  */
-Player::Player(glm::vec3 _position, Maze* mz, bool client) {
+Player::Player(glm::vec3 _position, Game* gm, bool client) {
     
     id = -1;
     position = _position;
@@ -53,7 +53,9 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
 
     state = stand;
 
-    maze = mz;
+    maze = gm -> maze;
+    game = gm;
+    
 
     playerCamera = new Camera(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
     
@@ -90,6 +92,9 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
     inputDirections = new bool[6];
     pickUpAbilityKey = false;
     useAbilityKey = false;
+    usingMapAbility = false;
+    oldPitch = 0.0f;
+    oldYaw = 0.0f;
     for (int i = forward; i <= down; i++)
     {
         inputDirections[i] = false;
@@ -225,18 +230,15 @@ void Player::update(float deltaTime, Game* game)
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
         }
 
-        //if (game->myPlayerId == id) { //only update camera for client
-        //    //oldPitch = playerCamera->getPitch();
-        //    playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
-        //    //update player camera
-        //    playerCamera->Update();
+        if (usingMapAbility)
+        {
+            if (game->gameTime >= lastAbilityUseTime + 5)
+            {
+                endMapAbility();
+                game->addServerInputMessage("endSeeMap,");
+            }
+        }
 
-        //}
-
-        
-        //cout << "before play animation in update" << endl;
-
-        //update player and player gun model
         playerModel->update();
         playerGunModel->update();
 
@@ -246,14 +248,16 @@ void Player::update(float deltaTime, Game* game)
             }
             playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
         }
-
     }
+
     // Both client and server should update
-    playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
-
+    if (!usingMapAbility)
+    {
+        playerCamera->setPosition(position);
+    }
     //update player camera
-    playerCamera->Update();
 
+    playerCamera->Update();
 }
 
 /*
@@ -432,26 +436,25 @@ void Player::pickUpAbility()
     //std::cout << "LMAO" << parentCube->getType() << std::endl;
     //if (parentCube->getType() == Cube::abilityChest || true)
     //{
-        int* playerPos = maze -> getCoordinates(getPosition());
-        glm::vec3 chestLocation(chest->rootModel[3][0], chest->rootModel[3][1], chest->rootModel[3][2]);
-        int* chestPos = maze -> getCoordinates(chestLocation);
-        cout << "playerPos: " << playerPos[0] << " " << playerPos[1] << endl;
-        cout << "chestPos: " << chestPos[0] << " " << chestPos[1] << endl;
-        if ((playerPos[0] == chestPos[0] && playerPos[1] == chestPos[1]) || 
-            (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) || 
-            (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
-        {
-            currentAbility = maze->getAbility(chestPos);
-            maze->removeAbility(chestPos);
-            chest->opening = true;
-            string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
-            Window::messagesToServer.push_back(chestOpenMessage);
-            //TODO tell server that chest has opened
-            std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
-            //delete parentCube;
-            delete playerPos;
-            delete chestPos;
-        }
+    int* playerPos = maze -> getCoordinates(getPosition());
+    glm::vec3 chestLocation(chest->rootModel[3][0], chest->rootModel[3][1], chest->rootModel[3][2]);
+    int* chestPos = maze -> getCoordinates(chestLocation);
+    if ((playerPos[0] == chestPos[0] && playerPos[1] == chestPos[1]) || 
+        (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) || 
+        (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
+    {
+        currentAbility = maze->getAbility(chestPos[0], chestPos[1]);
+        maze->removeAbility(chestPos[0], chestPos[1]);
+        chest->opening = true;
+        string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
+        Window::messagesToServer.push_back(chestOpenMessage);
+        //TODO tell server that chest has opened
+        std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
+
+        //delete parentCube;
+        delete playerPos;
+        delete chestPos;
+    }
     //}
 }
 
@@ -506,6 +509,7 @@ void Player::useAbility()
         break;
     case increasePlayerHealth:
         setMaxHealth(getMaxHealth() + 50.0f);
+        setHealth(getHealth() + 50.0f);
         used = true;
         break;
     case armorPlayer:
@@ -583,7 +587,9 @@ bool Player::removeWallAbility()
     Cube* parentCube = shotObject->getParentCube();
     if (parentCube != NULL && parentCube->isDeletable())
     {
-        delete parentCube;
+        cout << "deleting wall" << endl;
+        int * cubePos = maze -> getCoordinates(parentCube->getMazePosition());
+        maze->setWall(cubePos[0], cubePos[1], parentCube->getDirection(), 0);
         return true;
     }
     return false;
@@ -591,14 +597,42 @@ bool Player::removeWallAbility()
 
 bool Player::seeMapAbility()
 {
-    float mazeSize = maze->getMazeSize();
-    float mapScale = maze->getMapScale();
-    float middleMap = (mazeSize - 1) * mapScale / 2.0f;
-    playerCamera->Reset();
-    playerCamera->setPitch(-90.0f);
-    playerCamera->setPosition(glm::vec3(middleMap, 200.0f, middleMap));
-    setState(still);
-    playerCamera->setFarClip(350.0f);
+    usingMapAbility = true;
+
+    if (isClient)
+    {
+        float mazeSize = maze->getMazeSize();
+        float mapScale = maze->getMapScale();
+        float middleMap = (mazeSize - 1) * mapScale / 2.0f;
+        playerCamera->Reset();
+        playerCamera->setPitch(-90.0f);
+        playerCamera->setPosition(glm::vec3(middleMap, 200.0f, middleMap));
+        setState(still);
+        playerCamera->setFarClip(350.0f);
+    }
+    else
+    {
+        string inputMessage = "useSeeMap," + to_string(oldPitch) + "," + to_string(oldYaw) + ",";
+        cout << inputMessage << endl;
+        game->addServerInputMessage(inputMessage);
+        lastAbilityUseTime = game->gameTime;
+    }
+    return true;
+}
+
+bool Player::endMapAbility()
+{
+    usingMapAbility = false;
+    if (isClient)
+    {
+        playerCamera->setPitch(oldPitch);
+        playerCamera->setYaw(oldYaw);
+        playerCamera->setFarClip(150.0f);
+        setState(stand);
+        usingMapAbility = false;
+        playerCamera->Update();
+    }
+
     return true;
 }
 
@@ -606,7 +640,6 @@ bool Player::seeMapAbility()
 //client side to pass to server
 string Player::getPlayerInputString() {
 
-    string MESSAGE_TAIL = "\r\n";
     glm::vec3 direction = playerCamera->getCameraFront();
     float yaw = playerCamera->getYaw();
     float pitch = playerCamera->getPitch();
@@ -623,8 +656,6 @@ string Player::getPlayerInputString() {
     hasFired = false;
     pickUpAbilityKey = false;
     useAbilityKey = false;
-    playerInputString += MESSAGE_TAIL;
-
     return playerInputString;
 }
 

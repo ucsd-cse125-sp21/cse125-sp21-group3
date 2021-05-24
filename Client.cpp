@@ -7,8 +7,8 @@
 #include "main.h"
 #include "Game.h"
 
-#define PERIOD 30 //client period in ms
-#define DELAY_PERIOD 750
+#define PERIOD 25 //client period in ms
+#define DELAY_PERIOD 500
 
 using namespace boost::asio;
 using ip::tcp;
@@ -107,7 +107,7 @@ public:
             }
             std::string input_string =  clientParse::buildInputMessage(game);
 
-            //game->update(PERIOD/1000.0f);
+            game->update(PERIOD/1000.0f);
 
             sock.async_write_some(
                 boost::asio::buffer(input_string, input_string.size()),

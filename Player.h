@@ -32,7 +32,7 @@ class Game;
 
 class Player {
 public:
-	Player(glm::vec3 _position, Maze* mz, bool isClient=true);
+	Player(glm::vec3 _position, Game* gm, bool isClient=true);
 
 	void applyForce(glm::vec3 f) { forceNet += f; }
 	void computeForces();
@@ -71,7 +71,7 @@ public:
 	float getMaxHealth() { return maxHealth; }
 	float getArmor() { return currentArmor; }
 	float getDamageBoost() { return currentDamageBoost; }
-	float getState() { return state; }
+	int getState() { return state; }
 
 
 	void setHealth(float health);
@@ -87,6 +87,7 @@ public:
 
 	bool removeWallAbility();
 	bool seeMapAbility();
+	bool endMapAbility();
 
 
 	bool walkingBackward;
@@ -144,9 +145,13 @@ public:
 	void setUseAbilityKey(bool on) { useAbilityKey = on; }
 
 	static string getAbilityName(int ability);
-	
 
 	void openChest();
+
+	void setOldPitch(float p) { oldPitch = p; }
+	void setOldYaw(float y) { oldYaw = y; }
+
+
 
 private:
 
@@ -172,7 +177,8 @@ private:
 	irrklang::ISoundEngine* soundEngine;
 	Weapon* playerWeapon;
 
-	//float oldPitch;
+	float oldPitch;
+	float oldYaw;
 
 	int state;
 
@@ -188,6 +194,7 @@ private:
 	int currentAbility;
 
 	Maze* maze;
+	Game* game;
 	
 	//networking stuff
 	int id;
@@ -202,6 +209,11 @@ private:
 	bool* inputDirections;
 	bool pickUpAbilityKey;
 	bool useAbilityKey;
+
+	bool usingMapAbility;
+
+	float lastAbilityUseTime;
+	float lastReloadTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

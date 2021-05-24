@@ -10,6 +10,9 @@
 #include <glm/glm.hpp>
 #include "Player.h"
 #include "Model.h"
+#include "Game.h"
+
+class Game;
 
 struct wallInfo {
 	bool right;
@@ -23,7 +26,7 @@ struct wallInfo {
 class Maze {
 public:
 
-	Maze(int size, int scale, bool client=true);
+	Maze(int size, int scale, Game* gm, bool client = true);
 	~Maze();
 
 	Cube* generateGround();
@@ -49,9 +52,9 @@ public:
 	std::vector<BoundingBox*> getBoundingBox() { return boundingBoxList; }
 
 	int* getCoordinates(glm::vec3 position);
-	int getAbility(int* coordinate);
+	int getAbility(int r, int c);
 
-	void removeAbility(int* coordinate);
+	void removeAbility(int r, int c);
 
 	void setWall(int r, int c, bool direction, bool exist);
 	void setAbility(int r, int c, int ab);
@@ -86,6 +89,8 @@ private:
 	float wallHeight;
 
 	bool isClient;
+
+	Game* game;
 
 };
 

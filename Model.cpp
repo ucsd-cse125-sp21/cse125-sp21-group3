@@ -35,7 +35,6 @@ Model::~Model()
 // draws the model, and thus all its meshes
 void Model::draw(const glm::mat4& viewProjMtx, GLuint shader)
 {
-
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i]->draw(viewProjMtx, shader);
 

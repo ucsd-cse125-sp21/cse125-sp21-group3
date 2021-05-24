@@ -185,16 +185,20 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax, int type, bool client)
  */
 Cube::~Cube()
 {
-	if (isClient)
-	{
-		// Delete the VBOs and the VAO.
-		glDeleteBuffers(1, &VBO_positions);
-		glDeleteBuffers(1, &VBO_normals);
-		glDeleteBuffers(1, &EBO);
-		glDeleteVertexArrays(1, &VAO);
-	}
+	// Causes error?
+	//if (isClient)
+	//{
+	//	cout << "deleting gl stuff" << endl;
+	//	// Delete the VBOs and the VAO.
+	//	glDeleteBuffers(1, &VBO_positions);
+	//	cout << "1" << endl;
+	//	glDeleteBuffers(1, &VBO_normals);
+	//	cout << "2" << endl;
+	//	glDeleteBuffers(1, &EBO);
+	//	cout << "3" << endl;
+	//	glDeleteVertexArrays(1, &VAO);
+	//}
 
-	std::cout << "Deleting" << std::endl;
 	boundingBox->setActive(false);
 }
 

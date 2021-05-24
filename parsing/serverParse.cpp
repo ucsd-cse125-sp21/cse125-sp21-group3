@@ -185,14 +185,12 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
             int pickUpAbility = stoi(*(it + 6 + Player::down + 2));
             if (pickUpAbility)
             {
-                cout << "Picking up ability" << endl;
                 player->pickUpAbility();
                 player->setPickUpAbilityKey(false);
             }
             int useAbility = stoi(*(it + 6 + Player::down + 3));
             if (useAbility)
             {
-                cout << "Using ability" << endl;
                 player -> useAbility();
                 player->setUseAbilityKey(false);
             }
