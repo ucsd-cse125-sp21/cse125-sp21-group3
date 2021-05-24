@@ -7,6 +7,7 @@ Game::Game(bool client)
 	gameBegun = false;
 	gameSet = false;
 	serverMessage = "";
+	gameTime = 0.0f;
 
 }
 
@@ -18,7 +19,7 @@ Game::~Game()
 void Game::beginGame()
 {
 	maze->createWalls();
-	maze->createAbilityChests(10);
+	maze->createAbilityChests(30);
 	//myPlayer = new Player(glm::vec3(1.0f, 1.0f, 1.0f), maze);
 }
 
@@ -42,6 +43,8 @@ void Game::update(float deltaTime)
 		Player* player = allPlayers.at(i);
 		player->update(deltaTime, this);
 	}
+
+	gameTime += deltaTime;
 }
 
 string Game::getClientInputMessage()

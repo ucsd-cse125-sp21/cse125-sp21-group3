@@ -10,12 +10,15 @@ Model::Model(string const& path, glm::mat4 _rootModel, bool client)
     rootModel = _rootModel;
     boundingBox == NULL;
     animationRootModel = rootModel;
+    rootModelRotation = 0.0f;
+    animationRootModelRotation = 0.0f;
     gammaCorrection = false;
     meshCounter = 0;
-    loadModel(path);
-
     isClient = client;
 
+    if (isClient) {
+        loadModel(path);
+    }
     //only for chests
     opening = false;
 }
@@ -157,7 +160,6 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
         time = animationClip->duration;
     }
     
-    //cout << "before calculateBoneTransform time: " << time << endl;
     animationClip->calculateBoneTransforms(time, root, animationRootModel);
     animationClip->applyBoneTransforms();
     animationClip->prevTime = time;
@@ -165,6 +167,10 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
 
 void Model::rotateAnimation(float amount, glm::vec3 p) {
 
+    animationRootModelRotation += amount;
+    if (animationRootModelRotation >= 2.0f * M_PI) {
+        animationRootModelRotation -= 2.0f * M_PI;
+    }
     glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -p);
     glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), p);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), amount, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -173,6 +179,10 @@ void Model::rotateAnimation(float amount, glm::vec3 p) {
 
 void Model::rotate(float amount, glm::vec3 p) {
 
+    rootModelRotation += amount;
+    if (rootModelRotation >= 2.0f * M_PI) {
+        rootModelRotation -= 2.0f * M_PI;
+    }
     glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -p);
     glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), p);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), amount, glm::vec3(0.0f, 1.0f, 0.0f));

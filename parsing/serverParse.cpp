@@ -167,6 +167,7 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
             cam->Update();
             player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
             player->setState(state);
+            player->setMoving(isMoving);
 
             for (int i = Player::forward; i <= Player::down; i++)
             {

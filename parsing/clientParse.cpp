@@ -94,6 +94,9 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     vector<string> messageValues;
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
     vector<string>::iterator it = messageValues.begin();
+    //cerr << "server message contains tail at: " << serverMessage.find("\r\n") << endl;
+    //cerr << "received message: " << serverMessage << endl;
+    //cerr << "received message size: " << serverMessage.size() << endl;
     bool createdMaze = false;
     while (it != messageValues.end())
     {
@@ -152,8 +155,8 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             }
 
 
-            bool isMoving = stoi(*(it + 2));
-
+            int isMoving = stoi(*(it + 2));
+            
             float position_x = stof(*(it + 3));
             float position_y = stof(*(it + 4));
             float position_z = stof(*(it + 5));
@@ -162,11 +165,9 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             float velocity_y = stof(*(it + 7));
             float velocity_z = stof(*(it + 8));
 
-
             if (player != NULL)
             {
-                player->setMoving(isMoving);
-
+                //player->setMoving(isMoving);
                 player->setPosition(glm::vec3(position_x, position_y, position_z));
             }
 
@@ -195,6 +196,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             int row = stoi(*(it + 1));
             int col = stoi(*(it + 2));
             int wallDirection = stoi(*(it + 3));
+            //cout << "row: " << row << " col: " << col << " wallDirection: " << wallDirection << endl;
             game->maze->setWall(row, col, wallDirection, 1);
             it = (it + 3);
         }
@@ -223,6 +225,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             int c = stoi(*(it + 2));
             int dir = stoi(*(it + 3));
             game->maze->setWall(r, c, dir, 0);
+            it = it + 3;
         }
         else if (*it == "deleteAbility")
         {
@@ -230,6 +233,21 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             int c = stoi(*(it + 2));
             cout << "removing" << endl;
             game->maze -> removeAbility(r, c);
+            it = it + 2;
+        }
+        else if (*it == "useSeeMap")
+        {
+            float oldPitch = stof(*(it + 1));
+            float oldYaw = stof(*(it + 2));
+            game->myPlayer->setOldPitch(oldPitch);
+            game->myPlayer->setOldYaw(oldYaw);
+            game->myPlayer->seeMapAbility();
+            it = it + 2;
+        }
+        else if (*it == "endSeeMap")
+        {
+            cout << "ending see map" << endl;
+            game->myPlayer->endMapAbility();
         }
         it++;
     }

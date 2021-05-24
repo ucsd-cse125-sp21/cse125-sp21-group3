@@ -6,10 +6,11 @@
 #include "parsing/serverParse.h"
 #include "Game.h"
 #include "main.h"
+#include <glm/gtx/string_cast.hpp>
 
 #define MAX_CONNECTIONS 4
-#define PERIOD 30 //server period in ms
-#define DELAY_PERIOD 750
+#define PERIOD 25 //server period in ms
+#define DELAY_PERIOD 500
 
 using namespace boost::asio;
 using ip::tcp;
@@ -23,13 +24,15 @@ private:
     tcp::socket sock;
     std::string message = "Hello From Server!";
     enum { max_length = 1024 };
-    std::string input_str;
+    string buffer;
+    boost::asio::dynamic_string_buffer<char, std::char_traits<char>, std::allocator<char>>
+        input_buf = boost::asio::dynamic_buffer(buffer);
     ThreadSafeQueue<std::string> input_buffer;
 
 public:
     int pid;
     string pid_str; //for parser
-
+   
     Game* game;
 
     typedef boost::shared_ptr<con_handler> pointer;
@@ -55,7 +58,7 @@ public:
     {
         async_read_until(
             sock,
-            boost::asio::dynamic_buffer(input_str),
+            input_buf,
             "\r\n",
             boost::bind(&con_handler::handle_read,
                 shared_from_this(),
@@ -73,12 +76,13 @@ public:
         if (!err) {
             //std::string incoming;
             //incoming.assign(data, bytes_transferred);
-            input_buffer.push(input_str);
-            input_str = "";
+            string temp = buffer.substr(0, buffer.find("\r\n"));
+            input_buffer.push(temp);
+            input_buf.consume(bytes_transferred);
 
             async_read_until(
             sock,
-            boost::asio::dynamic_buffer(input_str),
+            input_buf,
             "\r\n",
             boost::bind(&con_handler::handle_read,
                 shared_from_this(),
@@ -194,7 +198,26 @@ public:
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));
 
         string message = serverParse::createMazeString(game->maze);
-        broadcast(message);
+        while (message.size() > 256) {
+            for (int j = 255; j >= 0; j--) {
+                if (message.at(j) == 'm') {
+                    string temp = message.substr(0, j);
+                    //cerr << "sending temp message: " << temp << endl;
+                    //cerr << "temp message size: " << temp.size() << endl;
+                    temp = temp + "\r\n";
+                    broadcast(temp);
+                    message.erase(message.begin(), message.begin() + j);
+                    //cerr << "message size is now: " << message.size() << endl;
+                    break;
+                }
+            }
+        }
+        if (message.size() > 0) {
+            message = message + "\r\n";
+            //cerr << "sending remaining: " << message.size() << endl;
+            broadcast(message);
+        }
+        //broadcast("mU,1,1,1,");
         message = "";
 
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));
@@ -214,7 +237,7 @@ public:
         {
             begin_game();
         }
-        Player* player = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, false);
+        Player* player = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game, false);
         game->allPlayers.push_back(player);
         player->setId(serverParse::userIdCount - 1);
     }
@@ -267,12 +290,14 @@ public:
                         inputMessage = game->getServerInputMessage();
                     }
 
+
                     //cout << "Sending: " << inputMessage << endl;
                     broadcast(inputMessage);
                     //printMoving(playerConnections[0]->pid_str);
                     //then broadcast the game_state
                     //for (int p = 0; p < serverParse::userIdCount; p++) {
                     //    //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
+                    //    //cout << "before broadcast position is: " << glm::to_string(game->allPlayers.at(0)->getPosition()) << endl;
                     //    std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
                     //    //cout << "Broadcasting:" << playerStateString << endl;
                     //    broadcast(playerStateString);

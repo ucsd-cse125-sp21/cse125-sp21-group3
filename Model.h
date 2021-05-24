@@ -31,6 +31,8 @@ public:
     bool gammaCorrection;
     glm::mat4 rootModel; //modify this to control position of model
     glm::mat4 animationRootModel; //this should not be modified
+    float rootModelRotation;
+    float animationRootModelRotation;
 
     vector<AnimationClip*> animationClipList;
     map<string, glm::mat4> boneTransformMap;

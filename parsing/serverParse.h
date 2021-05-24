@@ -9,8 +9,8 @@
 #include <boost/algorithm/string.hpp>
 #include <unordered_map>
 #include <queue>
-#include "Game.h"
-#include "Maze.h"
+#include "../Game.h"
+#include "../Maze.h"
 
 using namespace std;
 using namespace boost::asio;

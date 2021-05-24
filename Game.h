@@ -40,6 +40,8 @@ public:
 
 	const string MESSAGE_TAIL = "\r\n";
 
+	float gameTime;
+
 };
 
 #endif

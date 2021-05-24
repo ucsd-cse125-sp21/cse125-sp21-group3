@@ -78,7 +78,8 @@ void Maze::createAbilityChests(int numChests)
 		{
 			abilityType = rand() % 8;
 		}
-		abilityType = Player::removeWall;
+		// Choose ability to test
+		//abilityType = Player::seeMap;
 		int row = rand() % (mazeSize - 1);
 		int column = rand() % (mazeSize - 1);
 		if (mazeArray[row][column].ability == Player::none)
@@ -90,7 +91,6 @@ void Maze::createAbilityChests(int numChests)
 			numAbilities++;
 		}
 	}
-	cout << "abilities created" << endl;
 	return;
 }
 
@@ -103,8 +103,7 @@ std::vector<Model*> Maze::generateAbilityChests()
 	{
 		for (int c = 0; c < mazeSize; c++)
 		{
-			if (mazeArray[r][c].ability != Player::none || true)
-			{
+			if (mazeArray[r][c].ability != Player::none) {
 				glm::vec3 chestPosition((r + 0.5) * mapScale, 0.0f, (c + 0.5) * mapScale);
 				glm::mat4 translation = glm::translate(glm::mat4(1.0f), chestPosition);
 				Model* chest = new Model("Assets/chestOpen.gltf", translation, isClient);
@@ -114,7 +113,6 @@ std::vector<Model*> Maze::generateAbilityChests()
 				boundingBoxList.push_back(chest->getBoundingBox());
 				chestBoundingBoxList.push_back(chest->getBoundingBox());
 				mazeArray[r][c].abilityChest = chest;
-
 			}
 		}
 	}
@@ -369,7 +367,7 @@ void Maze::setWall(int r, int c, bool direction, bool exist)
 		if (!exist && mazeArray[r][c].wallBottom)
 		{
 			delete mazeArray[r][c].wallBottom;
-			mazeArray[r][c].wallBottom = NULL;
+			//mazeArray[r][c].wallBottom = NULL;
 		}
 	}
 	else
@@ -378,7 +376,7 @@ void Maze::setWall(int r, int c, bool direction, bool exist)
 		if (!exist && mazeArray[r][c].wallRight)
 		{
 			delete mazeArray[r][c].wallRight;
-			mazeArray[r][c].wallRight = NULL;
+			//mazeArray[r][c].wallRight = NULL;
 		}
 	}
 	if (!isClient && !exist)
@@ -386,7 +384,6 @@ void Maze::setWall(int r, int c, bool direction, bool exist)
 		string inputMessage = "deleteWall," + to_string(r) + "," + to_string(c) + "," + to_string((int) direction) + ",";
 		game->addServerInputMessage(inputMessage);
 	}
-
 }
 
 

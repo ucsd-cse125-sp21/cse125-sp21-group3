@@ -32,7 +32,7 @@ class Game;
 
 class Player {
 public:
-	Player(glm::vec3 _position, Maze* mz, bool isClient=true);
+	Player(glm::vec3 _position, Game* gm, bool isClient=true);
 
 	void applyForce(glm::vec3 f) { forceNet += f; }
 	void computeForces();
@@ -42,7 +42,7 @@ public:
 	void draw(const glm::mat4& viewProjMtx, GLuint shader);
 	
 	// Access functions
-	void setPosition(glm::vec3 p) { position = p; }
+	void setPosition(glm::vec3 p);
 	void setVelocity(glm::vec3 v) { velocity.x = v.x; velocity.y = v.y; velocity.z = v.z; }
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
@@ -87,6 +87,7 @@ public:
 
 	bool removeWallAbility();
 	bool seeMapAbility();
+	bool endMapAbility();
 
 
 	bool walkingBackward;
@@ -125,6 +126,7 @@ public:
 	string getPlayerInputString();
 	string getPlayerInfoString();
 	void setMoving(int m) { moving = m; }
+	int getMoving() { return moving; }
 	void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
 	void setHasFired(bool val) { hasFired = val; }
 	void setIsFiring(bool val) { isFiring = val; }
@@ -143,6 +145,9 @@ public:
 	void setUseAbilityKey(bool on) { useAbilityKey = on; }
 
 	static string getAbilityName(int ability);
+
+	void setOldPitch(float p) { oldPitch = p; }
+	void setOldYaw(float y) { oldYaw = y; }
 
 
 private:
@@ -170,6 +175,7 @@ private:
 	Weapon* playerWeapon;
 
 	float oldPitch;
+	float oldYaw;
 
 	int state;
 
@@ -185,6 +191,7 @@ private:
 	int currentAbility;
 
 	Maze* maze;
+	Game* game;
 	
 	//networking stuff
 	int id;
@@ -199,6 +206,11 @@ private:
 	bool* inputDirections;
 	bool pickUpAbilityKey;
 	bool useAbilityKey;
+
+	bool usingMapAbility;
+
+	float lastAbilityUseTime;
+	float lastReloadTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
