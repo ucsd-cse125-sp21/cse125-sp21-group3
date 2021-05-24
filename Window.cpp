@@ -343,11 +343,11 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 void Window::idleCallback(Game* game)
 {
 	//update all players in the game	
-	//for (int i = 0; i < game->allPlayers.size(); i++) {
-	//	if (game->allPlayers.at(i)->getId() != -1) {
-	//		game->allPlayers.at(i)->update(0.1f, game);
-	//	}
-	//}
+	for (int i = 0; i < game->allPlayers.size(); i++) {
+		if (game->allPlayers.at(i)->getId() != -1) {
+			game->allPlayers.at(i)->update(0.1f, game);
+		}
+	}
 
 	//Networking Stuff
 	//------------------------------------------------------------------------
@@ -736,12 +736,9 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 			//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		//}
 
-		//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		for (int i = 0; i < game->allPlayers.size(); i++) {
-			player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-			//game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
-
 
 		//Camera* playCam = player->getPlayerCamera();
 		//irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
@@ -749,7 +746,6 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		//irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
 		//irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
 		//soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
-
 
 		for (Cube* wall : game->maze->getWalls()) {
 			wall->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);

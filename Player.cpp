@@ -253,7 +253,7 @@ void Player::update(float deltaTime, Game* game)
     // Both client and server should update
     if (!usingMapAbility)
     {
-        playerCamera->setPosition(position);
+        playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
     }
     //update player camera
 
