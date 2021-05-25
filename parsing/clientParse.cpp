@@ -168,23 +168,25 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             float velocity_y = stof(*(it + 7));
             float velocity_z = stof(*(it + 8));
 
-            if (player != NULL)
-            {
-                //player->setMoving(isMoving);
-                player->setPosition(glm::vec3(position_x, position_y, position_z));
-            }
-
             float currentHealth = stof(*(it + 9));
             float maxHealth = stof(*(it + 10));
             float currentArmor = stof(*(it + 11));
             float currentDamageBoost = stof(*(it + 12));
             int currentAbility = stoi(*(it + 13));
 
-            player->setHealth(currentHealth);
-            player->setMaxHealth(maxHealth);
-            player->setArmor(currentArmor);
-            player->setDamageBoost(currentDamageBoost);
-            player->setAbility(currentAbility);
+            if (player != NULL)
+            {
+                player->setPosition(glm::vec3(position_x, position_y, position_z));
+                player->setHealth(currentHealth);
+                player->setMaxHealth(maxHealth);
+                player->setArmor(currentArmor);
+                player->setDamageBoost(currentDamageBoost);
+                player->setAbility(currentAbility);
+                if (player != game->myPlayer) {
+                    player->setMoving(isMoving);
+                }
+            }
+
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
 
             it = it + 13;
