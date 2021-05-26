@@ -59,7 +59,7 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
 
     playerCamera = new Camera(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
     
-    if (client) {
+    //if (client) {
         //creating and initializing playerModel
         glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.25f, position.y - height * 0.82f, 2.5f));
@@ -68,8 +68,9 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
         playerModel = new Model("Assets/character.gltf", playerModelRootTransform, isClient);
         playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
         walkingBackward = false;
-        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
-
+        if (isClient) {
+            playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
+        }
         //creating and initializing playerGunModel
         rotation = glm::rotate(glm::mat4(1.0f), 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
         translation = glm::translate(glm::mat4(1.0f), glm::vec3(3.5f, 3.0f, 1.8f));
@@ -83,7 +84,7 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
         playerModel->animationRootModel = glm::mat4(1.0f);
         playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);*/
         //cout << "before play animation in constructor" << endl;
-    }
+    //}
 
     //networking stuff
     moving = 0;
@@ -230,6 +231,10 @@ void Player::update(float deltaTime, Game* game)
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
         }
 
+        if (id != game->myPlayerId) {
+            playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
+        }
+
         if (usingMapAbility)
         {
             if (game->gameTime >= lastAbilityUseTime + 5)
@@ -255,8 +260,9 @@ void Player::update(float deltaTime, Game* game)
     {
         playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
     }
-    //update player camera
 
+
+    //update player camera
     playerCamera->Update();
 }
 
@@ -652,7 +658,7 @@ string Player::getPlayerInputString() {
         playerInputString += to_string(inputDirections[i]) + ",";
     }
     playerInputString += to_string(hasFired) + "," + to_string(pickUpAbilityKey) + "," + to_string(useAbilityKey) + ",";
-
+    playerInputString += to_string(playerModel->animationRootModelRotation);
     hasFired = false;
     pickUpAbilityKey = false;
     useAbilityKey = false;
@@ -667,8 +673,11 @@ string Player::getPlayerInfoString() {
     playerInfoString += to_string(position.x) + "," + to_string(position.y) + "," + to_string(position.z) + ",";
     playerInfoString += to_string(velocity.x) + "," + to_string(velocity.y) + "," + to_string(velocity.z) + ",";
 
-    playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + 
-        to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired);
+    playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," +
+        to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired) + ",";
+    //if (playerModel) {
+        playerInfoString += to_string(playerModel->animationRootModelRotation);
+    //}
 
     playerInfoString += MESSAGE_TAIL;
     //cout << "moving in getPlayerInfo: " << moving << endl;

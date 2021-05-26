@@ -127,7 +127,7 @@ public:
 	string getPlayerInfoString();
 	void setMoving(int m) { moving = m; }
 	int getMoving() { return moving; }
-	void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
+	//void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
 	void setHasFired(bool val) { hasFired = val; }
 	void setIsFiring(bool val) { isFiring = val; }
 	bool getHasFired() { return hasFired; }
@@ -135,7 +135,7 @@ public:
 	void setAbility(int ab) { currentAbility = ab; }
 	int getAbility() { return currentAbility; }
 
-	glm::vec3 getLookingDirection() { return lookingDirection; }
+	//glm::vec3 getLookingDirection() { return lookingDirection; }
 
 	bool* getInputDirections() { return inputDirections; }
 
@@ -204,7 +204,7 @@ private:
 	bool isFiring;
 	string playerInputString;
 	string playerInfoString;
-	glm::vec3 lookingDirection;
+	//glm::vec3 lookingDirection;
 
 	bool* inputDirections;
 	bool pickUpAbilityKey;

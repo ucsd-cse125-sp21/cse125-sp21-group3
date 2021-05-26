@@ -174,6 +174,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             float currentDamageBoost = stof(*(it + 12));
             int currentAbility = stoi(*(it + 13));
             bool hasFired = stoi(*(it + 14));
+            float modelRotation = stof(*(it + 15));
 
             if (player != NULL)
             {
@@ -186,12 +187,22 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                 if (player != game->myPlayer) {
                     player->setMoving(isMoving);
                     player->setHasFired(hasFired);
+                    //handle model rotation
+                    float diff = modelRotation - player->getPlayerModel()->animationRootModelRotation;
+                    //cout << "diff: " << diff << endl;
+                    player->getPlayerModel()->rotateAnimation(diff, player->getPlayerModelCenter());
+                    player->getPlayerGunModel()->rotate(diff, player->getPlayerGunModelCenter());
+                    player->getPlayerGunModel()->rotateAnimation(diff, player->getPlayerGunModelCenter());
+               
+                    player->getPlayerModel()->animationRootModelRotation = modelRotation;
+                    player->getPlayerGunModel()->rootModelRotation = modelRotation;
+                    player->getPlayerGunModel()->animationRootModelRotation = modelRotation;
                 }
             }
 
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
 
-            it = it + 14;
+            it = it + 15;
 
         }
         else if (*it == "mazeInitial")
