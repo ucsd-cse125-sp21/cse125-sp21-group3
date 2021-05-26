@@ -346,6 +346,9 @@ void Window::idleCallback(Game* game)
 	for (int i = 0; i < game->allPlayers.size(); i++) {
 		if (game->allPlayers.at(i)->getId() != -1) {
 			game->allPlayers.at(i)->update(0.1f, game);
+			if (game->allPlayers.at(i)->getHasFired()) {
+				game->allPlayers.at(i)->setIsFiring(true);
+			}
 		}
 	}
 
@@ -948,7 +951,6 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 
 	if (LeftDown) {
 		player->setHasFired(true);
-		player->setIsFiring(true);
 		std::cerr << "Fired" << std::endl;
 		player->shootWeapon(gm -> allBoundingBoxes);
 	}

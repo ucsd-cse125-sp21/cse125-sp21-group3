@@ -182,6 +182,8 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
             {
                 player->shootWeapon(game -> allBoundingBoxes);
             }
+            player->setHasFired(hasFired);
+           
             int pickUpAbility = stoi(*(it + 6 + Player::down + 2));
             if (pickUpAbility)
             {

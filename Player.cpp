@@ -667,7 +667,8 @@ string Player::getPlayerInfoString() {
     playerInfoString += to_string(position.x) + "," + to_string(position.y) + "," + to_string(position.z) + ",";
     playerInfoString += to_string(velocity.x) + "," + to_string(velocity.y) + "," + to_string(velocity.z) + ",";
 
-    playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
+    playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + 
+        to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired);
 
     playerInfoString += MESSAGE_TAIL;
     //cout << "moving in getPlayerInfo: " << moving << endl;
