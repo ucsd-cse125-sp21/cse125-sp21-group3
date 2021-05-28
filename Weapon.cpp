@@ -3,6 +3,7 @@
 Weapon::Weapon()
 {
 	damage = 10.0f;
+	delayTime = 0.50f;
 }
 
 

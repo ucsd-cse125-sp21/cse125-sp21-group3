@@ -115,15 +115,15 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             if (game == NULL || game->maze == NULL) {
                 return;
             }
-            int userId = stoi(*(it + 1));
+            int playerID = stoi(*(it + 1));
             bool createPlayer = true;
-            if (userId == game->myPlayerId) {
+            if (playerID == game->myPlayerId) {
                 createPlayer = false;
             }
             else {
                 for (int i = 0; i < game->allPlayers.size(); i++) {
                     int id = game->allPlayers.at(i)->getId();
-                    if (userId == id) {
+                    if (playerID == id) {
                         createPlayer = false;
                         break;
                     }
@@ -131,32 +131,12 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             }
 
             if (createPlayer) {
-                Window::createOpponent = userId; //set flag to create new player (opponent)
+                Window::createOpponent = playerID; //set flag to create new player (opponent)
+
             }
 
-            Player* player = game -> myPlayer;
-            //since allPlayers[i] does not necessarily equal player i, we must search to find correct player
-            for (int i = 0; i < game->allPlayers.size(); i++)
-            {
-                if (userId == game->allPlayers.at(i)->getId())
-                {
-                    player = game->allPlayers.at(i);
-                    break;
-                    //if (userId != game->myPlayerId) {
-                    //    game->allPlayers.at(i)->setMoving(stoi(messageValues.at(2)));
-                    //    string hasFired;
-                    //    for (int j = 0; j < messageValues.at(6).size(); j++) {
-                    //        int c = (int)messageValues.at(6).at(j);
-                    //        if (c >= (int)'a' && c <= (int)'z') {
-                    //            hasFired += messageValues.at(6).at(j);
-                    //        }
-                    //    }
-                    //    if (hasFired.compare("true") == 0) {
-                    //        //cout << "set isFiring for opponent" << endl;
-                    //        game->allPlayers.at(i)->setIsFiring(true);
-                    //}
-                }
-            }
+            
+            Player* player = game->getPlayer(playerID);
 
             int isMoving = stoi(*(it + 2));
             
@@ -168,23 +148,24 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             float velocity_y = stof(*(it + 7));
             float velocity_z = stof(*(it + 8));
 
-            if (player != NULL)
-            {
-                //player->setMoving(isMoving);
-                player->setPosition(glm::vec3(position_x, position_y, position_z));
-            }
-
             float currentHealth = stof(*(it + 9));
             float maxHealth = stof(*(it + 10));
             float currentArmor = stof(*(it + 11));
             float currentDamageBoost = stof(*(it + 12));
             int currentAbility = stoi(*(it + 13));
 
-            player->setHealth(currentHealth);
-            player->setMaxHealth(maxHealth);
-            //player->setArmor(currentArmor);
-            player->setDamageBoost(currentDamageBoost);
-            player->setAbility(currentAbility);
+            if (player != NULL)
+            {
+                player->setPosition(glm::vec3(position_x, position_y, position_z));
+
+
+
+                player->setHealth(currentHealth);
+                player->setMaxHealth(maxHealth);
+                player->setArmor(currentArmor);
+                player->setDamageBoost(currentDamageBoost);
+                player->setAbility(currentAbility);
+            }
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
 
             it = it + 13;
@@ -241,17 +222,22 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         }
         else if (*it == "useSeeMap")
         {
-            float oldPitch = stof(*(it + 1));
-            float oldYaw = stof(*(it + 2));
-            game->myPlayer->setOldPitch(oldPitch);
-            game->myPlayer->setOldYaw(oldYaw);
-            game->myPlayer->seeMapAbility();
-            it = it + 2;
+            int playerID = stoi(*(it + 1));
+            float oldPitch = stof(*(it + 2));
+            float oldYaw = stof(*(it + 3));
+            Player* player = game -> getPlayer(playerID);
+            player->setOldPitch(oldPitch);
+            player->setOldYaw(oldYaw);
+            player->seeMapAbility();
+            it = it + 3;
         }
         else if (*it == "endSeeMap")
         {
+            int playerID = stoi(*(it + 1));
             cout << "ending see map" << endl;
-            game->myPlayer->endMapAbility();
+            Player* player = game->getPlayer(playerID);
+            player->endMapAbility();
+            it = it + 1;
         }
         it++;
     }

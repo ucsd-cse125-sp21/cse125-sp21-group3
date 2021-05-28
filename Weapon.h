@@ -16,9 +16,14 @@ class Weapon {
 
 		void Reload();
 
+		float getDelayTime() { return delayTime; }
+
+		float getDamage() { return damage; }
+
 	private:
 		float damage;
 		float reloadTime;
+		float delayTime;
 
 		float maxAmmo;
 		float currentAmmo;

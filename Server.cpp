@@ -235,13 +235,15 @@ public:
             connection -> send_join_message();
         }
         start_accept();
-        if (serverParse::userIdCount == 1)
+        Player* player = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game, false);
+        game->allPlayers.push_back(player);
+        game->allBoundingBoxes.push_back(player->getBoundingBox());
+        player->setId(serverParse::userIdCount - 1);
+        if (serverParse::userIdCount == 2)
         {
             begin_game();
         }
-        Player* player = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game, false);
-        game->allPlayers.push_back(player);
-        player->setId(serverParse::userIdCount - 1);
+
     }
 
     /*

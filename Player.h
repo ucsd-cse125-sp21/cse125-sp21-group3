@@ -49,7 +49,7 @@ public:
 	void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
 
 
-	BoundingBox* shootWeapon(std::vector<BoundingBox*>);
+	BoundingBox* shootWeapon(std::vector<BoundingBox*>, bool playerShot);
 
 	glm::vec3 getPosition() { return position; }
 	glm::vec3 getVelocity() { return velocity; }
@@ -128,7 +128,7 @@ public:
 	void setMoving(int m) { moving = m; }
 	int getMoving() { return moving; }
 	void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
-	void setHasFired(bool val) { hasFired = val; }
+	void setHasFired(bool val);
 	void setIsFiring(bool val) { isFiring = val; }
 	bool getHasFired() { return hasFired; }
 
@@ -211,6 +211,7 @@ private:
 
 	float lastAbilityUseTime;
 	float lastReloadTime;
+	float lastFireTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

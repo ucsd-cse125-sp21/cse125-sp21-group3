@@ -8,6 +8,7 @@ Game::Game(bool client)
 	gameSet = false;
 	serverMessage = "";
 	gameTime = 0.0f;
+	lastDeleteWallTime = 0.0f;
 
 }
 
@@ -36,6 +37,19 @@ void Game::initiateGame()
 	}
 }
 
+Player* Game::getPlayer(int id)
+{
+	Player* player = myPlayer;
+	for (int i = 0; i < allPlayers.size(); i++)
+	{
+		if (id == allPlayers.at(i)->getId())
+		{
+			player = allPlayers.at(i);
+			return player;
+		}
+	}
+	return player;
+}
 
 void Game::update(float deltaTime)
 {
@@ -46,6 +60,49 @@ void Game::update(float deltaTime)
 	}
 
 	gameTime += deltaTime;
+	
+	if (!isClient)
+	{
+		// Randomly remove a wall every x seconds
+		if (gameTime >= lastDeleteWallTime + 15.0f)
+		{
+			bool exist = false;
+			wallInfo** mazeArray = maze->getMazeArray();
+			int row = 0;
+			int column = 0;
+			int direction = 0;
+			int i = 0;
+			while (!exist && i < 1000)
+			{
+				row = rand() % (maze->getMazeSize() - 1);
+				column = rand() % (maze->getMazeSize() - 1);
+				direction = rand() % 2;
+				if (direction)
+				{
+					exist = mazeArray[row][column].bottom;
+					if (exist)
+					{
+						exist = mazeArray[row][column].wallBottom->isDeletable();
+					}
+				}
+				else
+				{
+					exist = mazeArray[row][column].right;
+					if (exist)
+					{
+						exist = mazeArray[row][column].wallRight->isDeletable();
+					}
+				}
+				i++;
+				lastDeleteWallTime = gameTime;
+			}
+			if (i < 1000)
+			{
+				maze->setWall(row, column, direction, 0);
+			}
+		}
+	}
+
 }
 
 string Game::getClientInputMessage()

@@ -180,7 +180,7 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
             int hasFired = stoi(*(it + 6 + Player::down + 1));
             if (hasFired)
             {
-                player->shootWeapon(game -> allBoundingBoxes);
+                player->shootWeapon(game -> allBoundingBoxes, true);
             }
             int pickUpAbility = stoi(*(it + 6 + Player::down + 2));
             if (pickUpAbility)

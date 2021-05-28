@@ -164,7 +164,12 @@ std::vector<Cube*> Maze::generateWalls()
 				walls.push_back(newWall);
 				boundingBoxList.push_back(newWall->getBoundingBox());
 				mazeArray[r][c].wallBottom = newWall;
+				if (r == 0 || r == mazeSize - 1)
+				{
+					newWall->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+				}
 			}
+			canDelete = Cube::wall;
 			if (mazeArray[r][c].right)
 			{
 				if (c == 0 || c == mazeSize - 1)
@@ -175,6 +180,10 @@ std::vector<Cube*> Maze::generateWalls()
 				walls.push_back(newWall);
 				boundingBoxList.push_back(newWall->getBoundingBox());
 				mazeArray[r][c].wallRight = newWall;
+				if (c == 0 || c == mazeSize - 1)
+				{
+					newWall->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+				}
 			}
 		}
 	}

@@ -63,6 +63,8 @@ Cube* Window::cube;
 int Window::createOpponent;
 vector<string> Window::messagesToServer;
 
+int loadedAbility;
+
 //rendering icons
 unsigned int abilityQuadVAO, abilityQuadVBO;
 float abilityQuadVertices[] = {
@@ -125,6 +127,8 @@ bool Window::initializeObjects(Game* game)
 
 	player->setSoundEngine(soundEngine);
 	player->resetInputDirections();
+
+	loadedAbility = 0;
 
 	//initializing digit segments to represent health
 	for (int y = 0; y < healthDigitSegmentLength; y++)
@@ -343,11 +347,11 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 void Window::idleCallback(Game* game)
 {
 	//update all players in the game	
-	//for (int i = 0; i < game->allPlayers.size(); i++) {
-	//	if (game->allPlayers.at(i)->getId() != -1) {
-	//		game->allPlayers.at(i)->update(0.1f, game);
-	//	}
-	//}
+	for (int i = 0; i < game->allPlayers.size(); i++) {
+		if (game->allPlayers.at(i)->getId() != -1) {
+			game->allPlayers.at(i)->update(0.01f, game);
+		}
+	}
 
 	//Networking Stuff
 	//------------------------------------------------------------------------
@@ -362,6 +366,7 @@ void Window::idleCallback(Game* game)
 
 		p->setId(Window::createOpponent);
 		game->allPlayers.push_back(p);
+		game->allBoundingBoxes.push_back(p->getBoundingBox());
 		cout << "added player successfully" << endl;
 		Window::createOpponent = -1;
 	}
@@ -702,6 +707,7 @@ void Window::loadAbilityIcon() {
 		cout << "no icon for ability: " << player->getAbility() << endl;
 		break;
 	}
+	loadedAbility = player->getAbility();
 }
 
 void Window::drawIcon() {
@@ -738,8 +744,8 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 
 		//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		for (int i = 0; i < game->allPlayers.size(); i++) {
-			player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-			//game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
 
 
@@ -782,11 +788,11 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		drawHealth();
 		drawArmor();
 
-		if (player->getAbility() != Player::none) {
-
-			if (!abilityLoaded) {
+		if (player->getAbility() != Player::none)
+		{
+			if (loadedAbility != player->getAbility())
+			{
 				loadAbilityIcon();
-				abilityLoaded = true;
 			}
 			drawIcon();
 		}
@@ -951,9 +957,9 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 
 	if (LeftDown) {
 		player->setHasFired(true);
-		player->setIsFiring(true);
+		//player->setIsFiring(true);
 		std::cerr << "Fired" << std::endl;
-		player->shootWeapon(gm -> allBoundingBoxes);
+		//player->shootWeapon(gm -> allBoundingBoxes);
 	}
 
 }

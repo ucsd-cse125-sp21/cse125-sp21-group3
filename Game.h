@@ -22,6 +22,8 @@ public:
 
 	void addServerInputMessage(string message);
 
+	Player* getPlayer(int id);
+
 
 
 
@@ -41,6 +43,8 @@ public:
 	const string MESSAGE_TAIL = "\r\n";
 
 	float gameTime;
+
+	float lastDeleteWallTime;
 
 };
 
