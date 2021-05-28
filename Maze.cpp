@@ -30,8 +30,8 @@ Maze::Maze(int size, int scale, bool client)
 	isClient = client;
 
 	// Set seed for random creation for testing purposes
-	//srand(0);
-	srand(time(NULL));
+	srand(0);
+	//srand(time(NULL));
 	/*if (!client) {
 		cout << "create ability chests for server" << endl;
 		createAbilityChests(25);

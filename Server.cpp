@@ -186,7 +186,11 @@ public:
     Game* game;
 
     //constructor for accepting connection from client
-    Server(boost::asio::io_service& io_service); 
+    Server(boost::asio::io_service& io_service, int portNum) : io_service_(io_service),
+        acceptor_(io_service_, tcp::endpoint(tcp::v4(), portNum)) {
+        start_accept();
+
+    }
 
     void begin_game()
     {
@@ -270,39 +274,34 @@ public:
                         //cout << "Receiving message for player:" << bufIndex << ":" << nextMessage << endl;
                         serverParse::sortClientMessage(game, nextMessage);
 
-                    if (game)
-                    {
-                        for (int i = 0; i < game->allPlayers.size(); i++)
+                        if (game)
                         {
-                            Player* player = game->allPlayers.at(i);
-                            player->update(PERIOD / 1000.0f, game);
+                            for (int i = 0; i < game->allPlayers.size(); i++)
+                            {
+                                Player* player = game->allPlayers.at(i);
+                                player->update(PERIOD / 1000.0f, game);
+                            }
                         }
-                    }
 
-                    //printMoving(playerConnections[0]->pid_str);
-                    //then broadcast the game_state
-                    for (int p = 0; p < serverParse::userIdCount; p++) {
-                        //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
-                        //cout << "before broadcast position is: " << glm::to_string(game->allPlayers.at(0)->getPosition()) << endl;
-                        std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
-                        //cout << "Broadcasting:" << playerStateString << endl;
-                        broadcast(playerStateString);
-                    }
+                        //printMoving(playerConnections[0]->pid_str);
+                        //then broadcast the game_state
+                        for (int p = 0; p < serverParse::userIdCount; p++) {
+                            //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
+                            //cout << "before broadcast position is: " << glm::to_string(game->allPlayers.at(0)->getPosition()) << endl;
+                            std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
+                            //cout << "Broadcasting:" << playerStateString << endl;
+                            broadcast(playerStateString);
+                        }
 
+                    }
                 }
-            }
 
+            }
         }
     }
 
     
 };
-
-Server::Server(boost::asio::io_service& io_service, int portNum) : io_service_(io_service),
-acceptor_(io_service_, tcp::endpoint(tcp::v4(), portNum)) {
-    start_accept();
-
-}
 
 
 
