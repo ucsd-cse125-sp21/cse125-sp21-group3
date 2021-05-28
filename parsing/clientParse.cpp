@@ -153,22 +153,36 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             float currentArmor = stof(*(it + 11));
             float currentDamageBoost = stof(*(it + 12));
             int currentAbility = stoi(*(it + 13));
+            bool hasFired = stoi(*(it + 14));
+            float modelRotation = stof(*(it + 15));
 
             if (player != NULL)
             {
                 player->setPosition(glm::vec3(position_x, position_y, position_z));
-
-
-
                 player->setHealth(currentHealth);
                 player->setMaxHealth(maxHealth);
                 player->setArmor(currentArmor);
                 player->setDamageBoost(currentDamageBoost);
                 player->setAbility(currentAbility);
+                if (player != game->myPlayer) {
+                    player->setMoving(isMoving);
+                    player->setHasFired(hasFired);
+                    //handle model rotation
+                    float diff = modelRotation - player->getPlayerModel()->animationRootModelRotation;
+                    //cout << "diff: " << diff << endl;
+                    player->getPlayerModel()->rotateAnimation(diff, player->getPlayerModelCenter());
+                    player->getPlayerGunModel()->rotate(diff, player->getPlayerGunModelCenter());
+                    player->getPlayerGunModel()->rotateAnimation(diff, player->getPlayerGunModelCenter());
+               
+                    player->getPlayerModel()->animationRootModelRotation = modelRotation;
+                    player->getPlayerGunModel()->rootModelRotation = modelRotation;
+                    player->getPlayerGunModel()->animationRootModelRotation = modelRotation;
+                }
             }
+
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
 
-            it = it + 13;
+            it = it + 15;
 
         }
         else if (*it == "mazeInitial")
@@ -246,25 +260,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         game->gameSet = true;
     }
 
-    //string header = messageValues.front();
-    //if (header=="joinResponse") {
-    //    joinResponseHandler(messageValues.at(1));
-    //}
-    //else if (header=="player") {
-    //    playerMessageHandler(messageValues);
-    //}
-    //else if (header=="mazeInitial"){
-    //    mazeInitialMessageHandler(messageValues);
-    //}
-    //else if (header=="mazeUpdate") {
-    //    mazeUpdateMessageHandler(messageValues);
-    //}
-    //else if (header=="start") {
-    //    startMessageHandler();
-    //}
-    //else {
-    //    cout<<"Unexpected message type from server"<<endl;
-    //}
 }
 
 /*

@@ -444,7 +444,6 @@ void BoundingBox::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
 	if (isClient)
 	{
-
 		// activate the shader program 
 		glUseProgram(shader);
 

@@ -56,7 +56,9 @@ void Game::update(float deltaTime)
 	for (int i = 0; i < allPlayers.size(); i++)
 	{
 		Player* player = allPlayers.at(i);
-		player->update(deltaTime, this);
+		if (player->getId() != -1) {
+			player->update(deltaTime, this);
+		}
 	}
 
 	gameTime += deltaTime;

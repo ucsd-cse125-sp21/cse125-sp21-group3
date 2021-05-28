@@ -347,9 +347,12 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 void Window::idleCallback(Game* game)
 {
 	//update all players in the game	
-	for (int i = 0; i < game->allPlayers.size(); i++) {
-		if (game->allPlayers.at(i)->getId() != -1) {
-			game->allPlayers.at(i)->update(0.01f, game);
+	if (game->gameBegun)
+	{
+		for (int i = 0; i < game->allPlayers.size(); i++) {
+			if (game->allPlayers.at(i)->getId() != -1) {
+				game->allPlayers.at(i)->update(0.01f, game);
+			}
 		}
 	}
 
@@ -741,13 +744,9 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		//for (Cube* footprint : player->getFootprints()) {
 			//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		//}
-
-		//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		for (int i = 0; i < game->allPlayers.size(); i++) {
-			//player->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
-
 
 		//Camera* playCam = player->getPlayerCamera();
 		//irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
@@ -755,7 +754,6 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		//irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
 		//irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
 		//soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
-
 
 		for (Cube* wall : game->maze->getWalls()) {
 			wall->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
@@ -766,7 +764,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 			glm::vec3 abilityChestLocation(abilityChest->rootModel[3][0], abilityChest->rootModel[3][1], abilityChest->rootModel[3][2]);
 			int* abilityChestPos = gm -> maze->getCoordinates(abilityChestLocation);
 			if (abilityChest->opening) { //if client is in the process of opening the chest
-				cout << "ability chest is opening" << endl;
+				//cout << "ability chest is opening" << endl;
 				if (abilityChest->animationClipList.at(0)->prevTime + 0.1f > abilityChest->animationClipList.at(0)->duration) {
 					abilityChest->opening = false;
 				}
@@ -797,7 +795,6 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 			drawIcon();
 		}
 		
-
 		// Gets events, including input such as keyboard and mouse or window resizing.
 		glfwPollEvents();
 
@@ -868,6 +865,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_F:
 			//player->pickUpAbility();
 			player->setPickUpAbilityKey(true);
+			player->openChest();
 			break;
 		case GLFW_KEY_E:
 			//player->useAbility();
@@ -1002,7 +1000,6 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	yaw += dx * sensitivity;
 	
 	//rotation animation stuff for player
-	//player->getPlayerModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerModelCenter());
 	player->getPlayerModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerModelCenter());
 	player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f, false);
 	player->getPlayerGunModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
