@@ -865,7 +865,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_F:
 			//player->pickUpAbility();
 			player->setPickUpAbilityKey(true);
-			player->openChest();
+			//player->openChest();
 			break;
 		case GLFW_KEY_E:
 			//player->useAbility();

@@ -51,15 +51,9 @@ Maze::~Maze()
 
 Cube * Maze::generateGround()
 {
-	//ground = new Cube(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), Cube::border);
 	ground = new Cube(glm::vec3(0, -1.0f, 0.0f), glm::vec3((mazeSize - 1) * mapScale, 0.0f, (mazeSize - 1) * mapScale), Cube::border, isClient);
 	ground->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
 	glm::mat4 groundModel = ground->getModel();
-	//groundModel = glm::translate(groundModel, glm::vec3(0.0f, -1.0f, 0.0f));
-
-	//groundModel = glm::scale(groundModel, glm::vec3((mazeSize - 1) * mapScale, 1.0f, (mazeSize - 1) * mapScale));
-	//ground->setModel(groundModel);
-
 
 	boundingBoxList.push_back(ground->getBoundingBox());
 	return ground;
@@ -79,7 +73,7 @@ void Maze::createAbilityChests(int numChests)
 			abilityType = rand() % 8;
 		}
 		// Choose ability to test
-		//abilityType = Player::seeMap;
+		abilityType = Player::seeMap;
 		int row = rand() % (mazeSize - 1);
 		int column = rand() % (mazeSize - 1);
 		if (mazeArray[row][column].ability == Player::none)

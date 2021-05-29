@@ -211,13 +211,13 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         else if (*it == "start")
         {
         }
-        else if(*it == "chestOpen") {
-            wallInfo** mazeArray = game->maze->getMazeArray();
-            int r = stoi(*(it + 1));
-            int c = stoi(*(it + 2));
-            mazeArray[r][c].ability = Player::opened;
-            it = it + 2;
-        }
+        //else if(*it == "chestOpen") {
+        //    wallInfo** mazeArray = game->maze->getMazeArray();
+        //    int r = stoi(*(it + 1));
+        //    int c = stoi(*(it + 2));
+        //    mazeArray[r][c].ability = Player::opened;
+        //    it = it + 2;
+        //}
         else if (*it == "deleteWall")
         {
             int r = stoi(*(it + 1));

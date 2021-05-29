@@ -240,7 +240,7 @@ public:
         game->allPlayers.push_back(player);
         game->allBoundingBoxes.push_back(player->getBoundingBox());
         player->setId(serverParse::userIdCount - 1);
-        if (serverParse::userIdCount == 2)
+        if (serverParse::userIdCount == 1)
         {
             begin_game();
         }
@@ -264,41 +264,32 @@ public:
      *input queue and broadcast the player info to all connected clients
      */
 
-    void handle_timeout() {
-        while (1) {
+    void handle_timeout()
+    {
+        while (1)
+        {
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));
             if (serverParse::userIdCount > 0) {
 
                 //first handle incoming messages, if there are any
                 int bufIndex;
-                for (bufIndex = 0; bufIndex < serverParse::userIdCount; bufIndex++) {
+                for (bufIndex = 0; bufIndex < serverParse::userIdCount; bufIndex++)
+                {
                     std::string nextMessage = playerConnections[bufIndex]->dequeue();
-                    //cout << "calling sort for playerConnection: " << bufIndex << endl;
-                    if (!nextMessage.empty()) {
+
+                    if (!nextMessage.empty())
+                    {
                         //cout << "Receiving message for player:" << bufIndex << ":" << nextMessage << endl;
                         serverParse::sortClientMessage(game, nextMessage);
                     }
-                    string inputMessage = "";
-                    if (game)
-                    {
-                        game->update(PERIOD / 1000.0f);
-                        inputMessage = game->getServerInputMessage();
-                    }
-
-
-                    //cout << "Sending: " << inputMessage << endl;
-                    broadcast(inputMessage);
-                    //printMoving(playerConnections[0]->pid_str);
-                    //then broadcast the game_state
-                    //for (int p = 0; p < serverParse::userIdCount; p++) {
-                    //    //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
-                    //    //cout << "before broadcast position is: " << glm::to_string(game->allPlayers.at(0)->getPosition()) << endl;
-                    //    std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
-                    //    //cout << "Broadcasting:" << playerStateString << endl;
-                    //    broadcast(playerStateString);
-                    //}
-
                 }
+                string inputMessage = "";
+                if (game)
+                {
+                    game->update(PERIOD / 1000.0f);
+                    inputMessage = game->getServerInputMessage();
+                }
+                broadcast(inputMessage);
             }
 
         }

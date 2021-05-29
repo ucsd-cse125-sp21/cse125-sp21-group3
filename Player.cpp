@@ -184,6 +184,7 @@ void Player::update(float deltaTime, Game* game)
         if (currentHealth <= 0.0f)
         {
             state = dead;
+            boundingBox->setActive(false);
         }
 
         switch (state)
@@ -205,7 +206,7 @@ void Player::update(float deltaTime, Game* game)
             velocity.y = 0.0f;
             break;
         case dead:
-            velocity *= 3;
+            velocity *= 2.0f;
             break;
         case still:
             velocity *= 0.0f;
@@ -257,7 +258,7 @@ void Player::update(float deltaTime, Game* game)
 
         if (usingMapAbility)
         {
-            if (game->gameTime >= lastAbilityUseTime + 5.0f)
+            if (game->gameTime >= (lastAbilityUseTime + 5.0f))
             {
                 endMapAbility();
                 string message = "endSeeMap," + to_string(id) + ",";
@@ -470,12 +471,20 @@ void Player::setMaxHealth(float max)
 
 void Player::setState(int st)
 {
+    if (state == dead)
+    {
+        return;
+    }
     state = st;
 }
 
 void Player::pickUpAbility()
 {
-    BoundingBox* shotObject = shootWeapon(maze -> getChestBoundingBox(), false);
+    if (state == dead)
+    {
+        return;
+    }
+    BoundingBox* shotObject = shootWeapon(game -> maze -> getChestBoundingBox(), false);
     if (shotObject == NULL)
     {
         cout << "could not find chest" << endl;
@@ -492,11 +501,12 @@ void Player::pickUpAbility()
         (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) || 
         (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
     {
+        
         currentAbility = maze->getAbility(chestPos[0], chestPos[1]);
         maze->removeAbility(chestPos[0], chestPos[1]);
-        chest->opening = true;
-        string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
-        Window::messagesToServer.push_back(chestOpenMessage);
+        //chest->opening = true;
+        //string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
+        //Window::messagesToServer.push_back(chestOpenMessage);
         std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
 
         //delete parentCube;
@@ -536,6 +546,10 @@ void Player::openChest() {
 
 void Player::useAbility()
 {
+    if (state == dead)
+    {
+        return;
+    }
     bool used = false;
     switch (currentAbility)
     {
