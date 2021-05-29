@@ -319,7 +319,9 @@ void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
         boundingBox->draw(viewProjMtx, shader);
     }
 
-    playerModel->draw(viewProjMtx, shader);
+    if (game->myPlayer != this) {
+        playerModel->draw(viewProjMtx, shader);
+    }
     playerGunModel->draw(viewProjMtx, shader);
 }
 
