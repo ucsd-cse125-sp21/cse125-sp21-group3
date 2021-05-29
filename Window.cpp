@@ -195,6 +195,7 @@ bool Window::initializeObjects(Game* game)
 	
 	abilityLoaded = false;
 	//game->initiateGame();
+	cube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0, true);
 	return true;
 }
 
@@ -352,6 +353,7 @@ void Window::idleCallback(Game* game)
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			if (game->allPlayers.at(i)->getId() != -1) {
 				game->allPlayers.at(i)->update(0.01f, game);
+				game->allPlayers.at(i)->createFootPrint(game->allPlayers.at(i)->getPosition());
 			}
 		}
 	}
@@ -746,16 +748,18 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		//}
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-		}
-		for (int i = 0; i < game->allPlayers.size(); i++) {
-			for (int j = 0; j < game->allPlayers.at(i)->getFootprints().size(); j++) {
-				game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-			}
-			
-			//game->allPlayers.at(i)->getPlayerModel()->playAnimation(game->allPlayers.at(i)->getPlayerModel()->animationClipList.at(0), 0.1f, false);
+			//game->allPlayers.at(i)->createFootPrint(glm::vec3(0.0f, 0.0f, 0.0f));
+			//game->allPlayers.at(i)->getFootprints().at(0)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
 
-		Camera* playCam = player->getPlayerCamera();
+		for (int i = 0; i < game->allPlayers.size(); i++) {
+			for (int j = 0; j < game->allPlayers.at(i)->getFootprints().size(); j++) {
+
+				game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			}
+		}
+
+		//Camera* playCam = player->getPlayerCamera();
 		//irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
 		//irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
 		//irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects

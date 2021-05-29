@@ -253,11 +253,15 @@ int main(int argc, char* argv[])
     while (!glfwWindowShouldClose(window))
     {
         // Main render display callback. Rendering of objects is done here.
+        //cerr << "before display callback" << endl;
         Window::displayCallback(client.game, window);
-
+        //cerr << "after display callback" << endl;
 
         // Idle callback. Updating objects, etc. can be done here.
+       // cerr << "before idle callback" << endl;
         Window::idleCallback(client.game);
+        //cerr << "after idle callback" << endl;
+
     }
 
 

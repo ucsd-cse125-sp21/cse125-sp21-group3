@@ -112,6 +112,7 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
 
         //irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
         //irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
+        cout << "creating footprint with isClient: " << isClient << endl;
         Cube* footprint = new Cube(footprintPos - glm::vec3(0.5f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.5f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
         footprint->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         if (this->footprints.size() > 10) {
@@ -248,8 +249,6 @@ void Player::update(float deltaTime, Game* game)
     }
     else
     {
-
-        createFootPrint(position);
         if (moving == 1) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
         }
