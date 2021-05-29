@@ -100,7 +100,7 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-	debugMode = false;
+	debugMode = true;
 	
 	return true;
 }
@@ -1010,9 +1010,9 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	Cam->setPitch(pitch);
 
 	//keeps cursor locked in the middle
-	glfwSetCursorPos(window, width / 2, height / 2);
+	/*glfwSetCursorPos(window, width / 2, height / 2);
 	MouseX = width / 2;
-	MouseY = height / 2;
+	MouseY = height / 2;*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

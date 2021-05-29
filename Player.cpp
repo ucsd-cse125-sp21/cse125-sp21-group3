@@ -37,7 +37,7 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
     //std::cout << "player min at start: " << (position.y - height * 0.75f) << std::endl;
  
     boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.875f, position.z - width * 0.5f),
-        glm::vec3(position.x + width * 0.5f, position.y + height * 0.125f, position.z + width * 0.5f), this, isClient);
+        glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f), this, isClient);
     
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     speed = 10.0f;
@@ -157,10 +157,10 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
                 
                 BoundingBox* prevBoundingBox = new BoundingBox(
                     glm::vec3(prevPosition.x - width * 0.5f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.5f),
-                    glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + height * 0.25f, prevPosition.z + width * 0.5f), this, isClient);
+                    glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + 0.25f, prevPosition.z + width * 0.5f), this, isClient);
                 handleCollision(prevBoundingBox, b);
                 boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-                    glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+                    glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f));
                 delete prevBoundingBox;
                 //std::cout << "min point collision" << std::endl;
             }
@@ -196,13 +196,13 @@ void Player::update(float deltaTime, Game* game)
             }
             else
             {
-                velocity.y = 0.0f;
+                //velocity.y = 0.0f;
             }
             velocity *= 0.5f;
             break;
         case sprint:
             velocity *= 1.40f;
-            velocity.y = 0.0f;
+            //velocity.y = 0.0f;
             break;
         case dead:
             velocity *= 3;
@@ -219,7 +219,7 @@ void Player::update(float deltaTime, Game* game)
             }
             else
             {
-                velocity.y = 0;
+                //velocity.y = 0;
             }
             break;
         }
@@ -231,7 +231,7 @@ void Player::update(float deltaTime, Game* game)
 
             //update player bounding box
             boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-                glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+                glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f));
         }
 
         if (boundingBox->getActive()) {
@@ -244,16 +244,16 @@ void Player::update(float deltaTime, Game* game)
     }
     else
     {
-        //if (moving == 1) {
-        //    playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
-        //}
-        //if (moving == -1) {
-        //    playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
-        //}
+        if (moving == 1) {
+            playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
+        }
+        if (moving == -1) {
+            playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
+        }
 
-        //if (id != game->myPlayerId) {
-        //    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
-        //}
+        if (id != game->myPlayerId) {
+            playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
+        }
 
         if (usingMapAbility)
         {
@@ -299,7 +299,7 @@ void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
     if (Window::debugMode) {
         boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-            glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+            glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f));
         boundingBox->draw(viewProjMtx, shader);
     }
 
