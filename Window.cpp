@@ -39,7 +39,7 @@ float armorHorizontalDigitSegment[armorDigitSegmentThickness][armorDigitSegmentL
 // Camera Properties
 Camera* Cam;
 
-irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
+//irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
 
 // Interaction Variables
 bool LeftDown, RightDown;
@@ -125,7 +125,7 @@ bool Window::initializeObjects(Game* game)
 	Cam = player->getPlayerCamera();
 	Cam->SetAspect(float(width) / float(height));
 
-	player->setSoundEngine(soundEngine);
+	//player->setSoundEngine(soundEngine);
 	player->resetInputDirections();
 
 	loadedAbility = 0;
@@ -747,8 +747,15 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
+		for (int i = 0; i < game->allPlayers.size(); i++) {
+			for (int j = 0; j < game->allPlayers.at(i)->getFootprints().size(); j++) {
+				game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			}
+			
+			//game->allPlayers.at(i)->getPlayerModel()->playAnimation(game->allPlayers.at(i)->getPlayerModel()->animationClipList.at(0), 0.1f, false);
+		}
 
-		//Camera* playCam = player->getPlayerCamera();
+		Camera* playCam = player->getPlayerCamera();
 		//irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
 		//irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
 		//irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects

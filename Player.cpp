@@ -56,7 +56,7 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
     maze = gm -> maze;
     game = gm;
     
-
+    cameraOffset = glm::vec3(-0.3, 0.45f, -0.3f);
     playerCamera = new Camera(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
     
     //if (client) {
@@ -106,17 +106,20 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
+
+
     if (glm::distance(lastFootPrintPos, footprintPos) > 5.0f) {
-        irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
-        irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
-        Cube* footprint = new Cube(footprintPos - glm::vec3(1.0f, footprintPos.y, 0.5f), footprintPos - glm::vec3(0.0f, footprintPos.y - 0.01f, 0.0f), Cube::border, isClient);
+
+        //irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
+        //irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
+        Cube* footprint = new Cube(footprintPos - glm::vec3(0.5f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.5f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
         footprint->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
         if (this->footprints.size() > 10) {
             this->footprints.pop_front();
         }
         this->footprints.push_back(footprint);
         lastFootPrintPos = footprintPos;
-        
+        /*
         if (snd)
         {
             if (state == sprint) {
@@ -135,6 +138,7 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
             }
             snd->setIsPaused(false); // unpause the sound
         }
+        */
     }
 }
 
@@ -244,6 +248,8 @@ void Player::update(float deltaTime, Game* game)
     }
     else
     {
+
+        createFootPrint(position);
         if (moving == 1) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
         }
@@ -251,6 +257,10 @@ void Player::update(float deltaTime, Game* game)
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
         }
 
+        if (game->myPlayerId == id) { //only update camera for client
+            //oldPitch = playerCamera->getPitch();
+            playerCamera->setPosition(position + cameraOffset);
+        }
         if (id != game->myPlayerId) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
         }
@@ -281,6 +291,13 @@ void Player::update(float deltaTime, Game* game)
     {
         playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
     }
+    // Both client and server should update
+
+
+    float new_offset_x = -0.42426406871 * glm::cos(glm::radians(playerCamera->getPitch() + 90));
+    float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
+    cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
+    playerCamera->setPosition(position+cameraOffset);
 
 
     //update player camera

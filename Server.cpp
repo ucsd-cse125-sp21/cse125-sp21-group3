@@ -298,9 +298,10 @@ public:
                     //    broadcast(playerStateString);
                     //}
 
+                    }
                 }
-            }
 
+            }
         }
     }
 

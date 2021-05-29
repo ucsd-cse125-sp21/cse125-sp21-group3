@@ -244,7 +244,7 @@ string serverParse::buildPlayerMessage(Game* game, string clientId) {
  * Return the build message string.
  */
 string serverParse::buildStartMessage() {
-    //return "start" + MESSAGE_TAIL;
+    return "start" + MESSAGE_TAIL;
 }
 
 /*
