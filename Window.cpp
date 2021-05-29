@@ -100,7 +100,7 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-	debugMode = true;
+	debugMode = false;
 	
 	return true;
 }

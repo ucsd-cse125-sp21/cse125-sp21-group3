@@ -196,13 +196,13 @@ void Player::update(float deltaTime, Game* game)
             }
             else
             {
-                //velocity.y = 0.0f;
+                velocity.y = 0.0f;
             }
             velocity *= 0.5f;
             break;
         case sprint:
             velocity *= 1.40f;
-            //velocity.y = 0.0f;
+            velocity.y = 0.0f;
             break;
         case dead:
             velocity *= 3;
@@ -219,7 +219,7 @@ void Player::update(float deltaTime, Game* game)
             }
             else
             {
-                //velocity.y = 0;
+                velocity.y = 0;
             }
             break;
         }
