@@ -131,6 +131,8 @@ public:
 	void setHasFired(bool val);
 	void setIsFiring(bool val) { isFiring = val; }
 	bool getHasFired() { return hasFired; }
+	void setIsHurt(bool val) { isHurt = val; }
+	bool getIsHurt() { return isHurt; }
 
 	void setAbility(int ab) { currentAbility = ab; }
 	int getAbility() { return currentAbility; }
@@ -164,6 +166,7 @@ private:
 	float playerGunModelScale = 0.4f;
 	float playerWalkingSpeed = 0.3f;
 	glm::vec3 playerToModelDiff;
+	bool isHurt = false;
 	BoundingBox* boundingBox; // used to check collisions
 	
 	float mass;

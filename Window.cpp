@@ -48,6 +48,7 @@ int MouseX, MouseY;
 // The shader program id
 GLuint Window::shaderProgram;
 GLuint Window::shaderTextureQuadProgram;
+GLuint Window::shaderRedTintProgram;
 
 //toggle to see bounding boxes
 bool Window::debugMode;
@@ -76,7 +77,7 @@ float abilityQuadVertices[] = {
 };
 GLuint abilityTexture;
 bool abilityLoaded;
-
+int hurtCounter = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -92,6 +93,7 @@ bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
 	shaderTextureQuadProgram = LoadShaders("shaders/shaderTexture_quad.vert", "shaders/shaderTexture_quad.frag");
+	shaderRedTintProgram = LoadShaders("shaders/shaderRedTint.vert", "shaders/shaderRedTint.frag");
 
 	// Check the shader program.
 	if (!shaderProgram)
@@ -171,7 +173,6 @@ bool Window::initializeObjects(Game* game)
 			armorHorizontalDigitSegment[y][x][2] = 1.0f;
 		}
 	}
-
 
 	// setup plane VAO
 	glGenVertexArrays(1, &abilityQuadVAO);
@@ -736,6 +737,16 @@ void Window::drawIcon() {
  */
 void Window::displayCallback(Game* game, GLFWwindow* window)
 {	
+
+	GLuint shaderProgramToUse = Window::shaderProgram;
+	if (player->getIsHurt()) {
+		shaderProgramToUse = Window::shaderRedTintProgram;
+		hurtCounter++;
+		if (hurtCounter > 10) {
+			hurtCounter = 0;
+			player->setIsHurt(false);
+		}
+	}
 	if (gm->gameBegun)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -747,7 +758,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 			//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		//}
 		for (int i = 0; i < game->allPlayers.size(); i++) {
-			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
 			//game->allPlayers.at(i)->createFootPrint(glm::vec3(0.0f, 0.0f, 0.0f));
 			//game->allPlayers.at(i)->getFootprints().at(0)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
@@ -755,7 +766,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			for (int j = 0; j < game->allPlayers.at(i)->getFootprints().size(); j++) {
 
-				game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+				game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
 			}
 		}
 
@@ -767,7 +778,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		//soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
 
 		for (Cube* wall : game->maze->getWalls()) {
-			wall->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			wall->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
 		}
 
 		for (Model* abilityChest : gm -> maze->getChests()) {
@@ -788,11 +799,11 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 				abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.0f, false);
 			}
 
-			abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			abilityChest->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
 		}
 
 
-		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
 		drawCrosshair();
 		drawHealth();
 		drawArmor();

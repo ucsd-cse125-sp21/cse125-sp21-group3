@@ -240,11 +240,10 @@ public:
         game->allPlayers.push_back(player);
         game->allBoundingBoxes.push_back(player->getBoundingBox());
         player->setId(serverParse::userIdCount - 1);
-        if (serverParse::userIdCount == 1)
+        if (serverParse::userIdCount == 2)
         {
             begin_game();
         }
-
     }
 
     /*
