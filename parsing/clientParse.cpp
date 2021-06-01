@@ -230,7 +230,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         {
             int r = stoi(*(it + 1));
             int c = stoi(*(it + 2));
-            cout << "removing" << endl;
             game->maze -> removeAbility(r, c);
             it = it + 2;
         }

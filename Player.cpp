@@ -36,8 +36,8 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
     //std::cout << "position.y: " << position.y << std::endl;
     //std::cout << "player min at start: " << (position.y - height * 0.75f) << std::endl;
  
-    boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.875f, position.z - width * 0.5f),
-        glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f), this, isClient);
+    boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.75f, position.y - height * 0.875f, position.z - width * 0.75f),
+        glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f), this, isClient);
     
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     speed = 10.0f;
@@ -112,10 +112,9 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
 
         //irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
         //irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
-        cout << "creating footprint with isClient: " << isClient << endl;
         Cube* footprint = new Cube(footprintPos - glm::vec3(0.5f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.5f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
-        footprint->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
-        if (this->footprints.size() > 10) {
+        footprint->setColor(glm::vec3(playerModel->meshes.at(0)->baseColor.x, playerModel->meshes.at(0)->baseColor.y, playerModel->meshes.at(0)->baseColor.z));
+        if (this->footprints.size() > 5) {
             this->footprints.pop_front();
         }
         this->footprints.push_back(footprint);
@@ -161,11 +160,11 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
 
                 
                 BoundingBox* prevBoundingBox = new BoundingBox(
-                    glm::vec3(prevPosition.x - width * 0.5f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.5f),
-                    glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + 0.25f, prevPosition.z + width * 0.5f), this, isClient);
+                    glm::vec3(prevPosition.x - width * 0.75f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.75f),
+                    glm::vec3(prevPosition.x + width * 0.75f, prevPosition.y + 0.25f, prevPosition.z + width * 0.75f), this, isClient);
                 handleCollision(prevBoundingBox, b);
-                boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-                    glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f));
+                boundingBox->update(glm::vec3(position.x - width * 0.75f, position.y - height * 0.75f, position.z - width * 0.75f),
+                    glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f));
                 delete prevBoundingBox;
                 //std::cout << "min point collision" << std::endl;
             }
@@ -235,8 +234,8 @@ void Player::update(float deltaTime, Game* game)
             position = position + velocity * deltaTime;
 
             //update player bounding box
-            boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-                glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f));
+            boundingBox->update(glm::vec3(position.x - width * 0.75f, position.y - height * 0.75f, position.z - width * 0.75f),
+                glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f));
         }
 
         if (boundingBox->getActive()) {
@@ -314,8 +313,8 @@ void Player::update(float deltaTime, Game* game)
 void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
     if (Window::debugMode) {
-        boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-            glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f));
+        boundingBox->update(glm::vec3(position.x - width * 0.75f, position.y - height * 0.75f, position.z - width * 0.75f),
+            glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f));
         boundingBox->draw(viewProjMtx, shader);
     }
 
@@ -436,10 +435,10 @@ void Player::setHasFired(bool val)
 {
     if (val)
     {
-        cout << "firing shot:" << game->gameTime << "|" << (lastFireTime + playerWeapon->getDelayTime()) << endl;
+        //cout << "firing shot:" << game->gameTime << "|" << (lastFireTime + playerWeapon->getDelayTime()) << endl;
         if (game -> gameTime >= lastFireTime + playerWeapon->getDelayTime())
         {
-            cout << "setting true" << endl;
+            //cout << "setting true" << endl;
             hasFired = val;
             lastFireTime = game->gameTime;
             isFiring = true;
@@ -496,7 +495,7 @@ void Player::pickUpAbility()
     BoundingBox* shotObject = shootWeapon(maze -> getChestBoundingBox(), false);
     if (shotObject == NULL)
     {
-        cout << "could not find chest" << endl;
+        //cout << "could not find chest" << endl;
         return;
     }
     Model* chest = shotObject -> getParentModel();
@@ -515,7 +514,7 @@ void Player::pickUpAbility()
         chest->opening = true;
         string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
         Window::messagesToServer.push_back(chestOpenMessage);
-        std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
+        //std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
 
         //delete parentCube;
         delete playerPos;
@@ -528,11 +527,11 @@ void Player::pickUpAbility()
  * Plays chest animation for client if they have opened a chest.
  */
 void Player::openChest() {
-    cout << "enter open chest" << endl;
+    //cout << "enter open chest" << endl;
     BoundingBox* shotObject = shootWeapon(maze->getChestBoundingBox(), false);
     if (shotObject == NULL)
     {
-        cout << "chest found" << endl;
+        //cout << "chest found" << endl;
         return;
     }
     Model* chest = shotObject->getParentModel();
@@ -579,11 +578,11 @@ void Player::useAbility()
         used = true;
         break;
     case armorPlayer:
-        setArmor(getArmor() + 50.0f);
+        setArmor(getArmor() + 1.0f);
         used = true;
         break;
     case damageBoost:
-        setDamageBoost(getDamageBoost() + 50.0f);
+        setDamageBoost(getDamageBoost() + 1.0f);
         used = true;
         break;
     default:
@@ -640,10 +639,10 @@ BoundingBox* Player::shootWeapon(std::vector<BoundingBox *> objects, bool player
         BoundingBox* shotObject = playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
         if (shotObject && playerShot)
         {
-            cout << "shotObject" << endl;
+            //cout << "shotObject" << endl;
             if (shotObject->getParentPlayer())
             {
-                cout << "shot Player" << endl;
+                //cout << "shot Player" << endl;
                 Player* shotPlayer = shotObject->getParentPlayer();
                 float damage = playerWeapon -> getDamage();
                 damage *= (1.0f + currentDamageBoost/100.0f);
@@ -667,7 +666,6 @@ bool Player::removeWallAbility()
     Cube* parentCube = shotObject->getParentCube();
     if (parentCube != NULL && parentCube->isDeletable())
     {
-        cout << "deleting wall" << endl;
         int * cubePos = maze -> getCoordinates(parentCube->getMazePosition());
         maze->setWall(cubePos[0], cubePos[1], parentCube->getDirection(), 0);
         return true;

@@ -9,7 +9,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #define MAX_CONNECTIONS 4
-#define PERIOD 25 //server period in ms
+#define PERIOD 5 //server period in ms
 #define DELAY_PERIOD 500
 
 using namespace boost::asio;
@@ -240,7 +240,7 @@ public:
         game->allPlayers.push_back(player);
         game->allBoundingBoxes.push_back(player->getBoundingBox());
         player->setId(serverParse::userIdCount - 1);
-        if (serverParse::userIdCount == 1)
+        if (serverParse::userIdCount == 4)
         {
             begin_game();
         }
@@ -277,7 +277,9 @@ public:
                     if (!nextMessage.empty()) {
                         //cout << "Receiving message for player:" << bufIndex << ":" << nextMessage << endl;
                         serverParse::sortClientMessage(game, nextMessage);
+
                     }
+
                     string inputMessage = "";
                     if (game)
                     {

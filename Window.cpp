@@ -747,7 +747,9 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 			//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		//}
 		for (int i = 0; i < game->allPlayers.size(); i++) {
-			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			if (game->allPlayers.at(i)->getState() != Player::dead) {
+				game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			}
 			//game->allPlayers.at(i)->createFootPrint(glm::vec3(0.0f, 0.0f, 0.0f));
 			//game->allPlayers.at(i)->getFootprints().at(0)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
@@ -755,7 +757,15 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			for (int j = 0; j < game->allPlayers.at(i)->getFootprints().size(); j++) {
 
-				game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+				if (game->allPlayers.at(i)->getState() != Player::dead) {
+					game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+				}
+				else {
+					while (game->allPlayers.at(i)->getFootprints().size() > 0) {
+						game->allPlayers.at(i)->getFootprints().pop_front();
+					}
+				}
+				
 			}
 		}
 
@@ -863,7 +873,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		{
 		case GLFW_KEY_ESCAPE:
 			// Close the window. This causes the program to also terminate.
-			glfwSetWindowShouldClose(window, GL_TRUE);
+			//glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 		case GLFW_KEY_LEFT_CONTROL:
 			player->setState(player->crouch);

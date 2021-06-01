@@ -121,7 +121,29 @@ public:
 	};
 
 	//networking stuff
-	void setId(int i) { id = i; }
+	void setId(int i) { 
+		id = i; 
+		if (id == 0) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			}
+		}
+		if (id == 1) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			}
+		}
+		if (id == 2) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+			}
+		}
+		if (id == 3) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+			}
+		}
+	}
 	int getId() { return id; }
 	string getPlayerInputString();
 	string getPlayerInfoString();
@@ -164,6 +186,7 @@ private:
 	float playerGunModelScale = 0.4f;
 	float playerWalkingSpeed = 0.3f;
 	glm::vec3 playerToModelDiff;
+	glm::vec3 playerColor;
 	BoundingBox* boundingBox; // used to check collisions
 	
 	float mass;
