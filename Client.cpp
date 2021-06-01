@@ -7,7 +7,7 @@
 #include "main.h"
 #include "Game.h"
 
-#define PERIOD 15 //client period in ms
+#define PERIOD 5 //client period in ms
 #define DELAY_PERIOD 500
 
 using namespace boost::asio;
