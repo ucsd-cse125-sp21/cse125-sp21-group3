@@ -12,9 +12,9 @@
 #include <deque>
 #include "Maze.h"
 #include "Model.h"
-//#include <irrKlang.h>
+#include <irrKlang.h>
 
-//#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
+#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
 
 /*
  * File Name: Player.h
@@ -46,8 +46,8 @@ public:
 	void setVelocity(glm::vec3 v) { velocity.x = v.x; velocity.y = v.y; velocity.z = v.z; }
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
-	//void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
-
+	void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
+	irrklang::ISoundEngine* getSoundEngine() { return this->soundEngine; }
 
 	BoundingBox* shootWeapon(std::vector<BoundingBox*>, bool playerShot);
 
@@ -202,7 +202,7 @@ private:
 	glm::vec3 velocity;
 	glm::vec3 forceNet;
 	Camera* playerCamera;
-	//irrklang::ISoundEngine* soundEngine;
+	irrklang::ISoundEngine* soundEngine;
 	Weapon* playerWeapon;
 
 	float oldPitch;

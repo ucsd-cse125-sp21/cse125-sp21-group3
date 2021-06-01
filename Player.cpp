@@ -111,8 +111,11 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
 
     if (glm::distance(lastFootPrintPos, footprintPos) > 5.0f) {
 
-        //irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
-        //irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
+        irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
+
+        if (!soundEngine)
+            printf("FAIL!");
+        irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
         Cube* footprint = new Cube(footprintPos - glm::vec3(0.5f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.5f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
         footprint->setColor(glm::vec3(playerModel->meshes.at(0)->baseColor.x, playerModel->meshes.at(0)->baseColor.y, playerModel->meshes.at(0)->baseColor.z));
         if (this->footprints.size() > 5) {
@@ -120,7 +123,7 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
         }
         this->footprints.push_back(footprint);
         lastFootPrintPos = footprintPos;
-        /*
+        
         if (snd)
         {
             if (state == sprint) {
@@ -139,7 +142,7 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
             }
             snd->setIsPaused(false); // unpause the sound
         }
-        */
+        
     }
 }
 

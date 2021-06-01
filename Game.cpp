@@ -24,7 +24,7 @@ void Game::beginGame()
 	maze->createWalls();
 	maze->createAbilityChests(40);
 	//myPlayer = new Player(glm::vec3(1.0f, 1.0f, 1.0f), maze);
-	srand(time(NULL));
+	//srand(time(NULL));
 	for (int i = 0; i < allPlayers.size(); i++)
 	{
 		bool spaceNotUsed = true;

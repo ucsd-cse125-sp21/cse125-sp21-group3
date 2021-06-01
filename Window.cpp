@@ -39,7 +39,7 @@ float armorHorizontalDigitSegment[armorDigitSegmentThickness][armorDigitSegmentL
 // Camera Properties
 Camera* Cam;
 
-//irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
+irrklang::ISoundEngine* soundEngine = irrklang::createIrrKlangDevice();
 
 // Interaction Variables
 bool LeftDown, RightDown;
@@ -104,7 +104,7 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-	debugMode = true;
+	debugMode = false;
 	
 	return true;
 }
@@ -129,7 +129,7 @@ bool Window::initializeObjects(Game* game)
 	Cam = player->getPlayerCamera();
 	Cam->SetAspect(float(width) / float(height));
 
-	//player->setSoundEngine(soundEngine);
+	player->setSoundEngine(soundEngine);
 	player->resetInputDirections();
 
 	loadedAbility = 0;
@@ -819,12 +819,12 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		}
 
 
-		//Camera* playCam = player->getPlayerCamera();
-		//irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
-		//irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
-		//irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
-		//irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
-		//soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
+		Camera* playCam = player->getPlayerCamera();
+		irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
+		irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
+		irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
+		irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
+		player->getSoundEngine()->setListenerPosition(position, lookDirection, velPerSecond, upVector);
 
 		for (Cube* wall : game->maze->getWalls()) {
 			wall->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);

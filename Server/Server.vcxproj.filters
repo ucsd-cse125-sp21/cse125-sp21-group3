@@ -153,4 +153,16 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\ikpFlac.dll" />
+    <None Include="..\ikpMP3.dll" />
+    <None Include="..\irrKlang.dll" />
+    <None Include="..\zlib.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\irrKlang.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\footstep.mp3" />
+  </ItemGroup>
 </Project>
