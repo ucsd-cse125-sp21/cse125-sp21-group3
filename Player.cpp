@@ -461,6 +461,9 @@ void Player::setHealth(float health)
 {
     if (health < currentHealth) {
         isHurt = true;
+        if (isClient) {
+            Window::createBloodsplatter = id; 
+        }
     }
     if (maxHealth <= health)
     {

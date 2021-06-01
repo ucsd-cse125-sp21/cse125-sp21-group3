@@ -6,6 +6,7 @@
 #include "shader.h"
 #include "Camera.h"
 #include "Game.h"
+#include "Particle.h"
 
 class Game;
 
@@ -65,6 +66,9 @@ public:
 	static void drawIcon();
 	static void loadAbilityIcon();
 	static bool debugMode;
+	static vector<vector<Particle*>> bloodsplatterList;
+	static void generateBloodsplatter(glm::vec3 position, glm::vec3 color);
+	static int createBloodsplatter;
 
 	//Networking Stuff
 	static int createOpponent;

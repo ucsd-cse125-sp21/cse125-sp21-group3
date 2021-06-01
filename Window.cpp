@@ -78,6 +78,8 @@ float abilityQuadVertices[] = {
 GLuint abilityTexture;
 bool abilityLoaded;
 int hurtCounter = 0;
+vector<vector<Particle*>> Window::bloodsplatterList;
+int Window::createBloodsplatter = -1;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -377,6 +379,43 @@ void Window::idleCallback(Game* game)
 		Window::createOpponent = -1;
 	}
 	//------------------------------------------------------------------------
+
+	//Bloodsplatter Stuff
+	float time = glfwGetTime();
+	for (int i = 0; i < bloodsplatterList.size(); i++) {
+		vector<Particle*> bloodsplatter = bloodsplatterList.at(i);
+		if (bloodsplatter.size() > 0 && bloodsplatter.at(0)->lifetime - bloodsplatter.at(0)->spawnTime > bloodsplatter.at(0)->lifespan) {
+			for (Particle* p : bloodsplatter) {
+				delete p;
+			}
+
+			/*cout << "lifetime: " << bloodsplatter.at(0)->lifetime << endl;
+			cout << "spawnTime: " << bloodsplatter.at(0)->spawnTime << endl;
+			cout << "lifetime - spawntime: " << bloodsplatter.at(0)->lifetime - bloodsplatter.at(0)->spawnTime << endl;
+			cout << "deleting bloodsplatter" << endl;*/
+			bloodsplatterList.erase(bloodsplatterList.begin() + i);
+		}
+		else {
+			for (Particle* p : bloodsplatter) {
+				p->update(time - p->lifetime);
+			}
+		}
+	}
+	if (Window::createBloodsplatter != -1) {
+		glm::vec3 position;
+		glm::vec3 color;
+		for (int i = 0; i < game->allPlayers.size(); i++) {
+			if (game->allPlayers.at(i)->getId() == Window::createBloodsplatter) {
+				position = game->allPlayers.at(i)->getPosition();
+				position.y -= 1.0f;
+				color = glm::vec3(game->allPlayers.at(i)->getPlayerModel()->meshes.at(0)->baseColor.x,
+					game->allPlayers.at(i)->getPlayerModel()->meshes.at(0)->baseColor.y,
+					game->allPlayers.at(i)->getPlayerModel()->meshes.at(0)->baseColor.z);
+			}
+		}
+		generateBloodsplatter(position, color);
+		Window::createBloodsplatter = -1;
+	}
 }
 
 /*
@@ -814,6 +853,13 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 
 
 		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
+		for (int i = 0; i < bloodsplatterList.size(); i++) {
+			//cout << "bloodsplatter: " << i << endl;
+			vector<Particle*> bloodsplatter = bloodsplatterList.at(i);
+			for (Particle* p : bloodsplatter) {
+				p->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
+			}
+		}
 		drawCrosshair();
 		drawHealth();
 		drawArmor();
@@ -849,6 +895,23 @@ void Window::resetCamera()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void Window::generateBloodsplatter(glm::vec3 position, glm::vec3 color) {
+
+	vector<Particle*> bloodsplatter;
+	float time = glfwGetTime();
+	bloodsplatter.push_back(new Particle(position, glm::vec3(30.0f, 0.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(-30.0f, 0.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(0.0f, 30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(0.0f, -30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(0.0f, 0.0f, 30.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(0.0f, 0.0f, -30.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(30.0f, 30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(-30.0f, -30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(-30.0f, 30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(30.0f, -30.0f, 0.0f), time, color));
+	bloodsplatterList.push_back(bloodsplatter);
+}
 
 /*
  * This method is called every time the user presses a key. Responsible for implementing
