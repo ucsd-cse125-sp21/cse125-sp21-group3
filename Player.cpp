@@ -116,7 +116,7 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
         if (!soundEngine)
             printf("FAIL!");
         irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position_audio, false, true);
-        Cube* footprint = new Cube(footprintPos - glm::vec3(0.5f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.5f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
+        Cube* footprint = new Cube(footprintPos - glm::vec3(0.15f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.15f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
         footprint->setColor(glm::vec3(playerModel->meshes.at(0)->baseColor.x, playerModel->meshes.at(0)->baseColor.y, playerModel->meshes.at(0)->baseColor.z));
         if (this->footprints.size() > 5) {
             this->footprints.pop_front();

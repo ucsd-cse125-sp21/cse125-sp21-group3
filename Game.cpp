@@ -1,9 +1,9 @@
 #include "Game.h"
-
+#include <time.h> 
 Game::Game(bool client)
 {
 	isClient = client;
-	maze = new Maze(21, 7, this, isClient);
+	maze = new Maze(35, 7, this, isClient);
 	gameBegun = false;
 	gameSet = false;
 	serverMessage = "";
@@ -24,7 +24,7 @@ void Game::beginGame()
 	maze->createWalls();
 	maze->createAbilityChests(40);
 	//myPlayer = new Player(glm::vec3(1.0f, 1.0f, 1.0f), maze);
-	//srand(time(NULL));
+	srand(time(NULL));
 	for (int i = 0; i < allPlayers.size(); i++)
 	{
 		bool spaceNotUsed = true;

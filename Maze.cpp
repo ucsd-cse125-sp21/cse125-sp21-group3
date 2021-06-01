@@ -1,5 +1,5 @@
 #include "Maze.h"
-
+#include <time.h> 
 // Iniitalize maze
 Maze::Maze(int size, int scale, Game* gm, bool client)
 {
@@ -31,8 +31,8 @@ Maze::Maze(int size, int scale, Game* gm, bool client)
 	game = gm;
 
 	// Set seed for random creation for testing purposes
-	srand(0);
-	//srand(time(NULL));
+	//srand(0);
+	srand(time(NULL));
 
 }
 
