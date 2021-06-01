@@ -171,7 +171,8 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
 
             for (int i = Player::forward; i <= Player::down; i++)
             {
-                int dirOn = stoi(*(it + 6 + i));
+                int dirOn = 0;
+                dirOn = stoi(*(it + 6 + i));
                 if (dirOn)
                 {
                     player->moveDirection(i);

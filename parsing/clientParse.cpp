@@ -230,7 +230,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         {
             int r = stoi(*(it + 1));
             int c = stoi(*(it + 2));
-            cout << "removing" << endl;
             game->maze -> removeAbility(r, c);
             it = it + 2;
         }
@@ -248,7 +247,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         else if (*it == "endSeeMap")
         {
             int playerID = stoi(*(it + 1));
-            cout << "ending see map" << endl;
             Player* player = game->getPlayer(playerID);
             player->endMapAbility();
             it = it + 1;

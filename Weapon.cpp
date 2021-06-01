@@ -3,7 +3,7 @@
 Weapon::Weapon()
 {
 	damage = 10.0f;
-	delayTime = 0.50f;
+	delayTime = 0.25f;
 }
 
 
@@ -39,7 +39,7 @@ float RayIntersectKensler(glm::vec3 origin, glm::vec3 direction, BoundingBox* bo
 BoundingBox* closestObject(std::vector<BoundingBox *> boundingBoxList, glm::vec3 origin, glm::vec3 direction) {
 	
 	BoundingBox* minBox = NULL;
-	std::cerr << "Considering " << boundingBoxList.size() << "Objects" << std::endl;
+	//std::cerr << "Considering " << boundingBoxList.size() << "Objects" << std::endl;
 	float mindist = -1;
 	for (int i = 0; i < boundingBoxList.size(); i++) {
 		if (!boundingBoxList[i]->getActive())
@@ -52,7 +52,7 @@ BoundingBox* closestObject(std::vector<BoundingBox *> boundingBoxList, glm::vec3
 		}
 		else if (dist > 0 & (mindist == -1 || (dist < mindist))) {
 			mindist = dist;
-			std::cerr << "MinDist " << mindist << std::endl;
+			//std::cerr << "MinDist " << mindist << std::endl;
 			minBox = boundingBoxList[i];
 		}
 	}
@@ -71,19 +71,15 @@ BoundingBox* closestObject(std::vector<BoundingBox *> boundingBoxList, glm::vec3
 BoundingBox * Weapon::Shoot(std::vector<BoundingBox *> objects, glm::vec3 origin, glm::vec3 direction)
 {
 
-	std::cerr << "Origin " << origin.x << " " << origin.y << " " << origin.z << std::endl;
-	std::cerr << "Direction " << direction.x << " " << direction.y << " " << direction.z << std::endl;
+	//std::cerr << "Origin " << origin.x << " " << origin.y << " " << origin.z << std::endl;
+	//std::cerr << "Direction " << direction.x << " " << direction.y << " " << direction.z << std::endl;
 
 
-	if (!reloading)
-	{
-		std::cerr << "Firing" << std::endl;
-		BoundingBox * minBox = closestObject(objects, origin, direction);
-		if (minBox != NULL) {
-			std::cerr << "Shot" << std::endl;
-			return minBox;
-		}
+	BoundingBox * minBox = closestObject(objects, origin, direction);
+	if (minBox != NULL) {
+		return minBox;
 	}
+
 	return NULL;
 }
 

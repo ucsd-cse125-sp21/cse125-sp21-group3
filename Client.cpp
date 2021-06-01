@@ -7,8 +7,8 @@
 #include "main.h"
 #include "Game.h"
 
-#define PERIOD 25 //client period in ms
-#define DELAY_PERIOD 500
+#define PERIOD 20 //client period in ms
+#define DELAY_PERIOD 1000
 
 using namespace boost::asio;
 using ip::tcp;
@@ -230,7 +230,7 @@ int main(int argc, char* argv[])
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
 
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     client.gameInitialized = true;
     client.start();

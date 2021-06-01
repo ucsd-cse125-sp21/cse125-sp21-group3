@@ -9,8 +9,8 @@
 #include <glm/gtx/string_cast.hpp>
 
 #define MAX_CONNECTIONS 4
-#define PERIOD 25 //server period in ms
-#define DELAY_PERIOD 500
+#define PERIOD 20 //server period in ms
+#define DELAY_PERIOD 1000
 
 using namespace boost::asio;
 using ip::tcp;
@@ -266,6 +266,7 @@ public:
 
     void handle_timeout()
     {
+        srand(time(NULL));
         while (1)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(PERIOD));

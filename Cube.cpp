@@ -22,6 +22,7 @@
  */
 Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax, int type, bool client) 
 {
+
 	// Model matrix.
 	model = glm::mat4(1.0f);
 	
@@ -143,6 +144,7 @@ Cube::Cube(glm::vec3 cubeMin, glm::vec3 cubeMax, int type, bool client)
 		16,17,18,	16,18,19,		// Left
 		20,21,22,	20,22,23,		// Right
 	};
+
 
 	if (isClient)
 	{
