@@ -459,6 +459,9 @@ void Player::setHasFired(bool val)
 
 void Player::setHealth(float health)
 {
+    if (health < currentHealth) {
+        isHurt = true;
+    }
     if (maxHealth <= health)
     {
         health = maxHealth;
