@@ -133,7 +133,7 @@ bool Window::initializeObjects(Game* game)
 	player->resetInputDirections();
 	irrklang::ISoundEngine* worldEngine = irrklang::createIrrKlangDevice();
 	irrklang::ISound* snd = worldEngine->play2D("scary.mp3", true, true, true);
-	snd->setVolume(0.05f);
+	snd->setVolume(0.15f);
 	snd->setIsPaused(false);
 	loadedAbility = 0;
 

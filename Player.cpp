@@ -115,7 +115,7 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
 
         if (!soundEngine)
             printf("FAIL!");
-        irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position_audio, false, true);
+        irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position_audio, false, true, true);
         Cube* footprint = new Cube(footprintPos - glm::vec3(0.15f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.15f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
         footprint->setColor(glm::vec3(playerModel->meshes.at(0)->baseColor.x, playerModel->meshes.at(0)->baseColor.y, playerModel->meshes.at(0)->baseColor.z));
         if (this->footprints.size() > 5) {
@@ -129,16 +129,16 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
             if (state == sprint) {
                 snd->setMinDistance(35.0f); // a mid sound
                 snd->setPlaybackSpeed(1.5f);
-                snd->setVolume(25.0f);
+                snd->setVolume(60.0f);
             }
             else if (state == crouch) {
                 snd->setMinDistance(10.0f);
                 snd->setPlaybackSpeed(0.75f);
-                snd->setVolume(5.0f);
+                snd->setVolume(20.0f);
             }
             else {
-                snd->setMinDistance(120.0f);
-                snd->setVolume(15.0f);
+                snd->setMinDistance(20.0f);
+                snd->setVolume(35.0f);
             }
             snd->setIsPaused(false); // unpause the sound
         }
@@ -299,14 +299,15 @@ void Player::update(float deltaTime, Game* game)
     if (!usingMapAbility)
     {
         playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
+        float new_offset_x = -0.42426406871 * glm::cos(glm::radians(playerCamera->getPitch() + 90));
+        float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
+        cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
+        playerCamera->setPosition(position + cameraOffset);
     }
     // Both client and server should update
 
 
-    float new_offset_x = -0.42426406871 * glm::cos(glm::radians(playerCamera->getPitch() + 90));
-    float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
-    cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
-    playerCamera->setPosition(position+cameraOffset);
+    
 
 
     //update player camera

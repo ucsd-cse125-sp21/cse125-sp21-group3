@@ -3,7 +3,7 @@
 Game::Game(bool client)
 {
 	isClient = client;
-	maze = new Maze(35, 7, this, isClient);
+	maze = new Maze(21, 7, this, isClient);
 	gameBegun = false;
 	gameSet = false;
 	serverMessage = "";

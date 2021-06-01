@@ -1119,13 +1119,13 @@
     <None Include="packages\glm.0.9.9.800\build\native\include\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="..\ikpFlac.dll" />
-    <None Include="..\ikpMP3.dll" />
-    <None Include="..\irrKlang.dll" />
     <None Include="..\zlib.dll" />
     <None Include="..\.DS_Store" />
     <None Include="..\README.md" />
     <None Include="packages.config" />
+    <None Include="..\irrKlang-64bit-1.6.0\bin\winx64-visualStudio\ikpFlac.dll" />
+    <None Include="..\irrKlang-64bit-1.6.0\bin\winx64-visualStudio\ikpMP3.dll" />
+    <None Include="..\irrKlang-64bit-1.6.0\bin\winx64-visualStudio\irrKlang.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="packages\glm.0.9.9.800\build\native\include\glm\detail\glm.cpp">
@@ -2126,7 +2126,6 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\assimp-vc142-mt.lib" />
-    <Library Include="..\irrKlang.lib" />
     <Library Include="..\libboost_date_time-vc142-mt-x64-1_76.lib" />
     <Library Include="..\libboost_system-vc142-mt-x64-1_76.lib" />
   </ItemGroup>

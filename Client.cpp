@@ -7,7 +7,7 @@
 #include "main.h"
 #include "Game.h"
 
-#define PERIOD 5 //client period in ms
+#define PERIOD 16 //client period in ms
 #define DELAY_PERIOD 500
 
 using namespace boost::asio;
@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
     /*
      * Set Server IP address and port if available.  If not, use default values.
      */
-    std::string ipAddress = "127.0.0.1";
+    std::string ipAddress = "137.110.115.154";
     int portNum = 1234;
     if (argc > 1) {
         ipAddress = argv[1];
