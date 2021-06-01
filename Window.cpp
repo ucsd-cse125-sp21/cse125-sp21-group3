@@ -96,7 +96,7 @@ bool Window::initializeProgram() {
 		return false;
 	}
 
-	debugMode = false;
+	debugMode = true;
 	
 	return true;
 }
