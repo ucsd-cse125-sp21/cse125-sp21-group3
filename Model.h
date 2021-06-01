@@ -49,6 +49,10 @@ public:
     void playAnimation(AnimationClip* animationClip, float speed, bool reverse);
     void rotateAnimation(float amount, glm::vec3 p); //rotates animationRootModel around point p
     void rotate(float amount, glm::vec3 p); //rotates rootModel around point p
+    
+    //testing
+    void rotateAnimation(glm::mat4 rotation, glm::vec3 p); //rotates animationRootModel around point p
+    void rotate(glm::mat4 rotation, glm::vec3 p); //rotates rootModel around point p
 
     BoundingBox* getBoundingBox() { return boundingBox; }
 

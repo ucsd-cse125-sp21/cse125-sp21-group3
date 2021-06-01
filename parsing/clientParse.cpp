@@ -95,7 +95,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
     boost::split(messageValues, serverMessage, boost::is_any_of(","));
     vector<string>::iterator it = messageValues.begin();
     //cerr << "server message contains tail at: " << serverMessage.find("\r\n") << endl;
-    //cerr << "received message: " << serverMessage << endl;
+    //cout << "received message: " << serverMessage << endl;
     //cerr << "received message size: " << serverMessage.size() << endl;
     bool createdMaze = false;
     while (it != messageValues.end())
@@ -104,6 +104,10 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         {
             int playerId = stoi(*(it + 1));
             game->myPlayerId = playerId;
+            if (game->allPlayers.size() > 0) {
+                cout << "assigning id: " << playerId << endl;
+                game->allPlayers.at(0)->setId(playerId);
+            }
             it = it + 1;
         }
         else if (*it == "player")
@@ -111,15 +115,15 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             if (game == NULL || game->maze == NULL) {
                 return;
             }
-            int userId = stoi(*(it + 1));
+            int playerID = stoi(*(it + 1));
             bool createPlayer = true;
-            if (userId == game->myPlayerId) {
+            if (playerID == game->myPlayerId) {
                 createPlayer = false;
             }
             else {
                 for (int i = 0; i < game->allPlayers.size(); i++) {
                     int id = game->allPlayers.at(i)->getId();
-                    if (userId == id) {
+                    if (playerID == id) {
                         createPlayer = false;
                         break;
                     }
@@ -127,33 +131,12 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             }
 
             if (createPlayer) {
-                Window::createOpponent = userId; //set flag to create new player (opponent)
+                Window::createOpponent = playerID; //set flag to create new player (opponent)
+
             }
 
-            Player* player = game -> myPlayer;
-            //since allPlayers[i] does not necessarily equal player i, we must search to find correct player
-            for (int i = 0; i < game->allPlayers.size(); i++)
-            {
-                if (userId == game->allPlayers.at(i)->getId())
-                {
-                    Player* player = game->allPlayers.at(i);
-                    break;
-                    //if (userId != game->myPlayerId) {
-                    //    game->allPlayers.at(i)->setMoving(stoi(messageValues.at(2)));
-                    //    string hasFired;
-                    //    for (int j = 0; j < messageValues.at(6).size(); j++) {
-                    //        int c = (int)messageValues.at(6).at(j);
-                    //        if (c >= (int)'a' && c <= (int)'z') {
-                    //            hasFired += messageValues.at(6).at(j);
-                    //        }
-                    //    }
-                    //    if (hasFired.compare("true") == 0) {
-                    //        //cout << "set isFiring for opponent" << endl;
-                    //        game->allPlayers.at(i)->setIsFiring(true);
-                    //    }
-                }
-            }
-
+            
+            Player* player = game->getPlayer(playerID);
 
             int isMoving = stoi(*(it + 2));
             
@@ -165,35 +148,50 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             float velocity_y = stof(*(it + 7));
             float velocity_z = stof(*(it + 8));
 
-            if (player != NULL)
-            {
-                //player->setMoving(isMoving);
-                player->setPosition(glm::vec3(position_x, position_y, position_z));
-            }
-
             float currentHealth = stof(*(it + 9));
             float maxHealth = stof(*(it + 10));
             float currentArmor = stof(*(it + 11));
             float currentDamageBoost = stof(*(it + 12));
             int currentAbility = stoi(*(it + 13));
+            bool hasFired = stoi(*(it + 14));
+            float modelRotation = stof(*(it + 15));
 
-            player->setHealth(currentHealth);
-            player->setMaxHealth(maxHealth);
-            player->setArmor(currentArmor);
-            player->setDamageBoost(currentDamageBoost);
-            player->setAbility(currentAbility);
+            if (player != NULL)
+            {
+                player->setPosition(glm::vec3(position_x, position_y, position_z));
+                player->setHealth(currentHealth);
+                player->setMaxHealth(maxHealth);
+                player->setArmor(currentArmor);
+                player->setDamageBoost(currentDamageBoost);
+                player->setAbility(currentAbility);
+                if (player != game->myPlayer) {
+                    player->setMoving(isMoving);
+                    player->setHasFired(hasFired);
+                    //handle model rotation
+                    float diff = modelRotation - player->getPlayerModel()->animationRootModelRotation;
+                    //cout << "diff: " << diff << endl;
+                    player->getPlayerModel()->rotateAnimation(diff, player->getPlayerModelCenter());
+                    player->getPlayerGunModel()->rotate(diff, player->getPlayerGunModelCenter());
+                    player->getPlayerGunModel()->rotateAnimation(diff, player->getPlayerGunModelCenter());
+               
+                    player->getPlayerModel()->animationRootModelRotation = modelRotation;
+                    player->getPlayerGunModel()->rootModelRotation = modelRotation;
+                    player->getPlayerGunModel()->animationRootModelRotation = modelRotation;
+                }
+            }
+
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
 
-            it = it + 13;
+            it = it + 15;
 
         }
         else if (*it == "mazeInitial")
         {
+
         }
         // mazeUpdate
         else if (*it == "mU")
         {
-            createdMaze = true;
             int row = stoi(*(it + 1));
             int col = stoi(*(it + 2));
             int wallDirection = stoi(*(it + 3));
@@ -220,6 +218,40 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             mazeArray[r][c].ability = Player::opened;
             it = it + 2;
         }
+        else if (*it == "deleteWall")
+        {
+            int r = stoi(*(it + 1));
+            int c = stoi(*(it + 2));
+            int dir = stoi(*(it + 3));
+            game->maze->setWall(r, c, dir, 0);
+            it = it + 3;
+        }
+        else if (*it == "deleteAbility")
+        {
+            int r = stoi(*(it + 1));
+            int c = stoi(*(it + 2));
+            game->maze -> removeAbility(r, c);
+            it = it + 2;
+        }
+        else if (*it == "useSeeMap")
+        {
+            int playerID = stoi(*(it + 1));
+            float oldPitch = stof(*(it + 2));
+            float oldYaw = stof(*(it + 3));
+            Player* player = game -> getPlayer(playerID);
+            player->setOldPitch(oldPitch);
+            player->setOldYaw(oldYaw);
+            player->seeMapAbility();
+            it = it + 3;
+        }
+        else if (*it == "endSeeMap")
+        {
+            int playerID = stoi(*(it + 1));
+            cout << "ending see map" << endl;
+            Player* player = game->getPlayer(playerID);
+            player->endMapAbility();
+            it = it + 1;
+        }
         it++;
     }
     if (createdMaze)
@@ -227,25 +259,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
         game->gameSet = true;
     }
 
-    //string header = messageValues.front();
-    //if (header=="joinResponse") {
-    //    joinResponseHandler(messageValues.at(1));
-    //}
-    //else if (header=="player") {
-    //    playerMessageHandler(messageValues);
-    //}
-    //else if (header=="mazeInitial"){
-    //    mazeInitialMessageHandler(messageValues);
-    //}
-    //else if (header=="mazeUpdate") {
-    //    mazeUpdateMessageHandler(messageValues);
-    //}
-    //else if (header=="start") {
-    //    startMessageHandler();
-    //}
-    //else {
-    //    cout<<"Unexpected message type from server"<<endl;
-    //}
 }
 
 /*
@@ -271,13 +284,8 @@ string clientParse::buildLeaveMessage() {
  */
 string clientParse::buildInputMessage(Game* game) {
     
-    string inputMessage = "";
-    if(game->myPlayer) {
-        inputMessage = game->myPlayer->getPlayerInputString();
-    }
-    
     //cout << "inputMessage: " << inputMessage << endl;
-    return inputMessage;
+    return game -> getClientInputMessage();
 }
 
 

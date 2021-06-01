@@ -32,7 +32,7 @@ class Game;
 
 class Player {
 public:
-	Player(glm::vec3 _position, Maze* mz, bool isClient=true);
+	Player(glm::vec3 _position, Game* gm, bool isClient=true);
 
 	void applyForce(glm::vec3 f) { forceNet += f; }
 	void computeForces();
@@ -49,7 +49,7 @@ public:
 	//void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
 
 
-	BoundingBox* shootWeapon(std::vector<BoundingBox*>);
+	BoundingBox* shootWeapon(std::vector<BoundingBox*>, bool playerShot);
 
 	glm::vec3 getPosition() { return position; }
 	glm::vec3 getVelocity() { return velocity; }
@@ -71,7 +71,7 @@ public:
 	float getMaxHealth() { return maxHealth; }
 	float getArmor() { return currentArmor; }
 	float getDamageBoost() { return currentDamageBoost; }
-	float getState() { return state; }
+	int getState() { return state; }
 
 
 	void setHealth(float health);
@@ -87,6 +87,7 @@ public:
 
 	bool removeWallAbility();
 	bool seeMapAbility();
+	bool endMapAbility();
 
 
 	bool walkingBackward;
@@ -120,21 +121,45 @@ public:
 	};
 
 	//networking stuff
-	void setId(int i) { id = i; }
+	void setId(int i) { 
+		id = i; 
+		if (id == 0) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			}
+		}
+		if (id == 1) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			}
+		}
+		if (id == 2) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+			}
+		}
+		if (id == 3) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+			}
+		}
+	}
 	int getId() { return id; }
 	string getPlayerInputString();
 	string getPlayerInfoString();
 	void setMoving(int m) { moving = m; }
 	int getMoving() { return moving; }
-	void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
-	void setHasFired(bool val) { hasFired = val; }
+	//void setLookingDirection(glm::vec3 d) { lookingDirection = d; }
+	void setHasFired(bool val);
 	void setIsFiring(bool val) { isFiring = val; }
 	bool getHasFired() { return hasFired; }
+	void setIsHurt(bool val) { isHurt = val; }
+	bool getIsHurt() { return isHurt; }
 
 	void setAbility(int ab) { currentAbility = ab; }
 	int getAbility() { return currentAbility; }
 
-	glm::vec3 getLookingDirection() { return lookingDirection; }
+	//glm::vec3 getLookingDirection() { return lookingDirection; }
 
 	bool* getInputDirections() { return inputDirections; }
 
@@ -144,6 +169,12 @@ public:
 	void setUseAbilityKey(bool on) { useAbilityKey = on; }
 
 	static string getAbilityName(int ability);
+
+	void openChest();
+
+	void setOldPitch(float p) { oldPitch = p; }
+	void setOldYaw(float y) { oldYaw = y; }
+
 
 
 private:
@@ -157,6 +188,8 @@ private:
 	float playerGunModelScale = 0.4f;
 	float playerWalkingSpeed = 0.3f;
 	glm::vec3 playerToModelDiff;
+	bool isHurt = false;
+	glm::vec3 playerColor;
 	BoundingBox* boundingBox; // used to check collisions
 	
 	float mass;
@@ -171,7 +204,8 @@ private:
 	//irrklang::ISoundEngine* soundEngine;
 	Weapon* playerWeapon;
 
-	//float oldPitch;
+	float oldPitch;
+	float oldYaw;
 
 	int state;
 
@@ -187,6 +221,7 @@ private:
 	int currentAbility;
 
 	Maze* maze;
+	Game* game;
 	
 	//networking stuff
 	int id;
@@ -196,11 +231,17 @@ private:
 	bool isFiring;
 	string playerInputString;
 	string playerInfoString;
-	glm::vec3 lookingDirection;
+	//glm::vec3 lookingDirection;
 
 	bool* inputDirections;
 	bool pickUpAbilityKey;
 	bool useAbilityKey;
+
+	bool usingMapAbility;
+
+	float lastAbilityUseTime;
+	float lastReloadTime;
+	float lastFireTime;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

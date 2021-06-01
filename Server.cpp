@@ -9,8 +9,8 @@
 #include <glm/gtx/string_cast.hpp>
 
 #define MAX_CONNECTIONS 4
-#define PERIOD 30 //server period in ms
-#define DELAY_PERIOD 750
+#define PERIOD 5 //server period in ms
+#define DELAY_PERIOD 500
 
 using namespace boost::asio;
 using ip::tcp;
@@ -189,12 +189,11 @@ public:
     Server(boost::asio::io_service& io_service, int portNum) : io_service_(io_service),
         acceptor_(io_service_, tcp::endpoint(tcp::v4(), portNum)) {
         start_accept();
-
+        game = new Game(false);
     }
 
     void begin_game()
     {
-        game = new Game(false);
         game->beginGame();
         game->initiateGame();
 
@@ -223,6 +222,8 @@ public:
         //broadcast("mU,1,1,1,");
         message = "";
 
+        std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));
+
         message = serverParse::createAbilityString(game->maze);
         broadcast(message);
     }
@@ -234,13 +235,15 @@ public:
             connection -> send_join_message();
         }
         start_accept();
-        if (serverParse::userIdCount == 1)
+
+        Player* player = new Player(glm::vec3((7.0f * serverParse::userIdCount) + 3.0f, 3.5f, 3.0f), game, false);
+        game->allPlayers.push_back(player);
+        game->allBoundingBoxes.push_back(player->getBoundingBox());
+        player->setId(serverParse::userIdCount - 1);
+        if (serverParse::userIdCount == 2)
         {
             begin_game();
         }
-        Player* player = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game->maze, false);
-        game->allPlayers.push_back(player);
-        player->setId(serverParse::userIdCount - 1);
     }
 
     /*
@@ -274,33 +277,31 @@ public:
                         //cout << "Receiving message for player:" << bufIndex << ":" << nextMessage << endl;
                         serverParse::sortClientMessage(game, nextMessage);
 
-                        if (game)
-                        {
-                            for (int i = 0; i < game->allPlayers.size(); i++)
-                            {
-                                Player* player = game->allPlayers.at(i);
-                                player->update(PERIOD / 1000.0f, game);
-                            }
-                        }
-
-                        //printMoving(playerConnections[0]->pid_str);
-                        //then broadcast the game_state
-                        for (int p = 0; p < serverParse::userIdCount; p++) {
-                            //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
-                            //cout << "before broadcast position is: " << glm::to_string(game->allPlayers.at(0)->getPosition()) << endl;
-                            std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
-                            //cout << "Broadcasting:" << playerStateString << endl;
-                            broadcast(playerStateString);
-                        }
-
                     }
-                }
 
+                    string inputMessage = "";
+                    if (game)
+                    {
+                        game->update(PERIOD / 1000.0f);
+                        inputMessage = game->getServerInputMessage();
+                    }
+
+
+                    //cout << "Sending: " << inputMessage << endl;
+                    broadcast(inputMessage);
+                    //printMoving(playerConnections[0]->pid_str);
+                    //then broadcast the game_state
+                    //for (int p = 0; p < serverParse::userIdCount; p++) {
+                    //    //cout << "p = " + to_string(p) + ", pid_str = " + (playerConnections[p]->pid_str) + "\n";
+                    //    //cout << "before broadcast position is: " << glm::to_string(game->allPlayers.at(0)->getPosition()) << endl;
+                    //    std::string playerStateString = serverParse::buildPlayerMessage(game, playerConnections[p]->pid_str);
+                    //    //cout << "Broadcasting:" << playerStateString << endl;
+                    //    broadcast(playerStateString);
+                    //}
+                }
             }
         }
     }
-
-    
 };
 
 

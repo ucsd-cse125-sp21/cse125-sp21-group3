@@ -35,7 +35,6 @@ Model::~Model()
 // draws the model, and thus all its meshes
 void Model::draw(const glm::mat4& viewProjMtx, GLuint shader)
 {
-
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i]->draw(viewProjMtx, shader);
 
@@ -169,9 +168,9 @@ void Model::playAnimation(AnimationClip* animationClip, float speed, bool revers
 void Model::rotateAnimation(float amount, glm::vec3 p) {
 
     animationRootModelRotation += amount;
-    if (animationRootModelRotation >= 2.0f * M_PI) {
+    /*if (animationRootModelRotation >= 2.0f * M_PI) {
         animationRootModelRotation -= 2.0f * M_PI;
-    }
+    }*/
     glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -p);
     glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), p);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), amount, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -181,12 +180,26 @@ void Model::rotateAnimation(float amount, glm::vec3 p) {
 void Model::rotate(float amount, glm::vec3 p) {
 
     rootModelRotation += amount;
-    if (rootModelRotation >= 2.0f * M_PI) {
+    /*if (rootModelRotation >= 2.0f * M_PI) {
         rootModelRotation -= 2.0f * M_PI;
-    }
+    }*/
     glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -p);
     glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), p);
     glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), amount, glm::vec3(0.0f, 1.0f, 0.0f));
     rootModel = fromOrigin * rotation* toOrigin * rootModel;
 
+}
+
+void Model::rotateAnimation(glm::mat4 rotation, glm::vec3 p) {
+
+    glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -p);
+    glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), p);
+    animationRootModel = fromOrigin * rotation * toOrigin * animationRootModel;
+}
+
+void Model::rotate(glm::mat4 rotation, glm::vec3 p) {
+
+    glm::mat4 toOrigin = glm::translate(glm::mat4(1.0f), -p);
+    glm::mat4 fromOrigin = glm::translate(glm::mat4(1.0f), p);
+    rootModel = fromOrigin * rotation * toOrigin * rootModel;
 }

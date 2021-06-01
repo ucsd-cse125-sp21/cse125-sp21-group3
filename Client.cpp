@@ -7,8 +7,8 @@
 #include "main.h"
 #include "Game.h"
 
-#define PERIOD 30 //client period in ms
-#define DELAY_PERIOD 750
+#define PERIOD 5 //client period in ms
+#define DELAY_PERIOD 500
 
 using namespace boost::asio;
 using ip::tcp;
@@ -106,7 +106,6 @@ public:
                 continue;
             }
             std::string input_string =  clientParse::buildInputMessage(game);
-            //cout << "Sending:" << input_string << endl;
 
             game->update(PERIOD/1000.0f);
 
@@ -231,7 +230,7 @@ int main(int argc, char* argv[])
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
 
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     client.gameInitialized = true;
     client.start();
@@ -254,11 +253,15 @@ int main(int argc, char* argv[])
     while (!glfwWindowShouldClose(window))
     {
         // Main render display callback. Rendering of objects is done here.
+        //cerr << "before display callback" << endl;
         Window::displayCallback(client.game, window);
-
+        //cerr << "after display callback" << endl;
 
         // Idle callback. Updating objects, etc. can be done here.
+       // cerr << "before idle callback" << endl;
         Window::idleCallback(client.game);
+        //cerr << "after idle callback" << endl;
+
     }
 
 
@@ -267,10 +270,4 @@ int main(int argc, char* argv[])
     glfwDestroyWindow(window);
     // Terminate GLFW.
     glfwTerminate();
-
-    std::cout << "Beginning main thread" << std::endl;
-
-
-    while(1){
-    }
 }

@@ -21,9 +21,9 @@
  * @return Player object
  * @author Lucas Hwang
  */
-Player::Player(glm::vec3 _position, Maze* mz, bool client) {
+Player::Player(glm::vec3 _position, Game* gm, bool client) {
     
-    
+    id = -1;
     position = _position;
 
     lastFootPrintPos = _position;
@@ -36,8 +36,8 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
     //std::cout << "position.y: " << position.y << std::endl;
     //std::cout << "player min at start: " << (position.y - height * 0.75f) << std::endl;
  
-    boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.875f, position.z - width * 0.5f),
-        glm::vec3(position.x + width * 0.5f, position.y + height * 0.125f, position.z + width * 0.5f), this, isClient);
+    boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.75f, position.y - height * 0.875f, position.z - width * 0.75f),
+        glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f), this, isClient);
     
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     speed = 10.0f;
@@ -53,26 +53,27 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
 
     state = stand;
 
-    maze = mz;
-
-    // radius 0.42426406871
+    maze = gm -> maze;
+    game = gm;
+    
     cameraOffset = glm::vec3(-0.3, 0.45f, -0.3f);
-    playerCamera = new Camera(position + cameraOffset);
-
-    if (client) {
+    playerCamera = new Camera(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
+    
+    //if (client) {
         //creating and initializing playerModel
         glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.75f, position.y - height * 0.82f, 2.25f));
+        glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(-0.25f, position.y - height * 0.82f, 2.5f));
         glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerModelScale));
         glm::mat4 playerModelRootTransform = translation * rotation * scaling;
         playerModel = new Model("Assets/character.gltf", playerModelRootTransform, isClient);
         playerModelCenter = glm::vec3(playerModel->rootModel[3][0], playerModel->rootModel[3][1], playerModel->rootModel[3][2]);
         walkingBackward = false;
-        playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
-
+        if (isClient) {
+            playerModel->playAnimation(playerModel->animationClipList.at(0), 0.00f, walkingBackward); //puts the character in the default pose
+        }
         //creating and initializing playerGunModel
         rotation = glm::rotate(glm::mat4(1.0f), 3.14f, glm::vec3(0.0f, 1.0f, 0.0f));
-        translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.7f, 3.0f, 2.25f));
+        translation = glm::translate(glm::mat4(1.0f), glm::vec3(3.5f, 3.0f, 1.8f));
         scaling = glm::scale(glm::mat4(1.0f), glm::vec3(playerGunModelScale));
         glm::mat4 playerGunModelRootTransform = translation * rotation * scaling;
         playerGunModel = new Model("Assets/shotgunFire.gltf", playerGunModelRootTransform, isClient);
@@ -83,7 +84,7 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
         playerModel->animationRootModel = glm::mat4(1.0f);
         playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);*/
         //cout << "before play animation in constructor" << endl;
-    }
+    //}
 
     //networking stuff
     moving = 0;
@@ -92,11 +93,15 @@ Player::Player(glm::vec3 _position, Maze* mz, bool client) {
     inputDirections = new bool[6];
     pickUpAbilityKey = false;
     useAbilityKey = false;
+    usingMapAbility = false;
+    oldPitch = 0.0f;
+    oldYaw = 0.0f;
     for (int i = forward; i <= down; i++)
     {
         inputDirections[i] = false;
     }
     cout << "Player created" << endl;
+    lastFireTime = -1.0f;
     
 }
 
@@ -108,8 +113,8 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
         //irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
         //irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
         Cube* footprint = new Cube(footprintPos - glm::vec3(0.5f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.5f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
-        footprint->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
-        if (this->footprints.size() > 10) {
+        footprint->setColor(glm::vec3(playerModel->meshes.at(0)->baseColor.x, playerModel->meshes.at(0)->baseColor.y, playerModel->meshes.at(0)->baseColor.z));
+        if (this->footprints.size() > 5) {
             this->footprints.pop_front();
         }
         this->footprints.push_back(footprint);
@@ -155,11 +160,11 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
 
                 
                 BoundingBox* prevBoundingBox = new BoundingBox(
-                    glm::vec3(prevPosition.x - width * 0.5f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.5f),
-                    glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + height * 0.25f, prevPosition.z + width * 0.5f), this, isClient);
+                    glm::vec3(prevPosition.x - width * 0.75f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.75f),
+                    glm::vec3(prevPosition.x + width * 0.75f, prevPosition.y + 0.25f, prevPosition.z + width * 0.75f), this, isClient);
                 handleCollision(prevBoundingBox, b);
-                boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-                    glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+                boundingBox->update(glm::vec3(position.x - width * 0.75f, position.y - height * 0.75f, position.z - width * 0.75f),
+                    glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f));
                 delete prevBoundingBox;
                 //std::cout << "min point collision" << std::endl;
             }
@@ -175,8 +180,16 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
  */
 void Player::update(float deltaTime, Game* game)
 {
-
+    if (!game->gameBegun)
+    {
+        return;
+    }
     if (!isClient) { //update stuff for not client side player instances
+        if (currentHealth <= 0.0f)
+        {
+            state = dead;
+        }
+
         switch (state)
         {
         case crouch:
@@ -185,64 +198,56 @@ void Player::update(float deltaTime, Game* game)
                 glm::vec3 v = glm::vec3(0.0f, -1.0f, 0.0f) * speed / 2.0f;
                 velocity += v;
             }
+            else
+            {
+                velocity.y = 0.0f;
+            }
             velocity *= 0.5f;
+            break;
         case sprint:
             velocity *= 1.40f;
+            velocity.y = 0.0f;
             break;
         case dead:
             velocity *= 3;
             break;
         case still:
-            velocity *= 0;
+            velocity *= 0.0f;
             break;
         default:
-            /*if (position.y <= 3.5f)
+            if (position.y <= 4.0f)
             {
                 glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed / 2.0f;
                 velocity += v;
                 velocity *= 0.5f;
-            }*/
+            }
+            else
+            {
+                velocity.y = 0;
+            }
             break;
         }
+
 
         if (glm::length(velocity) > 0.0f) {
             prevPosition = position;
             position = position + velocity * deltaTime;
 
-                //update player bounding box
-                boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-                    glm::vec3(position.x + width * 0.5f, position.y + height * 0.25f, position.z + width * 0.5f));
+            //update player bounding box
+            boundingBox->update(glm::vec3(position.x - width * 0.75f, position.y - height * 0.75f, position.z - width * 0.75f),
+                glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f));
         }
 
         if (boundingBox->getActive()) {
-            applyConstraints(game -> maze ->getBoundingBox());
+            applyConstraints(game -> allBoundingBoxes);
         }
         //if (state != dead && state != still)
         //{
         //    createFootPrint(position);
         //}
-        //if (state != still)
-        //{
-        //    //update player model position
-        //    glm::vec3 diff = position - prevPosition;
-        //    playerModel->rootModel[3][0] += diff.x;
-        //    playerModel->rootModel[3][1] += diff.y;
-        //    playerModel->rootModel[3][2] += diff.z;
-        //    playerGunModel->rootModel[3][0] += diff.x;
-        //    playerGunModel->rootModel[3][1] += diff.y;
-        //    playerGunModel->rootModel[3][2] += diff.z;
-        //    playerGunModel->animationRootModel[3][0] += diff.x;
-        //    playerGunModel->animationRootModel[3][1] += diff.y;
-        //    playerGunModel->animationRootModel[3][2] += diff.z;
-        //    playerGunModelCenter += diff;
-        //    prevPosition = position;
-        //}
-       
     }
     else
     {
-
-        createFootPrint(position);
         if (moving == 1) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
         }
@@ -252,14 +257,22 @@ void Player::update(float deltaTime, Game* game)
 
         if (game->myPlayerId == id) { //only update camera for client
             //oldPitch = playerCamera->getPitch();
-            playerCamera->setPosition(position+cameraOffset);
-
+            playerCamera->setPosition(position + cameraOffset);
+        }
+        if (id != game->myPlayerId) {
+            playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
         }
 
-        
-        //cout << "before play animation in update" << endl;
+        if (usingMapAbility)
+        {
+            if (game->gameTime >= lastAbilityUseTime + 5.0f)
+            {
+                endMapAbility();
+                string message = "endSeeMap," + to_string(id) + ",";
+                game->addServerInputMessage(message);
+            }
+        }
 
-        //update player and player gun model
         playerModel->update();
         playerGunModel->update();
 
@@ -269,7 +282,12 @@ void Player::update(float deltaTime, Game* game)
             }
             playerGunModel->playAnimation(playerGunModel->animationClipList.at(0), 0.2f, false);
         }
+    }
 
+    // Both client and server should update
+    if (!usingMapAbility)
+    {
+        playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
     }
     // Both client and server should update
 
@@ -295,10 +313,14 @@ void Player::update(float deltaTime, Game* game)
 void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
     if (Window::debugMode) {
+        boundingBox->update(glm::vec3(position.x - width * 0.75f, position.y - height * 0.75f, position.z - width * 0.75f),
+            glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f));
         boundingBox->draw(viewProjMtx, shader);
     }
 
-    playerModel->draw(viewProjMtx, shader);
+    if (game->myPlayer != this) {
+        playerModel->draw(viewProjMtx, shader);
+    }
     playerGunModel->draw(viewProjMtx, shader);
 }
 
@@ -409,11 +431,40 @@ void Player::handleCollision(BoundingBox* prevBoundingBox, BoundingBox* b) {
     }
 
 }
+void Player::setHasFired(bool val) 
+{
+    if (val)
+    {
+        //cout << "firing shot:" << game->gameTime << "|" << (lastFireTime + playerWeapon->getDelayTime()) << endl;
+        if (game -> gameTime >= lastFireTime + playerWeapon->getDelayTime())
+        {
+            //cout << "setting true" << endl;
+            hasFired = val;
+            lastFireTime = game->gameTime;
+            isFiring = true;
+        }
+        else
+        {
+            isFiring = false;
+            hasFired = false;
+        }
+    }
+    else
+    {
+        hasFired = val;
+    }
+}
 
 
 
 void Player::setHealth(float health)
 {
+    if (health < currentHealth) {
+        isHurt = true;
+        if (isClient) {
+            Window::createBloodsplatter = id; 
+        }
+    }
     if (maxHealth <= health)
     {
         health = maxHealth;
@@ -447,35 +498,63 @@ void Player::setState(int st)
 
 void Player::pickUpAbility()
 {
-    BoundingBox* shotObject = shootWeapon(maze -> getChestBoundingBox());
+    BoundingBox* shotObject = shootWeapon(maze -> getChestBoundingBox(), false);
     if (shotObject == NULL)
     {
+        //cout << "could not find chest" << endl;
         return;
     }
     Model* chest = shotObject -> getParentModel();
     //std::cout << "LMAO" << parentCube->getType() << std::endl;
     //if (parentCube->getType() == Cube::abilityChest || true)
     //{
-        int* playerPos = maze -> getCoordinates(getPosition());
-        glm::vec3 chestLocation(chest->rootModel[3][0], chest->rootModel[3][1], chest->rootModel[3][2]);
-        int* chestPos = maze -> getCoordinates(chestLocation);
-        if ((playerPos[0] == chestPos[0] && playerPos[1] == chestPos[1]) || 
-            (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) || 
-            (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
-        {
-            currentAbility = maze->getAbility(chestPos);
-            maze->removeAbility(chestPos);
-            chest->opening = true;
-            string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
-            Window::messagesToServer.push_back(chestOpenMessage);
-            //TODO tell server that chest has opened
-            std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
+    int* playerPos = maze -> getCoordinates(getPosition());
+    glm::vec3 chestLocation(chest->rootModel[3][0], chest->rootModel[3][1], chest->rootModel[3][2]);
+    int* chestPos = maze -> getCoordinates(chestLocation);
+    if ((playerPos[0] == chestPos[0] && playerPos[1] == chestPos[1]) || 
+        (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) || 
+        (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
+    {
+        currentAbility = maze->getAbility(chestPos[0], chestPos[1]);
+        maze->removeAbility(chestPos[0], chestPos[1]);
+        chest->opening = true;
+        string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
+        Window::messagesToServer.push_back(chestOpenMessage);
+        //std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
 
-            //delete parentCube;
-            delete playerPos;
-            delete chestPos;
-        }
+        //delete parentCube;
+        delete playerPos;
+        delete chestPos;
+    }
     //}
+}
+
+/*
+ * Plays chest animation for client if they have opened a chest.
+ */
+void Player::openChest() {
+    //cout << "enter open chest" << endl;
+    BoundingBox* shotObject = shootWeapon(maze->getChestBoundingBox(), false);
+    if (shotObject == NULL)
+    {
+        //cout << "chest found" << endl;
+        return;
+    }
+    Model* chest = shotObject->getParentModel();
+    //std::cout << "LMAO" << parentCube->getType() << std::endl;
+    //if (parentCube->getType() == Cube::abilityChest || true)
+    //{
+    int* playerPos = maze->getCoordinates(getPosition());
+    glm::vec3 chestLocation(chest->rootModel[3][0], chest->rootModel[3][1], chest->rootModel[3][2]);
+    int* chestPos = maze->getCoordinates(chestLocation);
+    if ((playerPos[0] == chestPos[0] && playerPos[1] == chestPos[1]) ||
+        (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) ||
+        (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
+    {
+        chest->opening = true;
+        delete playerPos;
+        delete chestPos;
+    }
 }
 
 void Player::useAbility()
@@ -501,6 +580,7 @@ void Player::useAbility()
         break;
     case increasePlayerHealth:
         setMaxHealth(getMaxHealth() + 50.0f);
+        setHealth(getHealth() + 50.0f);
         used = true;
         break;
     case armorPlayer:
@@ -508,7 +588,7 @@ void Player::useAbility()
         used = true;
         break;
     case damageBoost:
-        setDamageBoost(getDamageBoost() + 50.0f);
+        setDamageBoost(getDamageBoost() + 1.0f);
         used = true;
         break;
     default:
@@ -558,11 +638,25 @@ string Player::getAbilityName(int ability)
 }
 
 
-BoundingBox* Player::shootWeapon(std::vector<BoundingBox *> objects) {
+BoundingBox* Player::shootWeapon(std::vector<BoundingBox *> objects, bool playerShot) {
    
     if (state != sprint && state != dead)
     {
         BoundingBox* shotObject = playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
+        if (shotObject && playerShot)
+        {
+            //cout << "shotObject" << endl;
+            if (shotObject->getParentPlayer())
+            {
+                //cout << "shot Player" << endl;
+                Player* shotPlayer = shotObject->getParentPlayer();
+                float damage = playerWeapon -> getDamage();
+                damage *= (1.0f + currentDamageBoost/100.0f);
+                float armor = shotPlayer->getArmor();
+                damage *= (10.0f - armor) / 10.f;
+                shotPlayer->setHealth(shotPlayer->getHealth() - damage);
+            }
+        }
         return shotObject;
     }
     return 0;
@@ -570,7 +664,7 @@ BoundingBox* Player::shootWeapon(std::vector<BoundingBox *> objects) {
 
 bool Player::removeWallAbility()
 {
-    BoundingBox* shotObject = shootWeapon(maze->getBoundingBox());
+    BoundingBox* shotObject = shootWeapon(maze->getBoundingBox(), false);
     if (shotObject == NULL)
     {
         return false;
@@ -578,7 +672,8 @@ bool Player::removeWallAbility()
     Cube* parentCube = shotObject->getParentCube();
     if (parentCube != NULL && parentCube->isDeletable())
     {
-        delete parentCube;
+        int * cubePos = maze -> getCoordinates(parentCube->getMazePosition());
+        maze->setWall(cubePos[0], cubePos[1], parentCube->getDirection(), 0);
         return true;
     }
     return false;
@@ -586,14 +681,42 @@ bool Player::removeWallAbility()
 
 bool Player::seeMapAbility()
 {
-    float mazeSize = maze->getMazeSize();
-    float mapScale = maze->getMapScale();
-    float middleMap = (mazeSize - 1) * mapScale / 2.0f;
-    playerCamera->Reset();
-    playerCamera->setPitch(-90.0f);
-    playerCamera->setPosition(glm::vec3(middleMap, 200.0f, middleMap));
-    setState(still);
-    playerCamera->setFarClip(350.0f);
+    usingMapAbility = true;
+
+    if (isClient)
+    {
+        float mazeSize = maze->getMazeSize();
+        float mapScale = maze->getMapScale();
+        float middleMap = (mazeSize - 1) * mapScale / 2.0f;
+        playerCamera->Reset();
+        playerCamera->setPitch(-90.0f);
+        playerCamera->setPosition(glm::vec3(middleMap, 200.0f, middleMap));
+        setState(still);
+        playerCamera->setFarClip(350.0f);
+    }
+    else
+    {
+        string inputMessage = "useSeeMap," + to_string(id) + "," + to_string(oldPitch) + "," + to_string(oldYaw) + ",";
+        cout << inputMessage << endl;
+        game->addServerInputMessage(inputMessage);
+        lastAbilityUseTime = game->gameTime;
+    }
+    return true;
+}
+
+bool Player::endMapAbility()
+{
+    usingMapAbility = false;
+    if (isClient)
+    {
+        playerCamera->setPitch(oldPitch);
+        playerCamera->setYaw(oldYaw);
+        playerCamera->setFarClip(150.0f);
+        setState(stand);
+        usingMapAbility = false;
+        playerCamera->Update();
+    }
+
     return true;
 }
 
@@ -601,7 +724,6 @@ bool Player::seeMapAbility()
 //client side to pass to server
 string Player::getPlayerInputString() {
 
-    string MESSAGE_TAIL = "\r\n";
     glm::vec3 direction = playerCamera->getCameraFront();
     float yaw = playerCamera->getYaw();
     float pitch = playerCamera->getPitch();
@@ -614,12 +736,10 @@ string Player::getPlayerInputString() {
         playerInputString += to_string(inputDirections[i]) + ",";
     }
     playerInputString += to_string(hasFired) + "," + to_string(pickUpAbilityKey) + "," + to_string(useAbilityKey) + ",";
-
+    playerInputString += to_string(playerModel->animationRootModelRotation);
     hasFired = false;
     pickUpAbilityKey = false;
     useAbilityKey = false;
-    playerInputString += MESSAGE_TAIL;
-
     return playerInputString;
 }
 
@@ -631,7 +751,11 @@ string Player::getPlayerInfoString() {
     playerInfoString += to_string(position.x) + "," + to_string(position.y) + "," + to_string(position.z) + ",";
     playerInfoString += to_string(velocity.x) + "," + to_string(velocity.y) + "," + to_string(velocity.z) + ",";
 
-    playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
+    playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," +
+        to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired) + ",";
+    //if (playerModel) {
+        playerInfoString += to_string(playerModel->animationRootModelRotation);
+    //}
 
     playerInfoString += MESSAGE_TAIL;
     //cout << "moving in getPlayerInfo: " << moving << endl;
@@ -652,10 +776,6 @@ void Player::setPosition(glm::vec3 p) {
     playerGunModel->animationRootModel[3][2] += diff.z;
     playerGunModelCenter += diff;
 
-    //playerGunModelCenter = glm::vec3(playerGunModel->rootModel[3][0], playerGunModel->rootModel[3][1], playerGunModel->rootModel[3][2]);
-    /*playerGunModel->animationRootModel[3][0] += diff.x;
-    playerGunModel->animationRootModel[3][1] += diff.y;
-    playerGunModel->animationRootModel[3][2] += diff.z;*/
     position = p;
 }
 

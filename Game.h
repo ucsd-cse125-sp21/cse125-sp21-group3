@@ -17,6 +17,14 @@ public:
 	void beginGame();
 	void initiateGame();
 	void update(float deltaTime);
+	string getClientInputMessage();
+	string getServerInputMessage();
+
+	void addServerInputMessage(string message);
+
+	Player* getPlayer(int id);
+
+
 
 
 	Maze* maze;
@@ -29,6 +37,15 @@ public:
 	bool isClient;
 	bool gameBegun;
 	bool gameSet;
+
+	string serverMessage;
+
+	const string MESSAGE_TAIL = "\r\n";
+
+	float gameTime;
+
+	float lastDeleteWallTime;
+
 };
 
 #endif

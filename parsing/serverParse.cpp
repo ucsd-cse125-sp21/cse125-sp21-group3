@@ -108,7 +108,7 @@ void serverParse::inputMessageHandler(Game* game, vector<string> messageValues){
 
     
     player->setMoving(stoi(messageValues.at(2)));
-    player->setLookingDirection(glm::vec3(stof(messageValues.at(3)), stof(messageValues.at(4)), stof(messageValues.at(5))));
+    //player->setLookingDirection(glm::vec3(stof(messageValues.at(3)), stof(messageValues.at(4)), stof(messageValues.at(5))));
     string hasFired;
     for (int i = 0; i < messageValues.at(6).size(); i++) {
         int c = (int)messageValues.at(6).at(i);
@@ -180,23 +180,25 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
             int hasFired = stoi(*(it + 6 + Player::down + 1));
             if (hasFired)
             {
-                player->shootWeapon(game -> allBoundingBoxes);
+                player->shootWeapon(game -> allBoundingBoxes, true);
             }
+            player->setHasFired(hasFired);
+           
             int pickUpAbility = stoi(*(it + 6 + Player::down + 2));
             if (pickUpAbility)
             {
-                cout << "Picking up ability" << endl;
                 player->pickUpAbility();
                 player->setPickUpAbilityKey(false);
             }
             int useAbility = stoi(*(it + 6 + Player::down + 3));
             if (useAbility)
             {
-                cout << "Using ability" << endl;
                 player -> useAbility();
                 player->setUseAbilityKey(false);
             }
-            it = it + 6 + Player::down + 3;
+            float animationRootModelRotation = stof(*(it + 6 + Player::down + 4));
+            player->getPlayerModel()->animationRootModelRotation = animationRootModelRotation;
+            it = it + 6 + Player::down + 4;
         }
         else {
         }
