@@ -1173,9 +1173,6 @@
     <ClCompile Include="..\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Opponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1195,6 +1192,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\parsing\serverParse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Particle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -2093,9 +2093,6 @@
     <ClInclude Include="..\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Opponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -2118,6 +2115,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\parsing\serverParse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
