@@ -305,7 +305,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 	Window::resizeCallback(window, width, height);
 	
 	//disable cursor
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	return window;
 }
@@ -355,7 +355,7 @@ void Window::idleCallback(Game* game)
 	{
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			if (game->allPlayers.at(i)->getId() != -1) {
-				game->allPlayers.at(i)->update(0.01f, game);
+				game->allPlayers.at(i)->update(0.02f, game);
 				game->allPlayers.at(i)->createFootPrint(game->allPlayers.at(i)->getPosition());
 			}
 		}
@@ -375,7 +375,6 @@ void Window::idleCallback(Game* game)
 		p->setId(Window::createOpponent);
 		game->allPlayers.push_back(p);
 		game->allBoundingBoxes.push_back(p->getBoundingBox());
-		cout << "added player successfully" << endl;
 		Window::createOpponent = -1;
 	}
 	//------------------------------------------------------------------------
@@ -819,6 +818,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 			}
 		}
 
+
 		//Camera* playCam = player->getPlayerCamera();
 		//irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
 		//irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
@@ -958,12 +958,9 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	
 			break;
 		case GLFW_KEY_F:
-			//player->pickUpAbility();
 			player->setPickUpAbilityKey(true);
-			player->openChest();
 			break;
 		case GLFW_KEY_E:
-			//player->useAbility();
 			player->setUseAbilityKey(true);
 			break;
 		case GLFW_KEY_W:
@@ -972,7 +969,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_A:
 			player->setMoving(1);
-			player->setInput(player->left, 1);
+			player->setInput(player->left, 1);	
 			break;
 		case GLFW_KEY_S:
 			player->setMoving(-1);
@@ -1051,7 +1048,6 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 	if (LeftDown) {
 		player->setHasFired(true);
 		//player->setIsFiring(true);
-		std::cerr << "Fired" << std::endl;
 		//player->shootWeapon(gm -> allBoundingBoxes);
 	}
 

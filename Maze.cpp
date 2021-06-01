@@ -32,7 +32,6 @@ Maze::Maze(int size, int scale, Game* gm, bool client)
 
 	// Set seed for random creation for testing purposes
 	//srand(0);
-	srand(time(NULL));
 }
 
 
@@ -51,15 +50,9 @@ Maze::~Maze()
 
 Cube * Maze::generateGround()
 {
-	//ground = new Cube(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), Cube::border);
 	ground = new Cube(glm::vec3(0, -1.0f, 0.0f), glm::vec3((mazeSize - 1) * mapScale, 0.0f, (mazeSize - 1) * mapScale), Cube::border, isClient);
 	ground->setColor(glm::vec3(0.1f, 0.1f, 0.1f));
 	glm::mat4 groundModel = ground->getModel();
-	//groundModel = glm::translate(groundModel, glm::vec3(0.0f, -1.0f, 0.0f));
-
-	//groundModel = glm::scale(groundModel, glm::vec3((mazeSize - 1) * mapScale, 1.0f, (mazeSize - 1) * mapScale));
-	//ground->setModel(groundModel);
-
 
 	boundingBoxList.push_back(ground->getBoundingBox());
 	return ground;
@@ -139,10 +132,10 @@ void  Maze::createWalls()
 
 
 	// Add an end
-	mazeArray[mazeSize - 2][mazeSize - 1].right = false;
+	//mazeArray[mazeSize - 2][mazeSize - 1].right = false;
 
 	// Add a beginning
-	mazeArray[0][0].right = false;
+	//mazeArray[0][0].right = false;
 }
 
 
@@ -271,6 +264,7 @@ std::vector<Cube*> Maze::generateWalls()
 // Generate maze structure
 void Maze::createWallsRecursion(int r_begin, int r_end, int c_begin, int c_end, bool direction)
 {
+
 	if (r_begin >= r_end - 1 || c_begin >= c_end - 1)
 	{
 		return;
@@ -351,13 +345,12 @@ void Maze::removeAbility(int r, int c)
 	{
 		string inputMessage = "deleteAbility," + to_string(r) + "," + to_string(c) + ",";
 		game->addServerInputMessage(inputMessage);
-		cout << "deleting" << r << "|" << c << endl;
+		// cout << "deleting:" << r << "|" << c << endl;
 	}
 	if (mazeArray[r][c].abilityChest)
 	{
 		//delete mazeArray[r][c].abilityChest;
-		mazeArray[r][c].abilityChest = NULL;
-		cout << "deleted" << endl;
+		//mazeArray[r][c].abilityChest = NULL;
 	}
 
 }

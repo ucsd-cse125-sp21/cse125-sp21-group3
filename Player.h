@@ -177,6 +177,7 @@ public:
 
 
 
+
 private:
 	float cameraOldYaw;
 	glm::vec3 cameraOffset;
