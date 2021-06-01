@@ -72,7 +72,7 @@ void Camera::Reset() {
     FOV = 45.0f;
     Aspect = 1.33f;
     NearClip = 0.01f;
-    FarClip = 150.0f;
+    FarClip = 200.0f;
 
     yaw = -90.0f;
     pitch = 0.0f;

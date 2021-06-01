@@ -47,3 +47,27 @@ Make sure "Server" is above "Client"
 Set "Server" to "Start"
 Set "Client" to "Start without debugging"
 
+
+
+
+
+
+
+
+KEYS:
+W - Move Forward
+A - Move Left
+S - Move Backward
+D - Move Right
+
+Z - Move Up (only available when dead)
+X - Move Down (only available when dead)
+
+F - Pick Up Ability (Must be looking at ability chest)
+E - Use Ability
+
+Left Mouse Click - Shoot
+
+Left Shift - Sprint (Cannot shoot while sprinting)
+Control - Crouch
+

@@ -10,6 +10,8 @@ Game::Game(bool client)
 	gameTime = 0.0f;
 	lastDeleteWallTime = 0.0f;
 
+
+
 }
 
 Game::~Game()
@@ -20,8 +22,34 @@ Game::~Game()
 void Game::beginGame()
 {
 	maze->createWalls();
-	maze->createAbilityChests(30);
+	maze->createAbilityChests(40);
 	//myPlayer = new Player(glm::vec3(1.0f, 1.0f, 1.0f), maze);
+	srand(time(NULL));
+	for (int i = 0; i < allPlayers.size(); i++)
+	{
+		bool spaceNotUsed = true;
+		while (spaceNotUsed)
+		{
+			int row = rand() % (maze->getMazeSize() - 1);
+			int col = rand() % (maze->getMazeSize() - 1);
+			bool notInUse = true;
+			for (int j = 0; j < i; j++)
+			{
+				int* playerPos = maze->getCoordinates(allPlayers.at(j) -> getPosition());
+
+				if (row == playerPos[0] && col == playerPos[1])
+				{
+					notInUse = false;
+				}
+			}
+			if (notInUse)
+			{
+				spaceNotUsed = false;
+				allPlayers.at(i)->setPosition(glm::vec3((row + 0.5) * maze->getMapScale(), 3.5f, (col + 0.5) * maze->getMapScale()));
+			}
+
+		}
+	}
 }
 
 void Game::initiateGame()
@@ -66,7 +94,7 @@ void Game::update(float deltaTime)
 	if (!isClient)
 	{
 		// Randomly remove a wall every x seconds
-		if (gameTime >= lastDeleteWallTime + 15.0f)
+		if (gameTime >= lastDeleteWallTime + 10.0f)
 		{
 			bool exist = false;
 			wallInfo** mazeArray = maze->getMazeArray();
@@ -136,6 +164,6 @@ string Game::getServerInputMessage()
 
 void Game::addServerInputMessage(string message)
 {
-	cout << "adding message:" << message << endl;
+	//cout << "adding message:" << message << endl;
 	serverMessage += message;
 }
