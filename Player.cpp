@@ -110,12 +110,28 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
 
 
     if (glm::distance(lastFootPrintPos, footprintPos) > 5.0f) {
-
-        irrklang::vec3df position_audio(footprintPos.x, footprintPos.y, footprintPos.z);
-
-        if (!soundEngine)
-            printf("FAIL!");
-        irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position_audio, false, true, true);
+        if (this->getSoundEngine()) {
+            irrklang::vec3df position_audio(footprintPos.x, footprintPos.y, footprintPos.z);
+            irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position_audio, false, true, true);
+            if (snd)
+            {
+                if (state == sprint) {
+                    snd->setMinDistance(35.0f); // a mid sound
+                    snd->setPlaybackSpeed(1.5f);
+                    snd->setVolume(60.0f);
+                }
+                else if (state == crouch) {
+                    snd->setMinDistance(10.0f);
+                    snd->setPlaybackSpeed(0.75f);
+                    snd->setVolume(20.0f);
+                }
+                else {
+                    snd->setMinDistance(20.0f);
+                    snd->setVolume(35.0f);
+                }
+                snd->setIsPaused(false); // unpause the sound
+            }
+        }
         Cube* footprint = new Cube(footprintPos - glm::vec3(0.15f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.15f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
         footprint->setColor(glm::vec3(playerModel->meshes.at(0)->baseColor.x, playerModel->meshes.at(0)->baseColor.y, playerModel->meshes.at(0)->baseColor.z));
         if (this->footprints.size() > 5) {
@@ -124,24 +140,7 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
         this->footprints.push_back(footprint);
         lastFootPrintPos = footprintPos;
         
-        if (snd)
-        {
-            if (state == sprint) {
-                snd->setMinDistance(35.0f); // a mid sound
-                snd->setPlaybackSpeed(1.5f);
-                snd->setVolume(60.0f);
-            }
-            else if (state == crouch) {
-                snd->setMinDistance(10.0f);
-                snd->setPlaybackSpeed(0.75f);
-                snd->setVolume(20.0f);
-            }
-            else {
-                snd->setMinDistance(20.0f);
-                snd->setVolume(35.0f);
-            }
-            snd->setIsPaused(false); // unpause the sound
-        }
+       
         
     }
 }
@@ -456,8 +455,8 @@ void Player::setHasFired(bool val)
             isFiring = true;
             
 
+            if (this->getSoundEngine()) {
 
-            if (isClient) {
                 irrklang::vec3df position_audio(position.x, position.y, position.z);
                 irrklang::ISound* snd = this->getSoundEngine()->play3D("gun.mp3", position_audio, false, true);
                 snd->setVolume(2.0f);
@@ -465,8 +464,9 @@ void Player::setHasFired(bool val)
                     snd->setMinDistance(15.0f);
                     snd->setIsPaused(false); // unpause the sound
                 }
-            
             }
+            
+            
 
 
         }

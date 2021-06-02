@@ -7,7 +7,7 @@
 #include "main.h"
 #include "Game.h"
 
-#define PERIOD 16 //client period in ms
+#define PERIOD 25 //client period in ms
 #define DELAY_PERIOD 500
 
 using namespace boost::asio;
@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
     /*
      * Set Server IP address and port if available.  If not, use default values.
      */
-    std::string ipAddress = "137.110.115.154";
+    std::string ipAddress = "127.0.0.1";
     int portNum = 1234;
     if (argc > 1) {
         ipAddress = argv[1];
@@ -244,7 +244,7 @@ int main(int argc, char* argv[])
     while (!client.game->gameSet)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));
-        cout << "waiting for maze" << endl;
+        cout << "\r" << client.game->allPlayers().size() << " out of 4 players joined." << endl;
     }
     client.game->initiateGame();
 
