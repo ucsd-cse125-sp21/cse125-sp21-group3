@@ -110,28 +110,33 @@ void Player::createFootPrint(glm::vec3 footprintPos) {
 
 
     if (glm::distance(lastFootPrintPos, footprintPos) > 5.0f) {
-        if (this->getSoundEngine()) {
+        
+        if (this->getSoundEngine() && footprints.size() > 2) {
             irrklang::vec3df position_audio(footprintPos.x, footprintPos.y, footprintPos.z);
             irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position_audio, false, true, true);
             if (snd)
             {
                 if (state == sprint) {
+                    snd->setVolume(1.0f);
                     snd->setMinDistance(35.0f); // a mid sound
                     snd->setPlaybackSpeed(1.5f);
-                    snd->setVolume(60.0f);
+                    
                 }
                 else if (state == crouch) {
+                    snd->setVolume(0.25f);
                     snd->setMinDistance(10.0f);
                     snd->setPlaybackSpeed(0.75f);
-                    snd->setVolume(20.0f);
+                    
                 }
                 else {
+                    snd->setVolume(0.7f);
                     snd->setMinDistance(20.0f);
-                    snd->setVolume(35.0f);
+                    
                 }
                 snd->setIsPaused(false); // unpause the sound
             }
         }
+        
         Cube* footprint = new Cube(footprintPos - glm::vec3(0.15f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.15f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
         footprint->setColor(glm::vec3(playerModel->meshes.at(0)->baseColor.x, playerModel->meshes.at(0)->baseColor.y, playerModel->meshes.at(0)->baseColor.z));
         if (this->footprints.size() > 5) {
@@ -454,17 +459,18 @@ void Player::setHasFired(bool val)
             lastFireTime = game->gameTime;
             isFiring = true;
             
-
+            
             if (this->getSoundEngine()) {
 
                 irrklang::vec3df position_audio(position.x, position.y, position.z);
                 irrklang::ISound* snd = this->getSoundEngine()->play3D("gun.mp3", position_audio, false, true);
-                snd->setVolume(2.0f);
+                snd->setVolume(1.0f);
                 if (snd) {
-                    snd->setMinDistance(15.0f);
+                    snd->setMinDistance(25.0f);
                     snd->setIsPaused(false); // unpause the sound
                 }
             }
+            
             
             
 

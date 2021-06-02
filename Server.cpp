@@ -9,7 +9,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #define MAX_CONNECTIONS 4
-#define PERIOD 25 //server period in ms
+#define PERIOD 17 //server period in ms
 #define DELAY_PERIOD 500
 
 using namespace boost::asio;
