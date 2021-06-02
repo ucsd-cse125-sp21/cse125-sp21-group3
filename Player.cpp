@@ -267,17 +267,14 @@ void Player::update(float deltaTime, Game* game)
     }
     else
     {
+
         if (moving == 1) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
         }
         if (moving == -1) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
         }
-
-        if (game->myPlayerId == id) { //only update camera for client
-            //oldPitch = playerCamera->getPitch();
-            playerCamera->setPosition(position + cameraOffset);
-        }
+         
         if (id != game->myPlayerId) {
             playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
         }

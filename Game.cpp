@@ -94,7 +94,7 @@ void Game::update(float deltaTime)
 	if (!isClient)
 	{
 		// Randomly remove a wall every x seconds
-		if (gameTime >= lastDeleteWallTime + 10.0f)
+		if (gameTime >= lastDeleteWallTime + 0.2f)
 		{
 			bool exist = false;
 			wallInfo** mazeArray = maze->getMazeArray();
