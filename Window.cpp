@@ -359,7 +359,7 @@ void Window::idleCallback(Game* game)
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			if (game->allPlayers.at(i)->getId() != -1) {
 				game->allPlayers.at(i)->update(0.02f, game);
-				if (game->allPlayers.at(i)->getState() != player->dead) {
+				if (game->allPlayers.at(i)->getState() != Player::dead) {
 					game->allPlayers.at(i)->createFootPrint(game->allPlayers.at(i)->getPosition());
 				}
 			}
@@ -802,6 +802,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		//}
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			if (game->allPlayers.at(i)->getState() != Player::dead) {
+				printf("IS DEAD!");
 				game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 			}
 			//game->allPlayers.at(i)->createFootPrint(glm::vec3(0.0f, 0.0f, 0.0f));
