@@ -359,7 +359,9 @@ void Window::idleCallback(Game* game)
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			if (game->allPlayers.at(i)->getId() != -1) {
 				game->allPlayers.at(i)->update(0.02f, game);
-				game->allPlayers.at(i)->createFootPrint(game->allPlayers.at(i)->getPosition());
+				if (game->allPlayers.at(i)->getState() != player->dead) {
+					game->allPlayers.at(i)->createFootPrint(game->allPlayers.at(i)->getPosition());
+				}
 			}
 		}
 	}
