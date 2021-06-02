@@ -154,7 +154,8 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             float currentDamageBoost = stof(*(it + 12));
             int currentAbility = stoi(*(it + 13));
             bool hasFired = stoi(*(it + 14));
-            float modelRotation = stof(*(it + 15));
+            int state = stoi(*(it + 15));
+            float modelRotation = stof(*(it + 16));
 
             if (player != NULL)
             {
@@ -164,6 +165,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                 player->setArmor(currentArmor);
                 player->setDamageBoost(currentDamageBoost);
                 player->setAbility(currentAbility);
+                player->setState(state);
                 if (player != game->myPlayer) {
                     player->setMoving(isMoving);
                     player->setHasFired(hasFired);
