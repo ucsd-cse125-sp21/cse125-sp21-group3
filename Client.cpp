@@ -241,11 +241,14 @@ int main(int argc, char* argv[])
 
     //run timer in its own thread
     std::thread timer_thread = std::thread([&]() {client.client_handle_timeout(); });
+    
     while (!client.game->gameSet)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));
-        cout << "\r" << client.game->allPlayers().size() << " out of 4 players joined." << endl;
+       
+        cout << "\r" << client.game->allPlayers.size() << " out of 4 players joined." << endl;
     }
+
     client.game->initiateGame();
 
     
