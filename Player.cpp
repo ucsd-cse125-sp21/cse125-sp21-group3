@@ -791,7 +791,7 @@ string Player::getPlayerInfoString() {
     playerInfoString += to_string(velocity.x) + "," + to_string(velocity.y) + "," + to_string(velocity.z) + ",";
 
     playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," +
-        to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired) + ",";
+        to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired) + "," + to_string(state) + ",";
     //if (playerModel) {
         playerInfoString += to_string(playerModel->animationRootModelRotation);
     //}
