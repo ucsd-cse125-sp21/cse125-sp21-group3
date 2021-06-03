@@ -65,6 +65,8 @@ int Window::createOpponent;
 vector<string> Window::messagesToServer;
 
 int loadedAbility;
+bool deathIconLoaded = false;
+bool winnerIconLoaded = false;
 
 //rendering icons
 unsigned int abilityQuadVAO, abilityQuadVBO;
@@ -353,6 +355,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
  */
 void Window::idleCallback(Game* game)
 {
+
 	//update all players in the game	
 	if (game->gameBegun)
 	{
@@ -420,6 +423,7 @@ void Window::idleCallback(Game* game)
 		generateBloodsplatter(position, color);
 		Window::createBloodsplatter = -1;
 	}
+
 }
 
 /*
@@ -771,6 +775,37 @@ void Window::drawIcon() {
 	glBindVertexArray(0);
 }
 
+void loadDeathIcon() {
+	int width, height, nrChannels;
+	unsigned char* data;
+	data = stbi_load("Assets/icons/dead.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+}
+
+void loadWinnerIcon() {
+	int width, height, nrChannels;
+	unsigned char* data;
+	data = stbi_load("Assets/icons/winner.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+}
 /*
  * This method is called every frame and renders all objects based on their current
  * game state.
@@ -808,20 +843,23 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 			//game->allPlayers.at(i)->getFootprints().at(0)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
 
+
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			for (int j = 0; j < game->allPlayers.at(i)->getFootprints().size(); j++) {
 
 				if (game->allPlayers.at(i)->getState() != Player::dead) {
 					game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 				}
-				else {
+				/*else {
 					while (game->allPlayers.at(i)->getFootprints().size() > 0) {
 						game->allPlayers.at(i)->getFootprints().pop_front();
 					}
-				}
+				}*/
 				
 			}
 		}
+
+
 
 
 		Camera* playCam = player->getPlayerCamera();
@@ -858,6 +896,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 
 
 		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
+
 		for (int i = 0; i < bloodsplatterList.size(); i++) {
 			//cout << "bloodsplatter: " << i << endl;
 			vector<Particle*> bloodsplatter = bloodsplatterList.at(i);
@@ -865,25 +904,57 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 				p->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
 			}
 		}
+
 		drawCrosshair();
 		drawHealth();
 		drawArmor();
 
-		if (player->getAbility() != Player::none)
-		{
-			if (loadedAbility != player->getAbility())
-			{
-				loadAbilityIcon();
+
+		if (player->getState() == Player::dead) {
+
+			if (!deathIconLoaded) {
+				loadDeathIcon();
+				deathIconLoaded = true;
 			}
+			
 			drawIcon();
 		}
+		else {
+			bool cond = true;
+			for (int i = 0; i < gm->allPlayers.size(); i++) {
+				if (game->allPlayers.at(i)->getState() != Player::dead && game->allPlayers.at(i) != player) {
+					cond = false;
+					break;
+				}
+			}
+
+			if (cond) {
+				if (!winnerIconLoaded) {
+					loadWinnerIcon();
+					winnerIconLoaded = true;
+				}
+
+				drawIcon();
+			}
+			else if (player->getAbility() != Player::none)
+			{
+				if (loadedAbility != player->getAbility())
+				{
+					loadAbilityIcon();
+				}
+				drawIcon();
+			}
+		}
 		
+
 		// Gets events, including input such as keyboard and mouse or window resizing.
 		glfwPollEvents();
 
 		// Swap buffers.
 		glfwSwapBuffers(window);
 	}
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
