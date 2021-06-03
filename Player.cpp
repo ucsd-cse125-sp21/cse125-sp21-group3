@@ -215,6 +215,7 @@ void Player::update(float deltaTime, Game* game)
             break;
         case sprint:
             velocity *= 1.4f;
+            
             velocity.y = 0.0f;
             break;
         case dead:
@@ -787,8 +788,10 @@ string Player::getPlayerInfoString() {
     playerInfoString += to_string(position.x) + "," + to_string(position.y) + "," + to_string(position.z) + ",";
     playerInfoString += to_string(velocity.x) + "," + to_string(velocity.y) + "," + to_string(velocity.z) + ",";
 
+    
     playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," +
         to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired) + "," + to_string(state) + ",";
+    
     //if (playerModel) {
         playerInfoString += to_string(playerModel->animationRootModelRotation);
     //}
