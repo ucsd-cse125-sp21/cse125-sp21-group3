@@ -383,7 +383,7 @@ void Player::moveDirection(int dir) {
         velocity += v;
     }
     // DEBUG: take out true if not testing
-    if (state == dead || true)
+    if (state == dead)
     {
         if (dir == up) {
             glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed;

@@ -194,6 +194,7 @@ int main(int argc, char* argv[])
      * Set Server IP address and port if available.  If not, use default values.
      */
     std::string ipAddress = "137.110.115.157";
+    //std::string ipAddress = "127.0.0.1";
     int portNum = 1234;
     if (argc > 1) {
         ipAddress = argv[1];

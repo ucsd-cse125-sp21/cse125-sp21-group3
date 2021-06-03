@@ -46,6 +46,8 @@ public:
 
 	float lastDeleteWallTime;
 
+	bool wallsLeft;
+
 };
 
 #endif
