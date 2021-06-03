@@ -97,7 +97,9 @@ public:
 		left,
 		right,
 		up,
-		down
+		down, 
+		crouchKey,
+		sprintKey
 	};
 
 	enum playerPositions {

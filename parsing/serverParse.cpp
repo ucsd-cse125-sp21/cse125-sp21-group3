@@ -166,7 +166,7 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
             cam->setPitch(pitch);
             cam->Update();
             player->setVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
-            player->setState(state);
+            //player->setState(state);
             player->setMoving(isMoving);
 
             for (int i = Player::forward; i <= Player::down; i++)
@@ -178,20 +178,34 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
                     player->moveDirection(i);
                 }
             }
-            int hasFired = stoi(*(it + 6 + Player::down + 1));
+            int crouch = stoi(*(it + 6 + Player::crouchKey));
+            int sprint = stoi(*(it + 6 + Player::sprintKey));
+            if (crouch)
+            {
+                player->setState(Player::crouch);
+            }
+            else if (sprint)
+            {
+                player->setState(Player::sprint);
+            }
+            else
+            {
+                player->setState(Player::stand);
+            }
+            int hasFired = stoi(*(it + 6 + Player::sprintKey + 1));
             if (hasFired)
             {
                 player->shootWeapon(game -> allBoundingBoxes, true);
             }
             player->setHasFired(hasFired);
            
-            int pickUpAbility = stoi(*(it + 6 + Player::down + 2));
+            int pickUpAbility = stoi(*(it + 6 + Player::sprintKey + 2));
             if (pickUpAbility)
             {
                 player->pickUpAbility();
                 player->setPickUpAbilityKey(false);
             }
-            int useAbility = stoi(*(it + 6 + Player::down + 3));
+            int useAbility = stoi(*(it + 6 + Player::sprintKey + 3));
             if (useAbility)
             {
                 player -> useAbility();
@@ -199,7 +213,7 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
             }
             float animationRootModelRotation = stof(*(it + 6 + Player::down + 4));
             player->getPlayerModel()->animationRootModelRotation = animationRootModelRotation;
-            it = it + 6 + Player::down + 4;
+            it = it + 6 + Player::sprintKey + 4;
         }
         else {
         }

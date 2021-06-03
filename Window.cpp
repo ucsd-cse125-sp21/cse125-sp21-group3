@@ -955,12 +955,13 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			//glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 		case GLFW_KEY_LEFT_CONTROL:
-			player->setState(player->crouch);
+			//player->setState(player->crouch);
+			player->setInput(player->crouchKey, 1);
 
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
-			player->setState(player->sprint);
-	
+			//player->setState(player->sprint);
+			player->setInput(player->sprintKey, 1);
 			break;
 		case GLFW_KEY_F:
 			player->setPickUpAbilityKey(true);
@@ -999,10 +1000,12 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		switch (key)
 		{
 		case GLFW_KEY_LEFT_CONTROL:
-			player->setState(player->stand);
+			//player->setState(player->stand);
+			player->setInput(player->crouchKey, 0);
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
-			player->setState(player->stand);
+			//player->setState(player->stand);
+			player->setInput(player->sprintKey, 0);
 			break;
 		case GLFW_KEY_W:
 			player->setMoving(0);
