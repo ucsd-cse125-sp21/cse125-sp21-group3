@@ -11,7 +11,7 @@
 #define MAX_CONNECTIONS 4
 
 
-#define PERIOD 34 //server period in ms
+#define PERIOD 17 //server period in ms
 
 #define DELAY_PERIOD 500
 
@@ -243,7 +243,7 @@ public:
         game->allPlayers.push_back(player);
         game->allBoundingBoxes.push_back(player->getBoundingBox());
         player->setId(serverParse::userIdCount - 1);
-        if (serverParse::userIdCount == 2)
+        if (serverParse::userIdCount == 4)
         {
             begin_game();
         }
