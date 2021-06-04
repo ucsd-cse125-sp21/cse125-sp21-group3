@@ -1,5 +1,5 @@
 #include "Maze.h"
-
+#include <time.h> 
 // Iniitalize maze
 Maze::Maze(int size, int scale, Game* gm, bool client)
 {
@@ -32,6 +32,8 @@ Maze::Maze(int size, int scale, Game* gm, bool client)
 
 	// Set seed for random creation for testing purposes
 	//srand(0);
+	srand(time(NULL));
+
 }
 
 
@@ -67,7 +69,7 @@ void Maze::createAbilityChests(int numChests)
 	for (int i = 0; i < numAbilities; i++)
 	{
 		int abilityType = rand() % 8;
-		while (abilityType == Player::none || abilityType == Player::trackPlayer || abilityType == Player::opened)
+		while (abilityType == Player::none || abilityType == Player::trackPlayer || abilityType == Player::opened || abilityType == Player::seeMap )
 		{
 			abilityType = rand() % 8;
 		}

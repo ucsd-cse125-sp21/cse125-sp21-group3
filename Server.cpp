@@ -9,8 +9,11 @@
 #include <glm/gtx/string_cast.hpp>
 
 #define MAX_CONNECTIONS 4
-#define PERIOD 20 //server period in ms
-#define DELAY_PERIOD 1000
+
+
+#define PERIOD 17 //server period in ms
+
+#define DELAY_PERIOD 500
 
 using namespace boost::asio;
 using ip::tcp;
@@ -91,7 +94,7 @@ public:
 
         }
         else {
-            std::cerr << "error: " << err.message() << std::endl;
+            //std::cerr << "error: " << err.message() << std::endl;
             sock.close();
         }
     }
@@ -102,7 +105,7 @@ public:
     void handle_send_state(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (err) {
-           std::cerr << "error: " << err.message() << endl;
+           //std::cerr << "error: " << err.message() << endl;
             sock.close();
         }
     }
@@ -118,7 +121,7 @@ public:
            serverParse::joinMessageHandler();
            start();
         } else {
-            std::cerr << "error: " << err.message() << endl;
+            //std::cerr << "error: " << err.message() << endl;
             sock.close();
         }
 
@@ -240,11 +243,10 @@ public:
         game->allPlayers.push_back(player);
         game->allBoundingBoxes.push_back(player->getBoundingBox());
         player->setId(serverParse::userIdCount - 1);
-        if (serverParse::userIdCount == 1)
+        if (serverParse::userIdCount == 4)
         {
             begin_game();
         }
-
     }
 
     /*
@@ -282,6 +284,7 @@ public:
                     {
                         //cout << "Receiving message for player:" << bufIndex << ":" << nextMessage << endl;
                         serverParse::sortClientMessage(game, nextMessage);
+
                     }
                 }
                 string inputMessage = "";
@@ -292,11 +295,8 @@ public:
                 }
                 broadcast(inputMessage);
             }
-
         }
     }
-
-    
 };
 
 

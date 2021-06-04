@@ -134,7 +134,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                 Window::createOpponent = playerID; //set flag to create new player (opponent)
 
             }
-
             
             Player* player = game->getPlayer(playerID);
 
@@ -154,8 +153,9 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             float currentDamageBoost = stof(*(it + 12));
             int currentAbility = stoi(*(it + 13));
             bool hasFired = stoi(*(it + 14));
-            float modelRotation = stof(*(it + 15));
-
+            int state = stoi(*(it + 15));
+            float modelRotation = stof(*(it + 16));
+            //cout << "modelRotation: " << modelRotation << endl;
             if (player != NULL)
             {
                 player->setPosition(glm::vec3(position_x, position_y, position_z));
@@ -164,6 +164,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                 player->setArmor(currentArmor);
                 player->setDamageBoost(currentDamageBoost);
                 player->setAbility(currentAbility);
+                player->setState(state);
                 if (player != game->myPlayer) {
                     player->setMoving(isMoving);
                     player->setHasFired(hasFired);
@@ -182,7 +183,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
 
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
 
-            it = it + 15;
+            it = it + 16;
 
         }
         else if (*it == "mazeInitial")

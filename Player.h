@@ -47,7 +47,7 @@ public:
 	void setForceNet(glm::vec3 f) { forceNet = f; }
 	void setPlayerCamera(Camera* c) { playerCamera = c; }
 	void setSoundEngine(irrklang::ISoundEngine* i) { soundEngine = i;  }
-
+	irrklang::ISoundEngine* getSoundEngine() { return this->soundEngine; }
 
 	BoundingBox* shootWeapon(std::vector<BoundingBox*>, bool playerShot);
 
@@ -97,7 +97,9 @@ public:
 		left,
 		right,
 		up,
-		down
+		down, 
+		crouchKey,
+		sprintKey
 	};
 
 	enum playerPositions {
@@ -121,7 +123,29 @@ public:
 	};
 
 	//networking stuff
-	void setId(int i) { id = i; }
+	void setId(int i) { 
+		id = i; 
+		if (id == 0) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			}
+		}
+		if (id == 1) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			}
+		}
+		if (id == 2) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+			}
+		}
+		if (id == 3) {
+			for (Mesh* m : playerModel->meshes) {
+				m->baseColor = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+			}
+		}
+	}
 	int getId() { return id; }
 	string getPlayerInputString();
 	string getPlayerInfoString();
@@ -131,6 +155,8 @@ public:
 	void setHasFired(bool val);
 	void setIsFiring(bool val) { isFiring = val; }
 	bool getHasFired() { return hasFired; }
+	void setIsHurt(bool val) { isHurt = val; }
+	bool getIsHurt() { return isHurt; }
 
 	void setAbility(int ab) { currentAbility = ab; }
 	int getAbility() { return currentAbility; }
@@ -150,12 +176,13 @@ public:
 
 	void setOldPitch(float p) { oldPitch = p; }
 	void setOldYaw(float y) { oldYaw = y; }
-
+	bool getUsingMapAbility() { return usingMapAbility; }
 
 
 
 private:
-
+	float cameraOldYaw;
+	glm::vec3 cameraOffset;
 	Model* playerModel;
 	Model* playerGunModel;
 	glm::vec3 playerModelCenter;
@@ -164,6 +191,8 @@ private:
 	float playerGunModelScale = 0.4f;
 	float playerWalkingSpeed = 0.3f;
 	glm::vec3 playerToModelDiff;
+	bool isHurt = false;
+	glm::vec3 playerColor;
 	BoundingBox* boundingBox; // used to check collisions
 	
 	float mass;

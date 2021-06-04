@@ -36,8 +36,8 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
     //std::cout << "position.y: " << position.y << std::endl;
     //std::cout << "player min at start: " << (position.y - height * 0.75f) << std::endl;
  
-    boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.5f, position.y - height * 0.875f, position.z - width * 0.5f),
-        glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f), this, isClient);
+    boundingBox = new BoundingBox(glm::vec3(position.x - width * 0.75f, position.y - height * 0.875f, position.z - width * 0.75f),
+        glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f), this, isClient);
     
     velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     speed = 10.0f;
@@ -56,7 +56,7 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
     maze = gm -> maze;
     game = gm;
     
-
+    cameraOffset = glm::vec3(-0.3, 0.45f, -0.3f);
     playerCamera = new Camera(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
     
     //if (client) {
@@ -90,16 +90,13 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
     moving = 0;
     hasFired = false;
     isFiring = false;
-    inputDirections = new bool[6];
+    inputDirections = new bool[8];
     pickUpAbilityKey = false;
     useAbilityKey = false;
     usingMapAbility = false;
     oldPitch = 0.0f;
     oldYaw = 0.0f;
-    for (int i = forward; i <= down; i++)
-    {
-        inputDirections[i] = false;
-    }
+    resetInputDirections();
     lastFireTime = -1.0f;
 
     float mapScale = maze->getMapScale();
@@ -107,35 +104,46 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
 }
 
 void Player::createFootPrint(glm::vec3 footprintPos) {
+
+
     if (glm::distance(lastFootPrintPos, footprintPos) > 5.0f) {
-        irrklang::vec3df position(footprintPos.x, footprintPos.y, footprintPos.z);
-        irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position, false, true);
-        Cube* footprint = new Cube(footprintPos - glm::vec3(1.0f, footprintPos.y, 0.5f), footprintPos - glm::vec3(0.0f, footprintPos.y - 0.01f, 0.0f), Cube::border, isClient);
-        footprint->setColor(glm::vec3(0.0f, 0.0f, 0.0f));
-        if (this->footprints.size() > 10) {
+        
+        if (this->getSoundEngine() && footprints.size() > 2) {
+            irrklang::vec3df position_audio(footprintPos.x, footprintPos.y, footprintPos.z);
+            irrklang::ISound* snd = soundEngine->play3D("footstep.mp3", position_audio, false, true, true);
+            if (snd)
+            {
+                if (state == sprint) {
+                    snd->setVolume(1.0f);
+                    snd->setMinDistance(35.0f); // a mid sound
+                    snd->setPlaybackSpeed(1.5f);
+                    
+                }
+                else if (state == crouch) {
+                    snd->setVolume(0.25f);
+                    snd->setMinDistance(10.0f);
+                    snd->setPlaybackSpeed(0.75f);
+                    
+                }
+                else {
+                    snd->setVolume(0.7f);
+                    snd->setMinDistance(20.0f);
+                    
+                }
+                snd->setIsPaused(false); // unpause the sound
+            }
+        }
+        
+        Cube* footprint = new Cube(footprintPos - glm::vec3(0.15f, footprintPos.y, 0.5f), footprintPos - glm::vec3(-0.15f, footprintPos.y - 0.1f, -0.5f), Cube::border, isClient);
+        footprint->setColor(glm::vec3(playerModel->meshes.at(0)->baseColor.x, playerModel->meshes.at(0)->baseColor.y, playerModel->meshes.at(0)->baseColor.z));
+        if (this->footprints.size() > 5) {
             this->footprints.pop_front();
         }
         this->footprints.push_back(footprint);
         lastFootPrintPos = footprintPos;
         
-        if (snd)
-        {
-            if (state == sprint) {
-                snd->setMinDistance(10.0f); // a mid sound
-                snd->setPlaybackSpeed(2.0f);
-                snd->setVolume(1.0f);
-            }
-            else if (state == crouch) {
-                snd->setMinDistance(2.0f);
-                snd->setPlaybackSpeed(0.75f);
-                snd->setVolume(0.25f);
-            }
-            else {
-                snd->setMinDistance(5.0f);
-                snd->setVolume(0.75f);
-            }
-            snd->setIsPaused(false); // unpause the sound
-        }
+       
+        
     }
 }
 
@@ -157,11 +165,11 @@ void Player::applyConstraints(std::vector<BoundingBox*> boundingBoxList) {
 
                 
                 BoundingBox* prevBoundingBox = new BoundingBox(
-                    glm::vec3(prevPosition.x - width * 0.5f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.5f),
-                    glm::vec3(prevPosition.x + width * 0.5f, prevPosition.y + 0.25f, prevPosition.z + width * 0.5f), this, isClient);
+                    glm::vec3(prevPosition.x - width * 0.75f, prevPosition.y - height * 0.75f, prevPosition.z - width * 0.75f),
+                    glm::vec3(prevPosition.x + width * 0.75f, prevPosition.y + 0.25f, prevPosition.z + width * 0.75f), this, isClient);
                 handleCollision(prevBoundingBox, b);
-                boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-                    glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f));
+                boundingBox->update(glm::vec3(position.x - width * 0.75f, position.y - height * 0.75f, position.z - width * 0.75f),
+                    glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f));
                 delete prevBoundingBox;
                 //std::cout << "min point collision" << std::endl;
             }
@@ -232,17 +240,22 @@ void Player::update(float deltaTime, Game* game)
             position = position + velocity * deltaTime;
 
             //update player bounding box
-            boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-                glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f));
+            boundingBox->update(glm::vec3(position.x - width * 0.75f, position.y - height * 0.75f, position.z - width * 0.75f),
+                glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f));
         }
 
         if (boundingBox->getActive()) {
             applyConstraints(game -> allBoundingBoxes);
         }
-        //if (state != dead && state != still)
-        //{
-        //    createFootPrint(position);
-        //}
+        // Both client and server should update
+        if (!usingMapAbility)
+        {
+            //playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
+            float new_offset_x = -0.42426406871 * glm::cos(glm::radians(playerCamera->getPitch() + 90));
+            float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
+            cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
+            playerCamera->setPosition(position + cameraOffset);
+        }
 
         if (usingMapAbility)
         {
@@ -256,25 +269,36 @@ void Player::update(float deltaTime, Game* game)
     }
     else
     {
-        //if (moving == 1) {
-        //    playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
-        //}
-        //if (moving == -1) {
-        //    playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
-        //}
+        if (state != dead)
+        {
+            if (moving == 1) {
+                playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
+            }
+            if (moving == -1) {
+                playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
+            }
 
-        //if (id != game->myPlayerId) {
-        //    playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
-        //}
+            if (id != game->myPlayerId) {
+                playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
+            }
+        }
+        // Both client and server should update
+        if (!usingMapAbility)
+        {
+            //playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
+            float new_offset_x = -0.42426406871 * glm::cos(glm::radians(playerCamera->getPitch() + 90));
+            float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
+            cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
+            playerCamera->setPosition(position + cameraOffset);
+            playerModel->update();
+            playerGunModel->update();
+        }
 
+       
 
+        if (isFiring && state != dead) {
+            
 
-
-
-        playerModel->update();
-        playerGunModel->update();
-
-        if (isFiring) {
             if (playerGunModel->animationClipList.at(0)->prevTime + 0.2f > playerGunModel->animationClipList.at(0)->duration) {
                 isFiring = false;
             }
@@ -282,12 +306,8 @@ void Player::update(float deltaTime, Game* game)
         }
     }
 
+    
     // Both client and server should update
-    if (!usingMapAbility)
-    {
-        playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
-    }
-
 
     //update player camera
     playerCamera->Update();
@@ -304,13 +324,18 @@ void Player::update(float deltaTime, Game* game)
 void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
 
     if (Window::debugMode) {
-        boundingBox->update(glm::vec3(position.x - width * 0.5f, position.y - height * 0.75f, position.z - width * 0.5f),
-            glm::vec3(position.x + width * 0.5f, position.y + 0.25f, position.z + width * 0.5f));
+        boundingBox->update(glm::vec3(position.x - width * 0.75f, position.y - height * 0.75f, position.z - width * 0.75f),
+            glm::vec3(position.x + width * 0.75f, position.y + 0.25f, position.z + width * 0.75f));
         boundingBox->draw(viewProjMtx, shader);
     }
 
-    playerModel->draw(viewProjMtx, shader);
-    playerGunModel->draw(viewProjMtx, shader);
+    if (game->myPlayer != this) {
+        playerModel->draw(viewProjMtx, shader);
+    }
+    if (state != dead)
+    {
+        playerGunModel->draw(viewProjMtx, shader);
+    }
 }
 
 void Player::setInput(int dir, bool on)
@@ -320,7 +345,7 @@ void Player::setInput(int dir, bool on)
 
 void Player::resetInputDirections()
 {
-    for (int i = forward; i <= down; i++)
+    for (int i = 0; i < sizeof(inputDirections) / sizeof(inputDirections[0]); i++)
     {
         inputDirections[i] = false;
     }
@@ -356,7 +381,7 @@ void Player::moveDirection(int dir) {
         velocity += v;
     }
     // DEBUG: take out true if not testing
-    if (state == dead || true)
+    if (state == dead)
     {
         if (dir == up) {
             glm::vec3 v = glm::vec3(0.0f, 1.0f, 0.0f) * speed;
@@ -424,11 +449,24 @@ void Player::setHasFired(bool val)
 {
     if (val)
     {
+        //cout << "firing shot:" << game->gameTime << "|" << (lastFireTime + playerWeapon->getDelayTime()) << endl;
         if (game -> gameTime >= lastFireTime + playerWeapon->getDelayTime())
         {
+            //cout << "setting true" << endl;
             hasFired = val;
             lastFireTime = game->gameTime;
             isFiring = true;
+               
+            if (this->getSoundEngine()) {
+
+                irrklang::vec3df position_audio(position.x, position.y, position.z);
+                irrklang::ISound* snd = this->getSoundEngine()->play3D("gun.mp3", position_audio, false, true);
+                snd->setVolume(1.0f);
+                if (snd) {
+                    snd->setMinDistance(25.0f);
+                    snd->setIsPaused(false); // unpause the sound
+                }
+            }
         }
         else
         {
@@ -446,6 +484,12 @@ void Player::setHasFired(bool val)
 
 void Player::setHealth(float health)
 {
+    if (health < currentHealth) {
+        isHurt = true;
+        if (isClient) {
+            Window::createBloodsplatter = id; 
+        }
+    }
     if (maxHealth <= health)
     {
         health = maxHealth;
@@ -478,6 +522,10 @@ void Player::setState(int st)
     {
         return;
     }
+    if (usingMapAbility)
+    {
+        return;
+    }
     state = st;
 }
 
@@ -490,6 +538,7 @@ void Player::pickUpAbility()
     BoundingBox* shotObject = shootWeapon(game -> maze -> getChestBoundingBox(), false);
     if (shotObject == NULL)
     {
+        //cout << "could not find chest" << endl;
         return;
     }
     Model* chest = shotObject -> getParentModel();
@@ -504,8 +553,8 @@ void Player::pickUpAbility()
         currentAbility = maze->getAbility(chestPos[0], chestPos[1]);
         maze->removeAbility(chestPos[0], chestPos[1]);
         chest->opening = true;
-        //string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
-        //Window::messagesToServer.push_back(chestOpenMessage);
+        string chestOpenMessage = "chestOpen," + to_string(chestPos[0]) + "," + to_string(chestPos[1]) + "\r\n";
+        Window::messagesToServer.push_back(chestOpenMessage);
         //std::cout << "Picked up ability: " << currentAbility << "|" << Player::getAbilityName(currentAbility) << std::endl;
 
         //delete parentCube;
@@ -520,22 +569,15 @@ void Player::pickUpAbility()
  */
 void Player::openChest() {
     //cout << "enter open chest" << endl;
-    //BoundingBox* shotObject = shootWeapon(maze->getChestBoundingBox(), false);
-    //if (shotObject == NULL)
-    //{
-    //    cout << "chest found" << endl;
-    //    return;
-    //}
-    //Model* chest = shotObject->getParentModel();
-    ////std::cout << "LMAO" << parentCube->getType() << std::endl;
-    ////if (parentCube->getType() == Cube::abilityChest || true)
-    ////{
-    //int* playerPos = maze->getCoordinates(getPosition());
-    //glm::vec3 chestLocation(chest->rootModel[3][0], chest->rootModel[3][1], chest->rootModel[3][2]);
-    //int* chestPos = maze->getCoordinates(chestLocation);
-    //if ((playerPos[0] == chestPos[0] && playerPos[1] == chestPos[1]) ||
-    //    (playerPos[0] == (chestPos[0] - 1) && playerPos[1] == chestPos[1]) ||
-    //    (playerPos[0] == chestPos[0] && (playerPos[1] == chestPos[1] - 1)))
+    BoundingBox* shotObject = shootWeapon(maze->getChestBoundingBox(), false);
+    if (shotObject == NULL)
+    {
+        //cout << "chest found" << endl;
+        return;
+    }
+    Model* chest = shotObject->getParentModel();
+    //std::cout << "LMAO" << parentCube->getType() << std::endl;
+    //if (parentCube->getType() == Cube::abilityChest || true)
     //{
     //    chest->opening = true;
     //    delete playerPos;
@@ -578,7 +620,7 @@ void Player::useAbility()
         used = true;
         break;
     case damageBoost:
-        setDamageBoost(getDamageBoost() + 50.0f);
+        setDamageBoost(getDamageBoost() + 1.0f);
         used = true;
         break;
     default:
@@ -635,8 +677,10 @@ BoundingBox* Player::shootWeapon(std::vector<BoundingBox *> objects, bool player
         BoundingBox* shotObject = playerWeapon->Shoot(objects, playerCamera->getPosition(), playerCamera->getDirection());
         if (shotObject && playerShot && !usingMapAbility)
         {
+            //cout << "shotObject" << endl;
             if (shotObject->getParentPlayer())
             {
+                //cout << "shot Player" << endl;
                 Player* shotPlayer = shotObject->getParentPlayer();
                 float damage = playerWeapon -> getDamage();
                 damage *= (1.0f + currentDamageBoost/100.0f);
@@ -700,12 +744,15 @@ bool Player::endMapAbility()
     usingMapAbility = false;
     if (isClient)
     {
+ 
         playerCamera->setPitch(oldPitch);
-        playerCamera->setYaw(oldYaw);
+        //playerCamera->setYaw(oldYaw);
         playerCamera->setFarClip(200.0f);
         setState(stand);
         usingMapAbility = false;
-        playerCamera->Update();
+        //playerCamera->Update();
+        
+   
     }
 
     return true;
@@ -722,12 +769,13 @@ string Player::getPlayerInputString() {
         to_string(yaw) + "," + to_string(pitch) + ",";
     playerInputString += to_string(state) + ",";
 
-    for (int i = forward; i <= down; i++)
+    for (int i = 0; i < sizeof(inputDirections)/sizeof(inputDirections[0]); i++)
     {
         playerInputString += to_string(inputDirections[i]) + ",";
     }
     playerInputString += to_string(hasFired) + "," + to_string(pickUpAbilityKey) + "," + to_string(useAbilityKey) + ",";
     playerInputString += to_string(playerModel->animationRootModelRotation);
+    //cout << "animationRootModelRotation: " << playerModel->animationRootModelRotation << endl;
     hasFired = false;
     pickUpAbilityKey = false;
     useAbilityKey = false;
@@ -742,8 +790,10 @@ string Player::getPlayerInfoString() {
     playerInfoString += to_string(position.x) + "," + to_string(position.y) + "," + to_string(position.z) + ",";
     playerInfoString += to_string(velocity.x) + "," + to_string(velocity.y) + "," + to_string(velocity.z) + ",";
 
+    
     playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," +
-        to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired) + ",";
+        to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired) + "," + to_string(state) + ",";
+    
     //if (playerModel) {
         playerInfoString += to_string(playerModel->animationRootModelRotation);
     //}

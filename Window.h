@@ -6,6 +6,7 @@
 #include "shader.h"
 #include "Camera.h"
 #include "Game.h"
+#include "Particle.h"
 
 class Game;
 
@@ -34,6 +35,7 @@ public:
 	// Shader Program 
 	static GLuint shaderProgram;
 	static GLuint shaderTextureQuadProgram;
+	static GLuint shaderRedTintProgram;
 
 	// Act as Constructors and desctructors 
 	static bool initializeProgram();
@@ -64,6 +66,10 @@ public:
 	static void drawIcon();
 	static void loadAbilityIcon();
 	static bool debugMode;
+	static vector<vector<Particle*>> bloodsplatterList;
+	static void generateBloodsplatter(glm::vec3 position, glm::vec3 color);
+	static int createBloodsplatter;
+	static bool mouseLock;
 
 	//Networking Stuff
 	static int createOpponent;

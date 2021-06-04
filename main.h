@@ -25,9 +25,9 @@
 #pragma once
 
 #include "Window.h"
-//#include <irrKlang.h>
+#include <irrKlang.h>
 //
-//#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
+#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
 #endif
 
 /*

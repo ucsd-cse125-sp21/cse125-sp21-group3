@@ -7,8 +7,10 @@
 #include "main.h"
 #include "Game.h"
 
-#define PERIOD 20 //client period in ms
-#define DELAY_PERIOD 1000
+
+#define PERIOD 17 //client period in ms
+
+#define DELAY_PERIOD 500
 
 using namespace boost::asio;
 using ip::tcp;
@@ -193,7 +195,8 @@ int main(int argc, char* argv[])
     /*
      * Set Server IP address and port if available.  If not, use default values.
      */
-    std::string ipAddress = "127.0.0.1";
+    std::string ipAddress = "137.110.115.157";
+    //std::string ipAddress = "127.0.0.1";
     int portNum = 1234;
     if (argc > 1) {
         ipAddress = argv[1];
@@ -230,7 +233,8 @@ int main(int argc, char* argv[])
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
 
 
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     client.gameInitialized = true;
     client.start();
@@ -241,11 +245,14 @@ int main(int argc, char* argv[])
 
     //run timer in its own thread
     std::thread timer_thread = std::thread([&]() {client.client_handle_timeout(); });
+    
     while (!client.game->gameSet)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(DELAY_PERIOD));
-        cout << "waiting for maze" << endl;
+       
+        cout << "\r" << "Waiting for players...";
     }
+
     client.game->initiateGame();
 
     
@@ -253,11 +260,15 @@ int main(int argc, char* argv[])
     while (!glfwWindowShouldClose(window))
     {
         // Main render display callback. Rendering of objects is done here.
+        //cerr << "before display callback" << endl;
         Window::displayCallback(client.game, window);
-
+        //cerr << "after display callback" << endl;
 
         // Idle callback. Updating objects, etc. can be done here.
+       // cerr << "before idle callback" << endl;
         Window::idleCallback(client.game);
+        //cerr << "after idle callback" << endl;
+
     }
 
 

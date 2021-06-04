@@ -48,6 +48,7 @@ int MouseX, MouseY;
 // The shader program id
 GLuint Window::shaderProgram;
 GLuint Window::shaderTextureQuadProgram;
+GLuint Window::shaderRedTintProgram;
 
 //toggle to see bounding boxes
 bool Window::debugMode;
@@ -64,6 +65,8 @@ int Window::createOpponent;
 vector<string> Window::messagesToServer;
 
 int loadedAbility;
+bool deathIconLoaded = false;
+bool winnerIconLoaded = false;
 
 //rendering icons
 unsigned int abilityQuadVAO, abilityQuadVBO;
@@ -76,7 +79,10 @@ float abilityQuadVertices[] = {
 };
 GLuint abilityTexture;
 bool abilityLoaded;
-
+int hurtCounter = 0;
+vector<vector<Particle*>> Window::bloodsplatterList;
+int Window::createBloodsplatter = -1;
+bool Window::mouseLock = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -92,6 +98,7 @@ bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
 	shaderProgram = LoadShaders("shaders/shader.vert", "shaders/shader.frag");
 	shaderTextureQuadProgram = LoadShaders("shaders/shaderTexture_quad.vert", "shaders/shaderTexture_quad.frag");
+	shaderRedTintProgram = LoadShaders("shaders/shaderRedTint.vert", "shaders/shaderRedTint.frag");
 
 	// Check the shader program.
 	if (!shaderProgram)
@@ -127,7 +134,10 @@ bool Window::initializeObjects(Game* game)
 
 	player->setSoundEngine(soundEngine);
 	player->resetInputDirections();
-
+	irrklang::ISoundEngine* worldEngine = irrklang::createIrrKlangDevice();
+	irrklang::ISound* snd = worldEngine->play2D("scary.mp3", true, true, true);
+	snd->setVolume(0.15f);
+	snd->setIsPaused(false);
 	loadedAbility = 0;
 
 	//initializing digit segments to represent health
@@ -172,7 +182,6 @@ bool Window::initializeObjects(Game* game)
 		}
 	}
 
-
 	// setup plane VAO
 	glGenVertexArrays(1, &abilityQuadVAO);
 	glGenBuffers(1, &abilityQuadVBO);
@@ -195,6 +204,7 @@ bool Window::initializeObjects(Game* game)
 	
 	abilityLoaded = false;
 	//game->initiateGame();
+	cube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 0, true);
 	return true;
 }
 
@@ -346,12 +356,24 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
  */
 void Window::idleCallback(Game* game)
 {
+
 	//update all players in the game	
 	if (game->gameBegun)
 	{
+
+		Camera* playCam = player->getPlayerCamera();
+		irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
+		irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
+		irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
+		irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
+		player->getSoundEngine()->setListenerPosition(position, lookDirection, velPerSecond, upVector);
+
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			if (game->allPlayers.at(i)->getId() != -1) {
 				game->allPlayers.at(i)->update(0.02f, game);
+				if (game->allPlayers.at(i)->getState() != Player::dead) {
+					game->allPlayers.at(i)->createFootPrint(game->allPlayers.at(i)->getPosition());
+				}
 			}
 		}
 	}
@@ -361,7 +383,7 @@ void Window::idleCallback(Game* game)
 	if (Window::createOpponent != -1) {
 		cout << "creating player: " << Window::createOpponent << endl;
 		Player* p = new Player(glm::vec3(3.0f, 3.5f, 3.0f), game, true);
-
+		p->setSoundEngine(soundEngine);
 		//changing position for testing purposes
 		/*p->getPlayerModel()->rootModel[3][2] -= 5.0f;
 		p->getPlayerGunModel()->rootModel[3][2] -= 5.0f;*/
@@ -373,6 +395,44 @@ void Window::idleCallback(Game* game)
 		Window::createOpponent = -1;
 	}
 	//------------------------------------------------------------------------
+
+	//Bloodsplatter Stuff
+	float time = glfwGetTime();
+	for (int i = 0; i < bloodsplatterList.size(); i++) {
+		vector<Particle*> bloodsplatter = bloodsplatterList.at(i);
+		if (bloodsplatter.size() > 0 && bloodsplatter.at(0)->lifetime - bloodsplatter.at(0)->spawnTime > bloodsplatter.at(0)->lifespan) {
+			for (Particle* p : bloodsplatter) {
+				delete p;
+			}
+
+			/*cout << "lifetime: " << bloodsplatter.at(0)->lifetime << endl;
+			cout << "spawnTime: " << bloodsplatter.at(0)->spawnTime << endl;
+			cout << "lifetime - spawntime: " << bloodsplatter.at(0)->lifetime - bloodsplatter.at(0)->spawnTime << endl;
+			cout << "deleting bloodsplatter" << endl;*/
+			bloodsplatterList.erase(bloodsplatterList.begin() + i);
+		}
+		else {
+			for (Particle* p : bloodsplatter) {
+				p->update(time - p->lifetime);
+			}
+		}
+	}
+	if (Window::createBloodsplatter != -1) {
+		glm::vec3 position;
+		glm::vec3 color;
+		for (int i = 0; i < game->allPlayers.size(); i++) {
+			if (game->allPlayers.at(i)->getId() == Window::createBloodsplatter) {
+				position = game->allPlayers.at(i)->getPosition();
+				position.y -= 1.0f;
+				color = glm::vec3(game->allPlayers.at(i)->getPlayerModel()->meshes.at(0)->baseColor.x,
+					game->allPlayers.at(i)->getPlayerModel()->meshes.at(0)->baseColor.y,
+					game->allPlayers.at(i)->getPlayerModel()->meshes.at(0)->baseColor.z);
+			}
+		}
+		generateBloodsplatter(position, color);
+		Window::createBloodsplatter = -1;
+	}
+
 }
 
 /*
@@ -724,6 +784,37 @@ void Window::drawIcon() {
 	glBindVertexArray(0);
 }
 
+void loadDeathIcon() {
+	int width, height, nrChannels;
+	unsigned char* data;
+	data = stbi_load("Assets/icons/dead.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+}
+
+void loadWinnerIcon() {
+	int width, height, nrChannels;
+	unsigned char* data;
+	data = stbi_load("Assets/icons/winner.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+}
 /*
  * This method is called every frame and renders all objects based on their current
  * game state.
@@ -733,6 +824,16 @@ void Window::drawIcon() {
  */
 void Window::displayCallback(Game* game, GLFWwindow* window)
 {	
+
+	GLuint shaderProgramToUse = Window::shaderProgram;
+	if (player->getIsHurt()) {
+		shaderProgramToUse = Window::shaderRedTintProgram;
+		hurtCounter++;
+		if (hurtCounter > 10) {
+			hurtCounter = 0;
+			player->setIsHurt(false);
+		}
+	}
 	if (gm->gameBegun)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -744,19 +845,32 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 			//footprint->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		//}
 		for (int i = 0; i < game->allPlayers.size(); i++) {
-			game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			if (game->allPlayers.at(i)->getState() != Player::dead) {
+				//printf("IS DEAD!");
+				game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			}
+			//game->allPlayers.at(i)->createFootPrint(glm::vec3(0.0f, 0.0f, 0.0f));
+			//game->allPlayers.at(i)->getFootprints().at(0)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 		}
 
 
-		//Camera* playCam = player->getPlayerCamera();
-		//irrklang::vec3df position(player->getPosition().x, player->getPosition().y, player->getPosition().z);        // position of the listener
-		//irrklang::vec3df lookDirection(playCam->getDirection().x, playCam->getDirection().y, playCam->getDirection().z); // the direction the listener looks into
-		//irrklang::vec3df velPerSecond(player->getVelocity().x, player->getVelocity().y, player->getVelocity().z);    // only relevant for doppler effects
-		//irrklang::vec3df upVector(0, 1, 0);        // where 'up' is in your 3D scene
-		//soundEngine->setListenerPosition(position, lookDirection, velPerSecond, upVector);
+		for (int i = 0; i < game->allPlayers.size(); i++) {
+			for (int j = 0; j < game->allPlayers.at(i)->getFootprints().size(); j++) {
+
+				if (game->allPlayers.at(i)->getState() != Player::dead) {
+					game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+				}
+				
+			}
+		}
+
+
+
+
+
 
 		for (Cube* wall : game->maze->getWalls()) {
-			wall->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			wall->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
 		}
 
 		for (Model* abilityChest : gm -> maze->getChests()) {
@@ -777,30 +891,70 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 				abilityChest->playAnimation(abilityChest->animationClipList.at(0), 0.0f, false);
 			}
 
-			abilityChest->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+			abilityChest->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
 		}
 
 
-		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
+		gm->maze->getGround()->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
+
+		for (int i = 0; i < bloodsplatterList.size(); i++) {
+			//cout << "bloodsplatter: " << i << endl;
+			vector<Particle*> bloodsplatter = bloodsplatterList.at(i);
+			for (Particle* p : bloodsplatter) {
+				p->draw(Cam->GetViewProjectMtx(), shaderProgramToUse);
+			}
+		}
+
 		drawCrosshair();
 		drawHealth();
 		drawArmor();
 
-		if (player->getAbility() != Player::none)
-		{
-			if (loadedAbility != player->getAbility())
-			{
-				loadAbilityIcon();
+
+		if (player->getState() == Player::dead) {
+
+			if (!deathIconLoaded) {
+				loadDeathIcon();
+				deathIconLoaded = true;
 			}
+			
 			drawIcon();
 		}
+		else {
+			bool cond = true;
+			for (int i = 0; i < gm->allPlayers.size(); i++) {
+				if (game->allPlayers.at(i)->getState() != Player::dead && game->allPlayers.at(i) != player) {
+					cond = false;
+					break;
+				}
+			}
+
+			if (cond && gm->allPlayers.size() > 1) {
+				if (!winnerIconLoaded) {
+					loadWinnerIcon();
+					winnerIconLoaded = true;
+				}
+
+				drawIcon();
+			}
+			else if (player->getAbility() != Player::none)
+			{
+				if (loadedAbility != player->getAbility())
+				{
+					loadAbilityIcon();
+				}
+				drawIcon();
+			}
+		}
 		
+
 		// Gets events, including input such as keyboard and mouse or window resizing.
 		glfwPollEvents();
 
 		// Swap buffers.
 		glfwSwapBuffers(window);
 	}
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -817,6 +971,23 @@ void Window::resetCamera()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void Window::generateBloodsplatter(glm::vec3 position, glm::vec3 color) {
+
+	vector<Particle*> bloodsplatter;
+	float time = glfwGetTime();
+	bloodsplatter.push_back(new Particle(position, glm::vec3(30.0f, 0.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(-30.0f, 0.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(0.0f, 30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(0.0f, -30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(0.0f, 0.0f, 30.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(0.0f, 0.0f, -30.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(30.0f, 30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(-30.0f, -30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(-30.0f, 30.0f, 0.0f), time, color));
+	bloodsplatter.push_back(new Particle(position, glm::vec3(30.0f, -30.0f, 0.0f), time, color));
+	bloodsplatterList.push_back(bloodsplatter);
+}
 
 /*
  * This method is called every time the user presses a key. Responsible for implementing
@@ -852,15 +1023,23 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		{
 		case GLFW_KEY_ESCAPE:
 			// Close the window. This causes the program to also terminate.
-			glfwSetWindowShouldClose(window, GL_TRUE);
+			Window::mouseLock = !Window::mouseLock;
+			if (Window::mouseLock) {
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			}
+			else {
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			}
+			//glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 		case GLFW_KEY_LEFT_CONTROL:
-			player->setState(player->crouch);
+			//player->setState(player->crouch);
+			player->setInput(player->crouchKey, 1);
 
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
-			player->setState(player->sprint);
-	
+			//player->setState(player->sprint);
+			player->setInput(player->sprintKey, 1);
 			break;
 		case GLFW_KEY_F:
 			player->setPickUpAbilityKey(true);
@@ -899,10 +1078,12 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		switch (key)
 		{
 		case GLFW_KEY_LEFT_CONTROL:
-			player->setState(player->stand);
+			//player->setState(player->stand);
+			player->setInput(player->crouchKey, 0);
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
-			player->setState(player->stand);
+			//player->setState(player->stand);
+			player->setInput(player->sprintKey, 0);
 			break;
 		case GLFW_KEY_W:
 			player->setMoving(0);
@@ -950,7 +1131,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 		RightDown = (action == GLFW_PRESS);
 	}
 
-	if (LeftDown) {
+	if (LeftDown && player->getState() != Player::dead) {
 		player->setHasFired(true);
 		//player->setIsFiring(true);
 		//player->shootWeapon(gm -> allBoundingBoxes);
@@ -968,9 +1149,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
  */
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
-	
-
-	if (GetActiveWindow() == NULL) {
+	if (GetActiveWindow() == NULL || player->getUsingMapAbility()) {
 		return;
 	}
 
@@ -1001,6 +1180,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	player->getPlayerGunModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
 	player->getPlayerGunModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
 	
+	
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);
 	Cam->setPitch(pitch);
@@ -1009,6 +1189,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	glfwSetCursorPos(window, width / 2, height / 2);
 	MouseX = width / 2;
 	MouseY = height / 2;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
