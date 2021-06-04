@@ -81,6 +81,10 @@ Player* Game::getPlayer(int id)
 
 void Game::update(float deltaTime)
 {
+	if (!gameBegun)
+	{
+		return;
+	}
 	for (int i = 0; i < allPlayers.size(); i++)
 	{
 		Player* player = allPlayers.at(i);
@@ -94,9 +98,8 @@ void Game::update(float deltaTime)
 	if (!isClient)
 	{
 		// Randomly remove a wall every x seconds
-		if (gameTime >= lastDeleteWallTime + 1.0f && wallsLeft)
+		/*if (gameTime >= lastDeleteWallTime + 1.0f && wallsLeft)
 		{
-			cout << "deleting" << wallsLeft << endl;
 			bool exist = false;
 			wallInfo** mazeArray = maze->getMazeArray();
 			int row = 0;
@@ -135,7 +138,7 @@ void Game::update(float deltaTime)
 			{
 				wallsLeft = false;
 			}
-		}
+		}*/
 	}
 
 }

@@ -212,8 +212,9 @@ void Player::update(float deltaTime, Game* game)
             break;
         case sprint:
             velocity *= 1.4f;
-            
-            //velocity.y = 0.0f;
+
+            velocity.y = 0.0f;
+
             break;
         case dead:
             velocity *= 1.7f;
@@ -248,10 +249,15 @@ void Player::update(float deltaTime, Game* game)
         if (boundingBox->getActive()) {
             applyConstraints(game -> allBoundingBoxes);
         }
-        //if (state != dead && state != still)
-        //{
-        //    createFootPrint(position);
-        //}
+        // Both client and server should update
+        if (!usingMapAbility)
+        {
+            //playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
+            float new_offset_x = -0.42426406871 * glm::cos(glm::radians(playerCamera->getPitch() + 90));
+            float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
+            cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
+            playerCamera->setPosition(position + cameraOffset);
+        }
 
         if (usingMapAbility)
         {
@@ -278,10 +284,15 @@ void Player::update(float deltaTime, Game* game)
                 playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
             }
         }
-
-
-
-
+        // Both client and server should update
+        if (!usingMapAbility)
+        {
+            //playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
+            float new_offset_x = -0.42426406871 * glm::cos(glm::radians(playerCamera->getPitch() + 90));
+            float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
+            cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
+            playerCamera->setPosition(position + cameraOffset);
+        }
 
         playerModel->update();
         playerGunModel->update();
@@ -296,20 +307,8 @@ void Player::update(float deltaTime, Game* game)
         }
     }
 
-    // Both client and server should update
-    if (!usingMapAbility)
-    {
-        //playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
-        float new_offset_x = -0.42426406871 * glm::cos(glm::radians(playerCamera->getPitch() + 90));
-        float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
-        cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
-        playerCamera->setPosition(position + cameraOffset);
-    }
-    // Both client and server should update
-
-
     
-
+    // Both client and server should update
 
     //update player camera
     playerCamera->Update();
@@ -458,8 +457,7 @@ void Player::setHasFired(bool val)
             hasFired = val;
             lastFireTime = game->gameTime;
             isFiring = true;
-            
-            
+               
             if (this->getSoundEngine()) {
 
                 irrklang::vec3df position_audio(position.x, position.y, position.z);
@@ -470,11 +468,6 @@ void Player::setHasFired(bool val)
                     snd->setIsPaused(false); // unpause the sound
                 }
             }
-            
-            
-            
-
-
         }
         else
         {
@@ -780,6 +773,7 @@ string Player::getPlayerInputString() {
     }
     playerInputString += to_string(hasFired) + "," + to_string(pickUpAbilityKey) + "," + to_string(useAbilityKey) + ",";
     playerInputString += to_string(playerModel->animationRootModelRotation);
+    //cout << "animationRootModelRotation: " << playerModel->animationRootModelRotation << endl;
     hasFired = false;
     pickUpAbilityKey = false;
     useAbilityKey = false;

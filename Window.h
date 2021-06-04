@@ -69,6 +69,7 @@ public:
 	static vector<vector<Particle*>> bloodsplatterList;
 	static void generateBloodsplatter(glm::vec3 position, glm::vec3 color);
 	static int createBloodsplatter;
+	static bool mouseLock;
 
 	//Networking Stuff
 	static int createOpponent;
