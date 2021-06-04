@@ -7,7 +7,7 @@
 #include "main.h"
 #include "Game.h"
 
-#define PERIOD 15 //client period in ms
+#define PERIOD 30 //client period in ms
 #define DELAY_PERIOD 500
 
 using namespace boost::asio;
@@ -193,8 +193,8 @@ int main(int argc, char* argv[])
     /*
      * Set Server IP address and port if available.  If not, use default values.
      */
-    std::string ipAddress = "137.110.115.157";
-    //std::string ipAddress = "127.0.0.1";
+    //std::string ipAddress = "137.110.115.157";
+    std::string ipAddress = "127.0.0.1";
     int portNum = 1234;
     if (argc > 1) {
         ipAddress = argv[1];
@@ -231,7 +231,7 @@ int main(int argc, char* argv[])
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
 
 
-    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     client.gameInitialized = true;
     client.start();

@@ -211,8 +211,10 @@ void serverParse::sortClientMessage(Game* game, string clientMessage) {
                 player -> useAbility();
                 player->setUseAbilityKey(false);
             }
-            float animationRootModelRotation = stof(*(it + 6 + Player::down + 4));
+            float animationRootModelRotation = stof(*(it + 17));
+            //cout << "animationRootModelRotation server: " << animationRootModelRotation << endl;
             player->getPlayerModel()->animationRootModelRotation = animationRootModelRotation;
+            
             it = it + 6 + Player::sprintKey + 4;
         }
         else {

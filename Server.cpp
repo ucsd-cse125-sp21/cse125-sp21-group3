@@ -9,7 +9,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #define MAX_CONNECTIONS 4
-#define PERIOD 15 //server period in ms
+#define PERIOD 30 //server period in ms
 #define DELAY_PERIOD 500
 
 using namespace boost::asio;
@@ -91,7 +91,7 @@ public:
 
         }
         else {
-            std::cerr << "error: " << err.message() << std::endl;
+            //std::cerr << "error: " << err.message() << std::endl;
             sock.close();
         }
     }
@@ -102,7 +102,7 @@ public:
     void handle_send_state(const boost::system::error_code& err, size_t bytes_transferred)
     {
         if (err) {
-           std::cerr << "error: " << err.message() << endl;
+           //std::cerr << "error: " << err.message() << endl;
             sock.close();
         }
     }
@@ -118,7 +118,7 @@ public:
            serverParse::joinMessageHandler();
            start();
         } else {
-            std::cerr << "error: " << err.message() << endl;
+            //std::cerr << "error: " << err.message() << endl;
             sock.close();
         }
 
@@ -240,7 +240,7 @@ public:
         game->allPlayers.push_back(player);
         game->allBoundingBoxes.push_back(player->getBoundingBox());
         player->setId(serverParse::userIdCount - 1);
-        if (serverParse::userIdCount == 4)
+        if (serverParse::userIdCount == 2)
         {
             begin_game();
         }

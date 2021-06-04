@@ -134,7 +134,6 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
                 Window::createOpponent = playerID; //set flag to create new player (opponent)
 
             }
-
             
             Player* player = game->getPlayer(playerID);
 
@@ -156,7 +155,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
             bool hasFired = stoi(*(it + 14));
             int state = stoi(*(it + 15));
             float modelRotation = stof(*(it + 16));
-
+            //cout << "modelRotation: " << modelRotation << endl;
             if (player != NULL)
             {
                 player->setPosition(glm::vec3(position_x, position_y, position_z));

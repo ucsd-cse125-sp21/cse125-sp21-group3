@@ -82,6 +82,7 @@ bool abilityLoaded;
 int hurtCounter = 0;
 vector<vector<Particle*>> Window::bloodsplatterList;
 int Window::createBloodsplatter = -1;
+bool Window::mouseLock = true;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1023,6 +1024,13 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		{
 		case GLFW_KEY_ESCAPE:
 			// Close the window. This causes the program to also terminate.
+			Window::mouseLock = !Window::mouseLock;
+			if (Window::mouseLock) {
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			}
+			else {
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			}
 			//glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 		case GLFW_KEY_LEFT_CONTROL:
@@ -1142,8 +1150,6 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
  */
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
-	
-
 	if (GetActiveWindow() == NULL) {
 		return;
 	}
@@ -1178,11 +1184,6 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);
 	Cam->setPitch(pitch);
-
-	//keeps cursor locked in the middle
-	/*glfwSetCursorPos(window, width / 2, height / 2);
-	MouseX = width / 2;
-	MouseY = height / 2;*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
