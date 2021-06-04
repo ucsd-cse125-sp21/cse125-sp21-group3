@@ -292,10 +292,11 @@ void Player::update(float deltaTime, Game* game)
             float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
             cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
             playerCamera->setPosition(position + cameraOffset);
+            playerModel->update();
+            playerGunModel->update();
         }
 
-        playerModel->update();
-        playerGunModel->update();
+       
 
         if (isFiring && state != dead) {
             
@@ -745,12 +746,15 @@ bool Player::endMapAbility()
     usingMapAbility = false;
     if (isClient)
     {
+ 
         playerCamera->setPitch(oldPitch);
-        playerCamera->setYaw(oldYaw);
+        //playerCamera->setYaw(oldYaw);
         playerCamera->setFarClip(200.0f);
         setState(stand);
         usingMapAbility = false;
-        playerCamera->Update();
+        //playerCamera->Update();
+        
+   
     }
 
     return true;

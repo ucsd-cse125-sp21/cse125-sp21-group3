@@ -176,7 +176,7 @@ public:
 
 	void setOldPitch(float p) { oldPitch = p; }
 	void setOldYaw(float y) { oldYaw = y; }
-
+	bool getUsingMapAbility() { return usingMapAbility; }
 
 
 

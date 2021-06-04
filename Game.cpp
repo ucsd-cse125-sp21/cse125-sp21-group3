@@ -94,7 +94,7 @@ void Game::update(float deltaTime)
 	if (!isClient)
 	{
 		// Randomly remove a wall every x seconds
-		if (gameTime >= lastDeleteWallTime + 1.0f && wallsLeft)
+		/*if (gameTime >= lastDeleteWallTime + 1.0f && wallsLeft)
 		{
 			cout << "deleting" << wallsLeft << endl;
 			bool exist = false;
@@ -135,7 +135,7 @@ void Game::update(float deltaTime)
 			{
 				wallsLeft = false;
 			}
-		}
+		}*/
 	}
 
 }

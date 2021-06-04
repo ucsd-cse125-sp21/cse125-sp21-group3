@@ -1131,7 +1131,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 		RightDown = (action == GLFW_PRESS);
 	}
 
-	if (LeftDown) {
+	if (LeftDown && player->getState() != Player::dead) {
 		player->setHasFired(true);
 		//player->setIsFiring(true);
 		//player->shootWeapon(gm -> allBoundingBoxes);
@@ -1149,7 +1149,7 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
  */
 void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 
-	if (GetActiveWindow() == NULL) {
+	if (GetActiveWindow() == NULL || player->getUsingMapAbility()) {
 		return;
 	}
 
@@ -1179,6 +1179,7 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	player->getPlayerModel()->playAnimation(player->getPlayerModel()->animationClipList.at(0), 0.0f, false);
 	player->getPlayerGunModel()->rotate(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
 	player->getPlayerGunModel()->rotateAnimation(dx * sensitivity * -0.01745f, player->getPlayerGunModelCenter());
+	
 	
 	pitch += dy * sensitivity;
 	Cam->setYaw(yaw);

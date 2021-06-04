@@ -74,7 +74,7 @@ void Maze::createAbilityChests(int numChests)
 			abilityType = rand() % 8;
 		}
 		// Choose ability to test
-		//abilityType = Player::seeMap;
+		abilityType = Player::seeMap;
 		int row = rand() % (mazeSize - 1);
 		int column = rand() % (mazeSize - 1);
 		if (mazeArray[row][column].ability == Player::none)
