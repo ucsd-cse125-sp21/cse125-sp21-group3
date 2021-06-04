@@ -233,11 +233,8 @@ int main(int argc, char* argv[])
     if (!Window::initializeObjects(client.game)) exit(EXIT_FAILURE);
 
 
-<<<<<<< HEAD
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-=======
+
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
->>>>>>> 12a47480603a4caeefaa763f427afdad4a85ef2a
 
     client.gameInitialized = true;
     client.start();
