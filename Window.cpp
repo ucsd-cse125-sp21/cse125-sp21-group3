@@ -802,7 +802,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 		//}
 		for (int i = 0; i < game->allPlayers.size(); i++) {
 			if (game->allPlayers.at(i)->getState() != Player::dead) {
-				printf("IS DEAD!");
+				//printf("IS DEAD!");
 				game->allPlayers.at(i)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
 			}
 			//game->allPlayers.at(i)->createFootPrint(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -814,12 +814,12 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 
 				if (game->allPlayers.at(i)->getState() != Player::dead) {
 					game->allPlayers.at(i)->getFootprints().at(j)->draw(Cam->GetViewProjectMtx(), Window::shaderProgram);
-				}
+				}/*
 				else {
 					while (game->allPlayers.at(i)->getFootprints().size() > 0) {
 						game->allPlayers.at(i)->getFootprints().pop_front();
 					}
-				}
+				}*/
 				
 			}
 		}
@@ -1107,9 +1107,9 @@ void Window::cursor_callback(GLFWwindow* window, double currX, double currY) {
 	Cam->setPitch(pitch);
 
 	//keeps cursor locked in the middle
-	/*glfwSetCursorPos(window, width / 2, height / 2);
+	glfwSetCursorPos(window, width / 2, height / 2);
 	MouseX = width / 2;
-	MouseY = height / 2;*/
+	MouseY = height / 2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

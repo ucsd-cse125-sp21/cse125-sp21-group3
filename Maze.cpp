@@ -69,7 +69,7 @@ void Maze::createAbilityChests(int numChests)
 	for (int i = 0; i < numAbilities; i++)
 	{
 		int abilityType = rand() % 8;
-		while (abilityType == Player::none || abilityType == Player::trackPlayer || abilityType == Player::opened)
+		while (abilityType == Player::none || abilityType == Player::trackPlayer || abilityType == Player::opened || abilityType == Player::seeMap )
 		{
 			abilityType = rand() % 8;
 		}
