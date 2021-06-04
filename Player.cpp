@@ -90,16 +90,13 @@ Player::Player(glm::vec3 _position, Game* gm, bool client) {
     moving = 0;
     hasFired = false;
     isFiring = false;
-    inputDirections = new bool[6];
+    inputDirections = new bool[8];
     pickUpAbilityKey = false;
     useAbilityKey = false;
     usingMapAbility = false;
     oldPitch = 0.0f;
     oldYaw = 0.0f;
-    for (int i = forward; i <= down; i++)
-    {
-        inputDirections[i] = false;
-    }
+    resetInputDirections();
     lastFireTime = -1.0f;
 
     float mapScale = maze->getMapScale();
@@ -215,6 +212,7 @@ void Player::update(float deltaTime, Game* game)
             break;
         case sprint:
             velocity *= 1.4f;
+            
             velocity.y = 0.0f;
             break;
         case dead:
@@ -267,19 +265,18 @@ void Player::update(float deltaTime, Game* game)
     }
     else
     {
-        if (moving == 1) {
-            playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
-        }
-        if (moving == -1) {
-            playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
-        }
+        if (state != dead)
+        {
+            if (moving == 1) {
+                playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, false);
+            }
+            if (moving == -1) {
+                playerModel->playAnimation(playerModel->animationClipList.at(0), playerWalkingSpeed, true);
+            }
 
-        if (game->myPlayerId == id) { //only update camera for client
-            //oldPitch = playerCamera->getPitch();
-            playerCamera->setPosition(position + cameraOffset);
-        }
-        if (id != game->myPlayerId) {
-            playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
+            if (id != game->myPlayerId) {
+                playerModel->playAnimation(playerModel->animationClipList.at(0), 0.0f, false);
+            }
         }
 
 
@@ -289,7 +286,7 @@ void Player::update(float deltaTime, Game* game)
         playerModel->update();
         playerGunModel->update();
 
-        if (isFiring) {
+        if (isFiring && state != dead) {
             
 
             if (playerGunModel->animationClipList.at(0)->prevTime + 0.2f > playerGunModel->animationClipList.at(0)->duration) {
@@ -302,7 +299,7 @@ void Player::update(float deltaTime, Game* game)
     // Both client and server should update
     if (!usingMapAbility)
     {
-        playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
+        //playerCamera->setPosition(glm::vec3(position.x + 0.5f, position.y, position.z + 0.5f));
         float new_offset_x = -0.42426406871 * glm::cos(glm::radians(playerCamera->getPitch() + 90));
         float new_offset_y = -0.42426406871 * glm::sin(glm::radians(playerCamera->getPitch() + 90));
         cameraOffset = glm::vec3(new_offset_x, 0.25, new_offset_y);
@@ -337,7 +334,10 @@ void Player::draw(const glm::mat4& viewProjMtx, GLuint shader) {
     if (game->myPlayer != this) {
         playerModel->draw(viewProjMtx, shader);
     }
-    playerGunModel->draw(viewProjMtx, shader);
+    if (state != dead)
+    {
+        playerGunModel->draw(viewProjMtx, shader);
+    }
 }
 
 void Player::setInput(int dir, bool on)
@@ -347,7 +347,7 @@ void Player::setInput(int dir, bool on)
 
 void Player::resetInputDirections()
 {
-    for (int i = forward; i <= down; i++)
+    for (int i = 0; i < sizeof(inputDirections) / sizeof(inputDirections[0]); i++)
     {
         inputDirections[i] = false;
     }
@@ -527,6 +527,10 @@ void Player::setMaxHealth(float max)
 void Player::setState(int st)
 {
     if (state == dead)
+    {
+        return;
+    }
+    if (usingMapAbility)
     {
         return;
     }
@@ -770,7 +774,7 @@ string Player::getPlayerInputString() {
         to_string(yaw) + "," + to_string(pitch) + ",";
     playerInputString += to_string(state) + ",";
 
-    for (int i = forward; i <= down; i++)
+    for (int i = 0; i < sizeof(inputDirections)/sizeof(inputDirections[0]); i++)
     {
         playerInputString += to_string(inputDirections[i]) + ",";
     }
@@ -790,8 +794,10 @@ string Player::getPlayerInfoString() {
     playerInfoString += to_string(position.x) + "," + to_string(position.y) + "," + to_string(position.z) + ",";
     playerInfoString += to_string(velocity.x) + "," + to_string(velocity.y) + "," + to_string(velocity.z) + ",";
 
+    
     playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," +
         to_string(currentDamageBoost) + "," + to_string(currentAbility) + "," + to_string(hasFired) + "," + to_string(state) + ",";
+    
     //if (playerModel) {
         playerInfoString += to_string(playerModel->animationRootModelRotation);
     //}

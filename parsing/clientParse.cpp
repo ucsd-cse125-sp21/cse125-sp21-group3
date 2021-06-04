@@ -184,7 +184,7 @@ void clientParse::sortServerMessage(Game* game, string serverMessage) {
 
             //playerInfoString += to_string(currentHealth) + "," + to_string(maxHealth) + "," + to_string(currentArmor) + "," + to_string(currentDamageBoost) + "," + to_string(currentAbility);
 
-            it = it + 15;
+            it = it + 16;
 
         }
         else if (*it == "mazeInitial")

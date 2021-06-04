@@ -9,7 +9,7 @@ Game::Game(bool client)
 	serverMessage = "";
 	gameTime = 0.0f;
 	lastDeleteWallTime = 0.0f;
-
+	wallsLeft = true;
 
 
 }
@@ -94,15 +94,16 @@ void Game::update(float deltaTime)
 	if (!isClient)
 	{
 		// Randomly remove a wall every x seconds
-		if (gameTime >= lastDeleteWallTime + 10.0f)
+		if (gameTime >= lastDeleteWallTime + 1.0f && wallsLeft)
 		{
+			cout << "deleting" << wallsLeft << endl;
 			bool exist = false;
 			wallInfo** mazeArray = maze->getMazeArray();
 			int row = 0;
 			int column = 0;
 			int direction = 0;
 			int i = 0;
-			while (!exist && i < 1000)
+			while (!exist && i < 3000)
 			{
 				row = rand() % (maze->getMazeSize() - 1);
 				column = rand() % (maze->getMazeSize() - 1);
@@ -124,11 +125,15 @@ void Game::update(float deltaTime)
 					}
 				}
 				i++;
-				lastDeleteWallTime = gameTime;
 			}
-			if (i < 1000)
+			if (i < 3000)
 			{
+				lastDeleteWallTime = gameTime;
 				maze->setWall(row, column, direction, 0);
+			}
+			else
+			{
+				wallsLeft = false;
 			}
 		}
 	}
