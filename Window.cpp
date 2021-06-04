@@ -928,7 +928,7 @@ void Window::displayCallback(Game* game, GLFWwindow* window)
 				}
 			}
 
-			if (cond) {
+			if (cond && gm->allPlayers.size() > 1) {
 				if (!winnerIconLoaded) {
 					loadWinnerIcon();
 					winnerIconLoaded = true;
